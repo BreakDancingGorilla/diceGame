@@ -1,0 +1,58 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; 
+}
+
+
+#cardHolder{
+   display: grid;
+   width: 100%;
+   height: 60%;
+   grid-template-rows: 1fr 1fr;
+   grid-template-columns: 1fr 1fr;
+   gap: 25px; 
+   place-items: center;
+
+}
+
+.statCard {
+    display: flex;
+    align-items: center; 
+    flex-direction: column;
+    background-color: green;
+    border-radius: 25px;
+    width: 50%;
+    height: 100%;
+}
+
+.actionButton {
+    height: 100%;
+    border-radius: 25px;
+    width: 50%;
+    height: 100%;
+}
+
+
+#topSpace {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    height: 15%;
+    width: 100%;
+}
+
+#bottomSpace {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    padding-top: 5%;
+    height: 5%;
+    width: 100%;
+}
+
+#diceButton {
+    width: 25%;
+}
+
