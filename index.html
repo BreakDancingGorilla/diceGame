@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8" />
     <title>title</title>
-    <link href="./style.css" rel="stylesheet">    
+    <link href="./style.css" rel="stylesheet">
 </head>
+
 <body>
 
 
@@ -12,31 +14,45 @@
 
 
 
-<div id="cardHolder">
-    <div class="row"> <h1>Enemies Slain<h1 id="slainCount">5</h1></h1></div>
-    <div class="row"> <h1>Gold<h1 id="goldCount">5</h1></h1></div>
-    <div class="statCard">
-        <h1>Player</h1>
-        <h2><u>Health</u></h2>
-        <h2 id="playerHealth">200</h2>
-        <h2><u>Base Damage</u></h2>
-        <h2 id="playerDamage">10</h2>
+    <div id="cardHolder">
+        <div class="row">
+            <h1>Enemies Slain<h1 id="slainCount">5</h1>
+            </h1>
+        </div>
+        <div class="row">
+            <h1>Gold<h1 id="goldCount">5</h1>
+            </h1>
+        </div>
+        <div class="statCard">
+            <h1>Player</h1>
+            <h2><u>Health</u></h2>
+            <h2 id="playerHealth">200</h2>
+            <h2><u>Base Damage</u></h2>
+            <h2 id="playerDamage">10</h2>
+        </div>
+        <div class="statCard">
+            <h1>Enemy</h1>
+            <h2><u>Health</u></h2>
+            <h2 id="enemyHealth">100</h2>
+            <h2><u>Base Damage</u></h2>
+            <h2 id="enemyDamage">7</h2>
+        </div>
+        <button class="actionButton" id="healbutton">Heal Roll</button>
+        <button class="actionButton" id="attackButton">Attack Roll</button>
     </div>
-    <div class="statCard">    <h1>Enemy</h1>
-        <h2><u>Health</u></h2>
-        <h2  id="enemyHealth">100</h2>
-        <h2><u>Base Damage</u></h2>
-        <h2  id="enemyDamage">7</h2>
-    </div>
-    <button class="actionButton" id="healbutton">Heal Roll</button>
-    <button class="actionButton" id="attackButton">Attack Roll</button>
-</div>
 
-<div id="bottomSpace">
-    <button id="diceButton">Shop</button>
-</div>
-<div id="dice-box"></div>
-<script type="module" src="./code.js"></script>
+    <div id="bottomSpace">
+        <button id="diceButton">Shop</button>
+    </div>
+
+    <div id="diceGrid">
+        <div id="player-dice-box"></div>
+        <div id="enemy-dice-box"></div>
+    </div>
+
+
+    <script type="module" src="./code.js"></script>
 
 </body>
+
 </html>

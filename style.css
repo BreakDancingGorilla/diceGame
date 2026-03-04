@@ -16,24 +16,49 @@ h1, h2, p {
     z-index: 9999;
 }
 
-#dice-box {
-  position: absolute;
-  top: 0;
-  left: 0;
-  box-sizing: border-box;
+
+
+#diceGrid {
+    position: absolute;
+    height: 55vh;
+    width: 100vw;
+    top: 10vh;
+    display: grid;
+    gap: 8vw;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+} 
+
+#player-dice-box {
+
+  background-image: url(/public/assets/woodgrain2.jpg);
+  background-size: cover;
+  pointer-events: none; 
+  z-index: 1;
+}
+
+#player-dice-box canvas {
+    pointer-events: none; 
   width: 100%;
-  height: 75%;
+  height: 100%;
+  z-index: 1;
+}
+
+#enemy-dice-box {
+
+
   background-image: url(/public/assets/woodgrain2.jpg);
   background-size: cover;
   pointer-events: none; 
 }
 
-#dice-box canvas {
+#enemy-dice-box canvas {
     pointer-events: none; 
   width: 100%;
-  height: 75%;
+  height: 100%;
   z-index: 1;
 }
+
 
 
 #cardHolder{
