@@ -61,6 +61,20 @@ addEventListener("load", (event) => {
 
 
         roll: async function (playerOrEnemy) {
+        var diceCountArray;
+            switch (playerOrEnemy) {
+                case dice.player:
+                    diceCountArray = stats.player.dice;
+                    break;
+                case dice.enemy: 
+                    diceCountArray = stats.enemy.dice;
+                    break;
+            
+                default:
+                    console.log("Incorrect object passed.");
+                    return;
+            }
+
     var diceToRoll = [];
     var dieAmt = 0;
 
@@ -138,25 +152,36 @@ addEventListener("load", (event) => {
 
     var stats = {
         //When targeting the elements make sure to type innerHTML if updating the value.
+        init: function(){
+            this.reset();
+        },
 
         reset: function(){
-
+            
+            this.slain.reset();
+            this.gold.reset();
+            this.player.reset();
+            this.enemy.reset();
         },
         ///These need to be objects
         ///They all need to follow the same struture so we can use the small property names
         slain: {
-            num: Number(document.getElementById("slainCount").innerHTML),
+            num: 0,
             element: document.getElementById("slainCount"),
             add: function(num){
-                this.num += num;
-                    this.element += num;
-                    num = num;
+                
+                    this.num += num;
+                    this.element.innerHTML = this.num;
+            },
+            reset: function(){
+                this.element.innerHTML = 0;
+                    this.num = this.num;
             },
         },
         gold: {
-            num: Number(document.getElementById("goldCount").innerHTML),
+            num: 0,
             element: document.getElementById("goldCount"),
-            update: {
+            
                 remove: function(num){
                     if (this.num - num < 0) {
                         return false;
@@ -166,35 +191,53 @@ addEventListener("load", (event) => {
                     num = num;
                 },
                 add: function(num){
+                    
                     this.num += num;
-                    this.element += num;
-                    num = num;
+                    stats.gold.element.innerHTML = this.num;
                 },
-            },
+                
+          
+            reset: function() {
+                    
+                    this.element.innerHTML = 0;
+                    this.num = this.num;
+                }
         },
         player: {
+            dice: [2, 0, 0, 0, 0],
+            baseDice: [2, 0, 0, 0, 0],
+            baseHealth: 100,
+            baseDamage: 50,
             healthNum: Number(document.getElementById("playerHealth").innerHTML),
             healthElement: document.getElementById("playerHealth"),
             damageNum: Number(document.getElementById("playerDamage").innerHTML),
             damageElement: document.getElementById("playerDamage"),
             updateHealth: function (num) {
                 this.healthElement.innerHTML = num;
-                num = num;
+                this.healthNum = num;
             },
             updateDamage: function (num) {
                 this.damageElement.innerHTML = num;
-                num = num;
+                this.damageNum = num;
             },
             applyDamage: function(){
                 this.healthNum -= stats.enemy.damageNum + dice.enemy.value;
                 console.log(this.healthNum);
                 this.updateHealth(this.healthNum);
             },
+            reset: function () {
+              this.dice = this.baseDice;
+              this.updateHealth(this.baseHealth);
+              this.updateDamage(this.baseDamage);
+            },
             dieIndex: 0,
             dieValue: 0,
         },
         enemy: {
+            dice: [2, 1, 0, 0, 0],
+            baseDice: [2, 1, 0, 0, 0],
             strengthGrowthRate: 0.5,
+            baseGoldWorth: 5,
             baseHealth: 100,
             baseDamage: 7,
             strength: 1.5,
@@ -206,11 +249,11 @@ addEventListener("load", (event) => {
             goldWorth: 5,
             updateHealth: function (num) {
                 this.healthElement.innerHTML = num;
-                num = num;
+                this.healthNum = num;
             },
             updateDamage: function (num) {
                 this.damageElement.innerHTML = num;
-                num = num;
+                this.damageNum = num;
             },
             applyDamage: function(){
                 this.healthNum -= stats.player.damageNum + dice.player.value;
@@ -218,34 +261,27 @@ addEventListener("load", (event) => {
                 this.updateHealth(this.healthNum);
             },
             slay: function(){
-                stats.gold.update.add(this.goldWorth);
+                stats.gold.add(this.goldWorth);
                 stats.slain.add(1);
                 this.updateHealth(Math.round(this.baseHealth * this.strength));
                 this.updateDamage(Math.round(this.baseDamage * this.strength));
                 this.strength += this.strengthGrowthRate;
             },
+            reset: function(){
+                this.updateDamage(this.baseDamage);
+                this.updateHealth(this.baseHealth);
+                this.strength = this.strengthGrowthRate + 1;
+                this.goldWorth = this.baseGoldWorth;
+                this.dice = this.baseDice;
+            },
             dieValue: 0,
         },
 
+    
 
-        upgradeDie: function (card) {
-        },
-
-
-
-
-        applyDamage: function (damageTo, damageFrom) {
-            damageTo.updateHealth(damageTo.healthNum -= damageFrom.damageNum);
-            console.log(damageTo.healthNum);
-            if (damageTo.healthNum <= 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        },
     }
 
+    stats.init();
 
 
 
@@ -262,8 +298,11 @@ addEventListener("load", (event) => {
 
     ///Listens for the heal button to be pressed
     actionButtons.healBtn.addEventListener('click', async function () {
+
+        console.log(stats.player.healthNum);
+        console.log(stats.enemy.healthNum);
         if (stats.player.healthNum <= 0) {
-            
+            stats.reset();
         }
         await dice.roll(dice.player);
         console.log("Damage Done: " + (stats.player.damageNum + dice.player.value));
@@ -273,10 +312,14 @@ addEventListener("load", (event) => {
             stats.enemy.slay();
             return; 
         }
-        await dice.roll(dice.enemy);
-        stats.player.applyDamage();
-       
+        else {
+                    await dice.roll(dice.enemy);
+        stats.player.applyDamage()
+        }
 
+;
+       
+        console.log('hello');
 
     });
 
