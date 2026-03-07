@@ -79,8 +79,8 @@ addEventListener("load", (event) => {
     var dieAmt = 0;
 
     // Build the dice array
-    for (let i = 0; i < playerOrEnemy.dice.length; i++) {
-        dieAmt = playerOrEnemy.dice[i];
+    for (let i = 0; i < diceCountArray.length; i++) {
+        dieAmt = diceCountArray[i];
         if (dieAmt > 0) {
             switch (i) {
                 case 0: diceToRoll.push(dieAmt + "d4"); break;
@@ -266,6 +266,7 @@ addEventListener("load", (event) => {
                 this.updateHealth(Math.round(this.baseHealth * this.strength));
                 this.updateDamage(Math.round(this.baseDamage * this.strength));
                 this.strength += this.strengthGrowthRate;
+                this.giveDice();
             },
             reset: function(){
                 this.updateDamage(this.baseDamage);
@@ -273,6 +274,11 @@ addEventListener("load", (event) => {
                 this.strength = this.strengthGrowthRate + 1;
                 this.goldWorth = this.baseGoldWorth;
                 this.dice = this.baseDice;
+            },
+            giveDice: function(){
+                for (let i = 0; i < this.dice.length; i++) {
+                    stats.player.dice[i] += this.dice[i];
+                }
             },
             dieValue: 0,
         },
@@ -295,29 +301,43 @@ addEventListener("load", (event) => {
 
 
 
-
+        var rollBlock = false;
     ///Listens for the heal button to be pressed
     actionButtons.healBtn.addEventListener('click', async function () {
 
+        if (!rollBlock) {
+            rollBlock = true;
+        
         console.log(stats.player.healthNum);
         console.log(stats.enemy.healthNum);
-        if (stats.player.healthNum <= 0) {
-            stats.reset();
-        }
+       
         await dice.roll(dice.player);
+
         console.log("Damage Done: " + (stats.player.damageNum + dice.player.value));
         stats.enemy.applyDamage();
          console.log("Damage Done: " + (stats.enemy.damageNum + dice.enemy.value));
+        
         if (stats.enemy.healthNum <= 0) {
             stats.enemy.slay();
-            return; 
+            dice.enemy.Box.clear();
+            rollBlock = false;
+      
         }
         else {
+      
                     await dice.roll(dice.enemy);
+                          rollBlock = false;
         stats.player.applyDamage()
         }
+          if (stats.player.healthNum <= 0) {
+            stats.reset();
+            dice.player.Box.clear();
+            dice.enemy.Box.clear();
+        }
+        
+    };
 
-;
+
        
         console.log('hello');
 

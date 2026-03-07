@@ -19,3 +19,5 @@ We need to add back the rolling bool so the user cant spam the button!!!
 Maybe different enemys have different dice or something idk.
 
 We going to do the dice thing. There is a random chance for a enemy to have a dice.
+
+Maybe make heal and attack dice. 
