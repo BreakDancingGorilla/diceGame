@@ -236,7 +236,7 @@ player: {
       // 3. Pause this method here
       await rollPromise;
 
-      console.log("Roll is finished! Total value:", gameObjects.diceObjects.gameObject.currentDiceValue);
+     // console.log("Roll is finished! Total value:", gameObjects.diceObjects.gameObject.currentDiceValue);
     },
   };
  gameObjects.init();
