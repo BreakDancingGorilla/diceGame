@@ -30,3 +30,8 @@ the only way to get gold!!!!!! That is a golden idea. That way you have to trade
 
 day 5.
 Combind the dice and stats object
+
+
+day 6. (New start)
+10:22 Going to make the heal work. Going to do a html overlay div. To have verison number, and maybe 
+auto update last time updated. 

@@ -184,8 +184,33 @@ addEventListener("load", () => {
   gameObjects.init();
 
   const attackBtn = document.getElementById("attackButton");
+  const healBtn = document.getElementById("attackButton");
+
 
   var rolling = false;
+
+  healBtn.addEventListener("click", async () => {
+    if (rolling) return;
+    rolling = true;
+    console.log("hello");
+    const playerRoll = await gameObjects.roll(gameObjects.diceObjects.player);
+    gameObjects.diceObjects.enemy.applyDamage(playerRoll);
+
+    if (gameObjects.diceObjects.enemy.healthNum <= 0) {
+      gameObjects.diceObjects.enemy.slay();
+      rolling = false;
+      return;
+    }
+
+    const enemyRoll = await gameObjects.roll(gameObjects.diceObjects.enemy);
+    gameObjects.diceObjects.player.applyDamage(enemyRoll);
+
+    if (gameObjects.diceObjects.player.healthNum <= 0) {
+      gameObjects.reset();
+    }
+
+    rolling = false;
+  });
 
   attackBtn.addEventListener("click", async () => {
     if (rolling) return;
