@@ -1,64 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Fight Game</title>
-    <link href="./style.css" rel="stylesheet">
-</head>
+    <link href="./style.css" rel="stylesheet" />
+  </head>
 
-<body>
-
-    <div id="cover">
-
-    </div>
+  <body>
+    <div id="cover"></div>
 
     <div id="diceTesting">
-        <div id="testing-dice-box"></div>
+      <div id="testing-dice-box"></div>
     </div>
 
-    <div id="playerDiceHolders">
-
-    </div>
     <div id="cardHolder">
-        <div class="row">
-            <h1>Enemies Slain<h1 id="slainCount">Loading</h1>
-            </h1>
-        </div>
-        <div class="row">
-            <h1>Gold<h1 id="goldCount">Loading</h1>
-            </h1>
-        </div>
-        <div class="statCard">
-            <h1>Player</h1>
-            <h2><u>Health</u></h2>
-            <h2 id="playerHealth">Loading</h2>
-            <h2><u>Base Damage</u></h2>
-            <h2 id="playerDamage">Loading</h2>
-        </div>
-        <div class="statCard">
-            <h1>Enemy</h1>
-            <h2><u>Health</u></h2>
-            <h2 id="enemyHealth">Loading</h2>
-            <h2><u>Base Damage</u></h2>
-            <h2 id="enemyDamage">Loading</h2>
-        </div>
+      <div class="row">
+        <h1>
+          Enemies Slain
+          <h1 id="slainCount">Loading</h1>
+        </h1>
+      </div>
+      <div class="row">
+        <h1>
+          Gold
+          <h1 id="goldCount">Loading</h1>
+        </h1>
+      </div>
+      <div id="playerDiceCard">
+            <div id="playerDiceHolder">
+                <div class="die" id="playerDie1"></div>
+                <div class="die" id="playerDie2"></div>
+                <div class="die" id="playerDie3"></div>
+                <div class="die" id="playerDie4"></div>
+                <div class="die" id="playerDie5"></div>
+                <div class="die" id="playerDie6"></div>
+            </div>
+      </div>
+      <div class="statCard">
+        <h1>Player</h1>
+        <h2><u>Health</u></h2>
+        <h2 id="playerHealth">Loading</h2>
+        <h2><u>Base Damage</u></h2>
+        <h2 id="playerDamage">Loading</h2>
+      </div>
+      <div class="statCard">
+        <h1>Enemy</h1>
+        <h2><u>Health</u></h2>
+        <h2 id="enemyHealth">Loading</h2>
+        <h2><u>Base Damage</u></h2>
+        <h2 id="enemyDamage">Loading</h2>
+      </div>
+      <div id="gambleCard"></div>
+      <div id="actionButtonsFlex">
         <button class="actionButton" id="healbutton">Heal Roll</button>
         <button class="actionButton" id="attackButton">Attack Roll</button>
+        <button class="actionButton" id="diceButton">Shop</button>
+      </div>
     </div>
 
     <div id="bottomSpace">
-        <button id="diceButton">Shop</button>
+      
     </div>
 
     <div id="diceGrid">
-        <div id="player-dice-box"></div>
-        <div id="enemy-dice-box"></div>
+      <div id="player-dice-box"></div>
+      <div id="enemy-dice-box"></div>
     </div>
 
-
     <script type="module" src="./code.js"></script>
-
-</body>
-
+  </body>
 </html>
