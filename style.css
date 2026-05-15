@@ -3,6 +3,8 @@ html, body {
     margin: 0;
     padding: 0;
     overflow: hidden; 
+    display: flex;         /* New layout method */
+    flex-direction: column; /* Stacks elements top-to-bottom */
 }
 
 #cover {
@@ -15,20 +17,37 @@ html, body {
     gap: 10px;
 }
 
+.center {
+    align-self: center !important;
+}
+
+.select-button img {
+  pointer-events: none;
+}
+
 #enemyDice {
+    /* FIX 2: Swapped position: relative to absolute so it leaves NO footprint behind */
+    position: absolute; 
+    display: flex;
+    flex-direction: column;
+    align-items: center !important; 
+    opacity: 50%;
     background-color: red;
     border-radius: 25px;
     padding: 5px;
+    width: 120px;
+    height: auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    z-index: 10000;
 }
 
 .absolute-badge {
   position: absolute;
+  /* FIX 3: Tightened coordinates to sit flush with the green card line boundaries */
   top: 0;
   right: 0;
-  /* Shifts the element back by half its own width and height */
-  transform: translate(50%, -50%); 
+  transform: translate(35%, -35%); 
 }
-
 
 #playerDiceCard{
   width: 100%;
@@ -104,20 +123,18 @@ h1, h2, p {
     z-index: 9999;
 }
 
-/* FIXED: Moved grid to the absolute bottom of the viewport so it never covers buttons */
+/* Anchored to the viewport bottom to clear control button layouts */
 #diceGrid {
-    position: absolute;
-    height: 30vh; /* Locked height footprint at the bottom */
+    position: relative;     /* FIX: Changed from absolute */
+    height: 30vh; 
     width: 100vw;
-    top: auto;   /* Overrides your previous top: 10vh block */
-    bottom: 0;   /* Anchors strictly to the bottom of the screen */
+    margin-top: auto;       /* Pushes the grid firmly to the very bottom */
     display: grid;
     gap: 2vw;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr;
 } 
 
-/* FIXED: Replaced pointer-events: none with background color layering blend over woodgrain */
 #player-dice-box {
     background-image: linear-gradient(rgba(26, 35, 126, 0.6), rgba(26, 35, 126, 0.6)), url(/public/assets/woodgrain2.jpg);
     background-size: cover;
@@ -131,7 +148,6 @@ h1, h2, p {
     z-index: 1;
 }
 
-/* FIXED: Replaced pointer-events: none with background color layering blend over woodgrain */
 #enemy-dice-box {
     background-image: linear-gradient(rgba(183, 28, 28, 0.6), rgba(183, 28, 28, 0.6)), url(/public/assets/woodgrain2.jpg);
     background-size: cover;
@@ -144,12 +160,12 @@ h1, h2, p {
     z-index: 1;
 }
 
-/* FIXED: Removed pointer-events: none so that child elements and buttons receive clicks */
+/* Pointer events are active so your click listeners track correctly */
 #cardHolder {
    display: grid;
    margin: 10px;
    width: 95%;
-   height: 65vh; /* Scaled down slightly to leave clean room for bottom dice fields */
+   height: 65vh;            /* Takes up the exact top portion of the viewport */
    grid-template-rows: 10% 70% 20%;
    grid-template-columns: 1fr 1fr 1fr 1fr;
    gap: 25px; 
@@ -163,6 +179,25 @@ h1, h2, p {
   border-radius: 25px;
   margin-left: 1px;
   height: auto;
+}
+
+.enemyDiceContainer{
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+/* Explicit size properties to scale your custom placeholder element layout */
+img.diePlaceHolderImg {
+  width: 60px !important;   
+  height: auto !important;  
+  display: block;
 }
 
 .list-item-button-up {
@@ -190,7 +225,7 @@ h1, h2, p {
   cursor: pointer;
 }
 
-/* FIXED: Forces selection button images to ignore mouse down so the target always bubbles to button */
+/* Forces images to skip input capturing so click registers directly on button */
 .select-button img {
     pointer-events: none;
 }
@@ -204,6 +239,10 @@ h1, h2, p {
     border-radius: 25px;
     width: 100%;
     height: 100%;
+    /* FIX 1: Ensures content starts mapping strictly from the top edge */
+    justify-content: flex-start; 
+    padding-top: 15px; /* Adds clean breathing room for titles */
+    box-sizing: border-box;
 }
 
 .actionButton {

@@ -1,0 +1,1 @@
+need to fix html not updating and showing the number of selected dice. 
