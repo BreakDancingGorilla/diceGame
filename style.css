@@ -6,13 +6,13 @@ html, body {
 }
 
 #cover {
-    
+     pointer-events: none;
 }
 
 .horzon {
     display: flex;
     flex-direction: row;
-      gap: 10px;
+    gap: 10px;
 }
 
 #playerDiceCard{
@@ -21,6 +21,7 @@ html, body {
   background-color: black;
   border-radius: 25px;
 }
+
 #playerDiceHolder{
     font-size: 50%;
     background-color: red;
@@ -30,7 +31,7 @@ html, body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr; 
     grid-template-rows: 1fr 1fr 1fr; 
-     gap: 5px;
+    gap: 5px;
 }
 
 .row {
@@ -38,8 +39,8 @@ html, body {
     flex-direction: row;
     gap: 15px;
     grid-column: span 2;
-     justify-content: center;
-     align-items: center;
+    justify-content: center;
+    align-items: center;
 }
 
 #actionButtonsFlex {
@@ -55,7 +56,6 @@ html, body {
     align-items: center;
 }
 
-
 #diceTesting {
     position: absolute;
 }
@@ -63,111 +63,112 @@ html, body {
 #testing-dice-box {
     width: 200px;
     height: 200px;
-  background-image: url(/public/assets/woodgrain2.jpg);
-  background-size: cover;
-  pointer-events: none; 
-  z-index: 1;
+    background-image: url(/public/assets/woodgrain2.jpg);
+    background-size: cover;
+    pointer-events: none; 
+    z-index: 1;
 }
 
 #testing-dice-box canvas {
     pointer-events: none; 
-  width: 100%;
-  height: 100%;
-  z-index: 1;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
 }
 
 h1, h2, p {
     z-index: 9999;
 }
 
-
-
+/* FIXED: Moved grid to the absolute bottom of the viewport so it never covers buttons */
 #diceGrid {
     position: absolute;
-    height: 55vh;
+    height: 30vh; /* Locked height footprint at the bottom */
     width: 100vw;
-    top: 10vh;
+    top: auto;   /* Overrides your previous top: 10vh block */
+    bottom: 0;   /* Anchors strictly to the bottom of the screen */
     display: grid;
-    gap: 8vw;
+    gap: 2vw;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr;
 } 
 
+/* FIXED: Replaced pointer-events: none with background color layering blend over woodgrain */
 #player-dice-box {
-
-  background-image: url(/public/assets/woodgrain2.jpg);
-  background-size: cover;
-  pointer-events: none; 
-  z-index: 1;
+    background-image: linear-gradient(rgba(26, 35, 126, 0.6), rgba(26, 35, 126, 0.6)), url(/public/assets/woodgrain2.jpg);
+    background-size: cover;
+    z-index: 1;
 }
 
 #player-dice-box canvas {
     pointer-events: none; 
-  width: 100%;
-  height: 100%;
-  z-index: 1;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
 }
 
+/* FIXED: Replaced pointer-events: none with background color layering blend over woodgrain */
 #enemy-dice-box {
-
-
-  background-image: url(/public/assets/woodgrain2.jpg);
-  background-size: cover;
-  pointer-events: none; 
+    background-image: linear-gradient(rgba(183, 28, 28, 0.6), rgba(183, 28, 28, 0.6)), url(/public/assets/woodgrain2.jpg);
+    background-size: cover;
 }
 
 #enemy-dice-box canvas {
     pointer-events: none; 
-  width: 100%;
-  height: 100%;
-  z-index: 1;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
 }
 
-
-
-#cardHolder{
+/* FIXED: Removed pointer-events: none so that child elements and buttons receive clicks */
+#cardHolder {
    display: grid;
    margin: 20px;
-   width: 100%;
-   height: 75%;
+   width: 95%;
+   height: 60vh; /* Scaled down slightly to leave clean room for bottom dice fields */
    grid-template-rows: 1fr 1fr 1fr 1fr;
    grid-template-columns: 1fr 1fr 1fr 1fr;
    gap: 25px; 
    place-items: center;
-
 }
 
 .list-item-button-img-up{
-    display: block; /* Prevents extra space below */
-  width: 1.1em; /* Adjust as needed */
+  display: block; 
+  width: 1.1em; 
   background-color: rgb(169, 226, 246);
   border-radius: 25px;
   margin-left: 1px;
-  height: auto
-
+  height: auto;
 }
+
 .list-item-button-up {
-   border-radius: 25px;
-   background: none;
+  border-radius: 25px;
+  background: none;
   border: none;
   padding: 0;
-  cursor: pointer 
+  cursor: pointer;
 }
+
 .list-item-button-img-down{
-    display: block; /* Prevents extra space below */
-  width: 1.1em; /* Adjust as needed */
+  display: block; 
+  width: 1.1em; 
   background-color: rgb(169, 226, 246);
   border-radius: 25px;
   margin-left: 1px;
-  height: auto
-
+  height: auto;
 }
+
 .list-item-button-down {
-     border-radius: 25px;
-   background: none;
+  border-radius: 25px;
+  background: none;
   border: none;
   padding: 0;
-  cursor: pointer 
+  cursor: pointer;
+}
+
+/* FIXED: Forces selection button images to ignore mouse down so the target always bubbles to button */
+.select-button img {
+    pointer-events: none;
 }
 
 .statCard {
@@ -185,10 +186,7 @@ h1, h2, p {
     border-radius: 25px;
     width: 50%;
     font-size: 50%;
-    height: 100%;
 }
-
-
 
 #bottomSpace {
     display: flex;
@@ -202,4 +200,3 @@ h1, h2, p {
 #diceButton {
     width: 25%;
 }
-

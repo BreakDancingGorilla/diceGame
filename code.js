@@ -8,7 +8,7 @@ Die index value corresponds to the number of sides on the die
 //The gameplay starts if either heal or attack roll are pressed then it starts the main loop.
 
 addEventListener("load", () => {
-  window.gameObjects = {
+ window.gameObjects = {
     initialized: false,
 
     async init() {
@@ -87,12 +87,22 @@ addEventListener("load", () => {
             d20: document.getElementById("20DieQuan"),
           },
           btn: {
-            d4: document.getElementById("selectedDieQuan4"),
-            d6: document.getElementById("selectedDieQuan6"),
-            d8: document.getElementById("selectedDieQuan8"),
-            d10: document.getElementById("selectedDieQuan10"),
-            d12: document.getElementById("selectedDieQuan12"),
-            d20: document.getElementById("selectedDieQuan20"),
+            up: {
+              d4: document.getElementById("4SelectUp"),
+              d6: document.getElementById("6SelectUp"),
+              d8: document.getElementById("8SelectUp"),
+              d10: document.getElementById("10SelectUp"),
+              d12: document.getElementById("12SelectUp"),
+              d20: document.getElementById("20SelectUp"),
+            },
+            down: {
+              d4: document.getElementById("4SelectDown"),
+              d6: document.getElementById("6SelectDown"),
+              d8: document.getElementById("8SelectDown"),
+              d10: document.getElementById("10SelectDown"),
+              d12: document.getElementById("12SelectDown"),
+              d20: document.getElementById("20SelectDown"),
+            },
           },
         },
 
@@ -103,9 +113,10 @@ addEventListener("load", () => {
           });
         },
 
-        dice: [2, 0, 0, 0, 0],
-        baseDice: [2, 0, 0, 0, 0],
-        selectedDice: [0, 0, 0, 0, 0],
+        // FIXED: Expanded from 5 entries to 6 entries to cover d20
+        dice: [2, 0, 0, 0, 0, 0],
+        baseDice: [2, 0, 0, 0, 0, 0],
+        selectedDice: [0, 0, 0, 0, 0, 0],
         currentDiceValue: 0,
 
         baseHealth: 100,
@@ -149,8 +160,9 @@ addEventListener("load", () => {
           scale: 10,
         }),
 
-        dice: [2, 1, 0, 0, 0],
-        baseDice: [2, 1, 0, 0, 0],
+        // FIXED: Expanded from 5 entries to 6 entries to cover d20
+        dice: [2, 1, 0, 0, 0, 0],
+        baseDice: [2, 1, 0, 0, 0, 0],
         currentDiceValue: 0,
 
         baseHealth: 100,
@@ -200,7 +212,7 @@ addEventListener("load", () => {
         },
       },
     },
-    //  const playerRoll = await gameObjects.roll(gameObjects.diceObjects.player);
+    
     async roll(obj) {
       let diceToRoll = [];
 
@@ -222,14 +234,58 @@ addEventListener("load", () => {
     },
   };
 
+
   gameObjects.init();
 
   const attackBtn = document.getElementById("attackButton");
-  const healBtn = document.getElementById("attackButton");
+  const healBtn = document.getElementById("healbutton");
 
   var rolling = false;
 
-  ///Update the players selected dice 
+// Attach the listener to the parent container that ALWAYS exists
+const diceHolder = document.getElementById("playerDiceHolder");
+
+if (diceHolder) {
+  diceHolder.addEventListener("click", (event) => {
+    // Find the closest button element, handling the nested <img> tag perfectly
+    const button = event.target.closest(".select-button");
+    
+    // If the click wasn't on or inside a select-button, ignore it
+    if (!button) return;
+
+    console.log("button clicked", button.id);
+    const clickedId = button.id;
+    
+    var dieIndex; 
+    var increment = clickedId.includes("Up") ? 1 : -1; 
+
+    switch (clickedId) {
+      case "4SelectDown": case "4SelectUp": dieIndex = 0; break;
+      case "6SelectDown": case "6SelectUp": dieIndex = 1; break;
+      case "8SelectDown": case "8SelectUp": dieIndex = 2; break;
+      case "10SelectDown": case "10SelectUp": dieIndex = 3; break;
+      case "12SelectDown": case "12SelectUp": dieIndex = 4; break;
+      case "20SelectDown": case "20SelectUp": dieIndex = 5; break;
+    }
+
+    const player = gameObjects.diceObjects.player;
+
+    if (increment === 1) {
+      if (player.selectedDice[dieIndex] < player.dice[dieIndex]) {
+        player.selectedDice[dieIndex] += 1;
+      }
+    } else {
+      if (player.selectedDice[dieIndex] > 0) {
+        player.selectedDice[dieIndex] -= 1;
+      }
+    }
+
+    player.updateDiceInv();
+  });
+} else {
+  console.error("Could not find #playerDiceHolder in the DOM!");
+}
+
 
 
   healBtn.addEventListener("click", async () => {
