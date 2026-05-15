@@ -15,6 +15,12 @@ html, body {
     gap: 10px;
 }
 
+#enemyDice {
+    background-color: red;
+    border-radius: 25px;
+    padding: 5px;
+}
+
 .absolute-badge {
   position: absolute;
   top: 0;
@@ -190,6 +196,7 @@ h1, h2, p {
 }
 
 .statCard {
+    position: relative;
     display: flex;
     align-items: center; 
     flex-direction: column;
