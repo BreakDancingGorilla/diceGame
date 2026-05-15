@@ -137,6 +137,39 @@ h1, h2, p {
 
 }
 
+.list-item-button-img-up{
+    display: block; /* Prevents extra space below */
+  width: 1.1em; /* Adjust as needed */
+  background-color: rgb(169, 226, 246);
+  border-radius: 25px;
+  margin-left: 1px;
+  height: auto
+
+}
+.list-item-button-up {
+   border-radius: 25px;
+   background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer 
+}
+.list-item-button-img-down{
+    display: block; /* Prevents extra space below */
+  width: 1.1em; /* Adjust as needed */
+  background-color: rgb(169, 226, 246);
+  border-radius: 25px;
+  margin-left: 1px;
+  height: auto
+
+}
+.list-item-button-down {
+     border-radius: 25px;
+   background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer 
+}
+
 .statCard {
     display: flex;
     align-items: center; 

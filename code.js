@@ -5,8 +5,7 @@ Die index value corresponds to the number of sides on the die
 - 4, 6, 8, 10, 12, 20
 */
 
-//The gameplay starts if either heal or attack roll are pressed then it starts the main loop. 
-
+//The gameplay starts if either heal or attack roll are pressed then it starts the main loop.
 
 addEventListener("load", () => {
   window.gameObjects = {
@@ -18,7 +17,7 @@ addEventListener("load", () => {
       try {
         await Promise.all([
           this.diceObjects.player.box.init(),
-          this.diceObjects.enemy.box.init()
+          this.diceObjects.enemy.box.init(),
         ]);
         this.initialized = true;
         console.log("Dice boxes ready");
@@ -45,7 +44,7 @@ addEventListener("load", () => {
       reset() {
         this.num = 0;
         this.element.innerHTML = 0;
-      }
+      },
     },
 
     gold: {
@@ -66,7 +65,7 @@ addEventListener("load", () => {
       reset() {
         this.num = 0;
         this.element.innerHTML = 0;
-      }
+      },
     },
 
     diceObjects: {
@@ -75,24 +74,34 @@ addEventListener("load", () => {
           assetPath: "assets/",
           origin: "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
           container: "#player-dice-box",
-          scale: 10
+          scale: 10,
         }),
 
         diceInvUi: {
+          quan: {
             d4: document.getElementById("4DieQuan"),
             d6: document.getElementById("6DieQuan"),
             d8: document.getElementById("8DieQuan"),
             d10: document.getElementById("10DieQuan"),
             d12: document.getElementById("12DieQuan"),
-            d20: document.getElementById("20DieQuan")
+            d20: document.getElementById("20DieQuan"),
+          },
+          btn: {
+            d4: document.getElementById("selectedDieQuan4"),
+            d6: document.getElementById("selectedDieQuan6"),
+            d8: document.getElementById("selectedDieQuan8"),
+            d10: document.getElementById("selectedDieQuan10"),
+            d12: document.getElementById("selectedDieQuan12"),
+            d20: document.getElementById("selectedDieQuan20"),
+          },
         },
 
         updateDiceInv() {
-            const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
-            this.dice.forEach((amt, i) => {
-                this.diceInvUi[types[i]].innerHTML = amt;
-            });
-        }, 
+          const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
+          this.dice.forEach((amt, i) => {
+            this.diceInvUi.quan[types[i]].innerHTML = amt;
+          });
+        },
 
         dice: [2, 0, 0, 0, 0],
         baseDice: [2, 0, 0, 0, 0],
@@ -119,14 +128,17 @@ addEventListener("load", () => {
         },
 
         applyDamage(enemyRoll) {
-          this.updateHealth(this.healthNum - (gameObjects.diceObjects.enemy.damageNum + enemyRoll));
+          this.updateHealth(
+            this.healthNum -
+              (gameObjects.diceObjects.enemy.damageNum + enemyRoll),
+          );
         },
 
         reset() {
           this.dice = [...this.baseDice];
           this.updateHealth(this.baseHealth);
           this.updateDamage(this.baseDamage);
-        }
+        },
       },
 
       enemy: {
@@ -134,7 +146,7 @@ addEventListener("load", () => {
           assetPath: "assets/",
           origin: "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
           container: "#enemy-dice-box",
-          scale: 10
+          scale: 10,
         }),
 
         dice: [2, 1, 0, 0, 0],
@@ -164,7 +176,10 @@ addEventListener("load", () => {
         },
 
         applyDamage(playerRoll) {
-          this.updateHealth(this.healthNum - (gameObjects.diceObjects.player.damageNum + playerRoll));
+          this.updateHealth(
+            this.healthNum -
+              (gameObjects.diceObjects.player.damageNum + playerRoll),
+          );
         },
 
         slay() {
@@ -182,10 +197,10 @@ addEventListener("load", () => {
           this.dice = [...this.baseDice];
           this.updateHealth(this.baseHealth);
           this.updateDamage(this.baseDamage);
-        }
-      }
+        },
+      },
     },
-//  const playerRoll = await gameObjects.roll(gameObjects.diceObjects.player);
+    //  const playerRoll = await gameObjects.roll(gameObjects.diceObjects.player);
     async roll(obj) {
       let diceToRoll = [];
 
@@ -204,35 +219,17 @@ addEventListener("load", () => {
 
         obj.box.roll(diceToRoll);
       });
-    }
+    },
   };
 
   gameObjects.init();
 
   const attackBtn = document.getElementById("attackButton");
   const healBtn = document.getElementById("attackButton");
-  var dieSelects = {
-    btn: {
-    d4: document.getElementById("dieSelect4"),
-    d6: document.getElementById("dieSelect6"),
-    d8: document.getElementById("dieSelect8"),
-    d10: document.getElementById("dieSelect10"),
-    d12: document.getElementById("dieSelect12"),
-    d20: document.getElementById("dieSelect20")
-    },
-    quanUI: {
-    d4: document.getElementById("selectedDieQuan4"),
-    d6: document.getElementById("selectedDieQuan6"),
-    d8: document.getElementById("selectedDieQuan8"),
-    d10: document.getElementById("selectedDieQuan10"),
-    d12: document.getElementById("selectedDieQuan12"),
-    d20: document.getElementById("selectedDieQuan20")
-    },
-    
-  }
 
   var rolling = false;
 
+  ///Update the players selected dice 
 
 
   healBtn.addEventListener("click", async () => {
