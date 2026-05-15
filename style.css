@@ -150,7 +150,8 @@ h1, h2, p {
 .actionButton {
     height: 100%;
     border-radius: 25px;
-    width: 30%;
+    width: 50%;
+    font-size: 50%;
     height: 100%;
 }
 

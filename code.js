@@ -5,6 +5,7 @@ Die index value corresponds to the number of sides on the die
 - 4, 6, 8, 10, 12, 20
 */
 
+//The gameplay starts if either heal or attack roll are pressed then it starts the main loop. 
 
 
 addEventListener("load", () => {
@@ -21,6 +22,7 @@ addEventListener("load", () => {
         ]);
         this.initialized = true;
         console.log("Dice boxes ready");
+        this.diceObjects.player.updateDiceInv();
       } catch (e) {
         console.error("Dice-Box failed to load:", e);
       }
@@ -76,8 +78,25 @@ addEventListener("load", () => {
           scale: 10
         }),
 
+        diceInvUi: {
+            d4: document.getElementById("4DieQuan"),
+            d6: document.getElementById("6DieQuan"),
+            d8: document.getElementById("8DieQuan"),
+            d10: document.getElementById("10DieQuan"),
+            d12: document.getElementById("12DieQuan"),
+            d20: document.getElementById("20DieQuan")
+        },
+
+        updateDiceInv() {
+            const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
+            this.dice.forEach((amt, i) => {
+                this.diceInvUi[types[i]].innerHTML = amt;
+            });
+        }, 
+
         dice: [2, 0, 0, 0, 0],
         baseDice: [2, 0, 0, 0, 0],
+        selectedDice: [0, 0, 0, 0, 0],
         currentDiceValue: 0,
 
         baseHealth: 100,
@@ -192,9 +211,29 @@ addEventListener("load", () => {
 
   const attackBtn = document.getElementById("attackButton");
   const healBtn = document.getElementById("attackButton");
-
+  var dieSelects = {
+    btn: {
+    d4: document.getElementById("dieSelect4"),
+    d6: document.getElementById("dieSelect6"),
+    d8: document.getElementById("dieSelect8"),
+    d10: document.getElementById("dieSelect10"),
+    d12: document.getElementById("dieSelect12"),
+    d20: document.getElementById("dieSelect20")
+    },
+    quanUI: {
+    d4: document.getElementById("selectedDieQuan4"),
+    d6: document.getElementById("selectedDieQuan6"),
+    d8: document.getElementById("selectedDieQuan8"),
+    d10: document.getElementById("selectedDieQuan10"),
+    d12: document.getElementById("selectedDieQuan12"),
+    d20: document.getElementById("selectedDieQuan20")
+    },
+    
+  }
 
   var rolling = false;
+
+
 
   healBtn.addEventListener("click", async () => {
     if (rolling) return;
