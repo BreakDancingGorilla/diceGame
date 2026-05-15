@@ -1,5 +1,12 @@
 import DiceBox from "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js";
 
+/* 
+Die index value corresponds to the number of sides on the die 
+- 4, 6, 8, 10, 12, 20
+*/
+
+
+
 addEventListener("load", () => {
   window.gameObjects = {
     initialized: false,
