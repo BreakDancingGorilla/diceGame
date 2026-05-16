@@ -296,7 +296,7 @@ addEventListener("load", () => {
         diceContainer: document.getElementById("enemyDiceContainer"),
 
         updateDiceUi() {
-          let skip = true;
+          /* let skip = true;
           for (let i = 0; i < this.dice.length; i++) {
             console.log(`Checking die index ${i} with quantity ${this.dice[i]}`);
             if (this.dice[i] > 0) {
@@ -308,7 +308,7 @@ addEventListener("load", () => {
           if (skip) {
             console.log("Enemy has no dice, hiding container.");
             this.diceContainer.classList.add("hide");
-          }
+          } */
           let elementTexts = [];
           for (let i = 0; i < this.dice.length; i++) {
             if (this.dice[i] > 0) {

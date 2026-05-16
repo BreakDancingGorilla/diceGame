@@ -175,6 +175,7 @@
               <h2 id="selectedDieQuan12"></h2>
             </div>
           </div>
+
           <div class="die" id="playerDie6">
             <div class="horzon">
               <h1>20d</h1>
@@ -199,8 +200,62 @@
               <h2 id="selectedDieQuan20"></h2>
             </div>
           </div>
+
+          <div class="die">
+            <div class="horzon">
+              <h1>ReRoll Tokens</h1>
+              <h1 id="reRoll">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="20SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="20SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedReRoll"></h2>
+            </div>
+          </div>
+          
+          <div class="die">
+            <div class="horzon">
+              <h1>Weighted Die</h1>
+              <h1 id="weighted">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="20SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="20SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedWeighted"></h2>
+            </div>
+          </div>
+
+          
+
         </div>
       </div>
+      
     </div>
 
     <div id="diceGrid">
@@ -215,6 +270,11 @@
         </div>
       </div>
     </div>
+
+    <div id="shopBox">
+      <div id="shopLayout"></div>
+    </div>
+
 
     <script type="module" src="./code.js"></script>
   </body>

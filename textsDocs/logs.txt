@@ -87,5 +87,9 @@ The bottom middle area can be inventory
 the left middle can be buttons and the right middle enemy die. 
 
 Right. Going to setup the inventory part now. 1:21
+done. 2:27
+
+going to work on the shop now. 
+actually going to add a reroll and weight items
 
 
