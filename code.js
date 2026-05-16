@@ -131,6 +131,8 @@ addEventListener("load", () => {
         selectedDice: [0, 0, 0, 0, 0, 0],
         currentDiceValue: 0,
 
+        currentDiceValueUi: document.getElementById("numRolledTextPlayer"),
+
         baseHealth: 100,
         baseDamage: 50,
 
@@ -139,6 +141,10 @@ addEventListener("load", () => {
 
         healthNum: 100,
         damageNum: 50,
+
+        showRollBox() {
+
+        },
 
         updateHealth(num) {
           this.healthNum = num;
@@ -178,6 +184,8 @@ addEventListener("load", () => {
         selectedDice: [2, 1, 0, 0, 0, 0], // To update for the new rolling system where you can select dice.
         baseDice: [2, 1, 0, 0, 0, 0],
         currentDiceValue: 0,
+
+        currentDiceValueUi: document.getElementById("numRolledTextEnemy"),
 
         baseHealth: 100,
         baseDamage: 7,
@@ -250,7 +258,7 @@ async roll(obj) {
   return new Promise((resolve) => {
     obj.box.onRollComplete = (results) => {
       obj.currentDiceValue = results.reduce((sum, d) => sum + d.value, 0);
-      
+      obj.currentDiceValueUi.innerHTML = obj.currentDiceValue;
       // RESET SELECTION HERE AFTER SUCCESSFUL ROLL
       obj.selectedDice = [0, 0, 0, 0, 0, 0]; 
       
