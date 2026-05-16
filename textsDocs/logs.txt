@@ -53,3 +53,21 @@ and call it in the selector.
 
     After we make this, then we got to make the 
     player gain the leftover dice.  
+    I want the enemy to have gold too, that the player gets after slaying.
+    We already have the gold worth and shit setup, just need to
+    add a ui element for it. Maybe call the stat bounty. 
+        Ima link that up real quick 11:56
+        done 11:58 😎
+    
+
+
+    Then the shop, They can buy health upgrade, damage upgrade, reroll tokens. 
+
+
+12:30 
+Dont even remember what I was supposed to be doing. 
+But the enemy gets a new set of dice and then I spent a 20 minutes
+Fixing the bug with dieIndex or whatever. 
+    So the enemy getting and using dice works perfectly now. 
+    Going to do a couple ui tweeks than work on the player 
+    getting the left over dice. 

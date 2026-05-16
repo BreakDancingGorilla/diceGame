@@ -236,8 +236,11 @@ addEventListener("load", () => {
         strengthGrowthRate: 0.5, // Progression modifier added per kill record achieved
         goldWorth: 5,
 
+
+
         healthElement: document.getElementById("enemyHealth"),
         damageElement: document.getElementById("enemyDamage"),
+        bountyElement: document.getElementById("enemyBounty"),
 
         healthNum: 100,
         damageNum: 7,
@@ -308,38 +311,106 @@ addEventListener("load", () => {
         ///Resets to base at the end of the enemy turn.
         agroDecayRate: 5, // Rate at which agro is decreased per ranNum call.
 
-        updateSelectedDice() {
-           this.updateDiceUi();
-          if (this.dice.length < 0) {
-            return;
-            console.log("Enemy has no dice left to choose from.");
-          }
+      updateSelectedDice: function() {
+  this.updateDiceUi();
+  
+  // 1. Build the diceToChoose array properly
+  let diceToChoose = [];
+  for (let i = 0; i < this.dice.length; i++) {
+    if (this.dice[i] > 0) {
+      diceToChoose.push({ dieIndex: i, quantity: this.dice[i] });
+    }
+  }
 
-          ///Build the diceToChoose array
-          var diceToChoose = [];
-          for (let i = 0; i < this.dice.length; i++) {
-            if (this.dice[i] > 0) {
-              diceToChoose.push({ dieIndex: i, quantity: this.dice[i] });
-            }
-          }
-          console.log("Enemy dice to choose from:", diceToChoose);
-          ///to fill
-          var diceChosen = [
-            { dieIndex: 0, quantity: 0 },
-            { dieIndex: 1, quantity: 0 },
-            { dieIndex: 2, quantity: 0 },
-            { dieIndex: 3, quantity: 0 },
-            { dieIndex: 4, quantity: 0 },
-            { dieIndex: 5, quantity: 0 },
-          ];
+  // Guard clause: Exit if there are no dice available to choose from
+  if (diceToChoose.length === 0) {
+    console.log("Enemy has no dice left to choose from.");
+    return;
+  }
 
-          let cycleLimt = 0; // Safety limit to prevent infinite loops in edge cases where agroWeight doesn't decrease properly
+  console.log("Enemy dice to choose from:", diceToChoose);
 
-          ///Now here is the logic for choosing the dice.
+  // Initialize the selection tracker
+  var diceChosen = [
+    { dieIndex: 0, quantity: 0 },
+    { dieIndex: 1, quantity: 0 },
+    { dieIndex: 2, quantity: 0 },
+    { dieIndex: 3, quantity: 0 },
+    { dieIndex: 4, quantity: 0 },
+    { dieIndex: 5, quantity: 0 },
+  ];
 
+  let cycleLimit = 0; 
+
+  // 2. Loop continues ONLY if we have agro left AND dice are available AND we haven't hit the safety limit
+  while (this.currentAgroWeight > 0 && diceToChoose.length > 0 && cycleLimit < 100) {
+    cycleLimit++;
+
+    // Roll to see if enemy wants to take a die
+    if (ranNum(0, 100) < this.currentAgroWeight) {
+      
+      // Select a random index based on what is physically left in the pool
+      let index = Math.floor(ranNum(0, diceToChoose.length));
+      
+      // Safeguard against out-of-bounds math
+      if (index >= diceToChoose.length) {
+        index = diceToChoose.length - 1;
+      }
+
+      let chosenDie = diceToChoose[index];
+
+      // Move a die to the chosen pool
+      diceChosen[chosenDie.dieIndex].quantity += 1;
+      chosenDie.quantity -= 1; 
+
+      // Reduce agro weight per choice
+      this.currentAgroWeight -= this.agroDecayRate; 
+
+      // FIXED: Physically remove the die option from pool if empty to prevent undefined crashes
+      if (chosenDie.quantity <= 0) {
+        diceToChoose.splice(index, 1);
+      }
+    } else {
+      // Enemy rolled above current agro weight, decides to stop choosing
+      break;
+    }
+  }
+
+  // Reset agro weight for the next turn
+  this.currentAgroWeight = this.agroWeightBase; 
+  console.log("Enemy dice chosen:", diceChosen);
+
+  // 3. Update the permanent selectedDice tracking array
+  for (let i = 0; i < diceChosen.length; i++) {
+    this.selectedDice[diceChosen[i].dieIndex] = diceChosen[i].quantity;
+  } 
+
+  // 4. Deduct the chosen dice from the enemy's available pool
+  for (let i = 0; i < diceChosen.length; i++) {
+    this.dice[diceChosen[i].dieIndex] -= diceChosen[i].quantity;
+  }
+
+  this.updateDiceUi();
+  console.log("Enemy selected dice:", this.selectedDice);
+  console.log("Enemy dice inventory after selection:", this.dice);
+},
+
+
+
+        //This will use the strength variable to scale
+          //and the agro weight base. 
+             //The strength will decide how many dice to choose.
+             //The agro will decide which dice to choose.
+        giveNewDice() {
+          this.dice = [0,0,0,0,0,0];
+         
+          let diceToGive = Math.ceil(this.strength); // Number of dice to give based on strength
+          for (let i = 0; i < diceToGive; i++) {
+            
+            ///Pulling the same while loop from updateSelectedDice
+            let cycleLimt = 0; // Safety limit to prevent infinite loops in edge cases where agroWeight doesn't decrease properly
           while (
             this.currentAgroWeight > 0 ||
-            diceToChoose.length > 0 ||
             cycleLimt > 100
           ) {
             ///To choose wheather to choose a die.
@@ -348,45 +419,37 @@ addEventListener("load", () => {
 
               this.currentAgroWeight -= this.agroDecayRate; // Decrease agro weight to increase chances of breaking out of the loop and adding some variability to the dice selection process.
               // Formula: (num / 100) * arrayLength
-              let index = Math.floor((ranNumToUse / 100) * diceToChoose.length);
+              let index = Math.floor((ranNumToUse / 100) * this.dice.length);
 
               // Safeguard: Ensure a random number of exactly 100 doesn't cause an out-of-bounds error
-              if (index >= diceToChoose.length) {
-                index = diceToChoose.length - 1;
+              if (index >= this.dice.length) {
+                index = this.dice.length - 1;
               }
-              console.log(diceChosen[diceToChoose[index].dieIndex]);
-              diceChosen[diceToChoose[index].dieIndex].quantity += 1; // Increment the quantity of the chosen die in the diceChosen array
-              console.log(diceChosen[diceToChoose[index].dieIndex]);
-              console.log();
-              diceToChoose[index].quantity -= 1; // Decrement the quantity of the chosen die in the diceToChoose array
-
-              if (diceToChoose[index].quantity <= 0) {
-                console.log("test");
-                diceToChoose.splice(index, 1); // Remove the die from the diceToChoose array if its quantity drops to zero
-                console.log("test");
-              }
+              this.dice[index] += 1; // Increment the quantity of the chosen die in the diceChosen array
               console.log(cycleLimt);
               cycleLimt++;
             } else {
               break;
             }
+            
           }
-          this.currentAgroWeight = this.agroWeightBase; // Reset agro weight for the next turn
-          console.log("Enemy dice chosen:", diceChosen);
-          ///Now we update the selectedDice array with diceChosen.
-          for (let i = 0; i < diceChosen.length; i++) {
-            this.selectedDice[diceChosen[i].dieIndex] = diceChosen[i].quantity;
-          } 
-          //Now we get rid of the dice in the enemy inventory that were chosen.
-          for (let i = 0; i < diceChosen.length; i++) {
-            this.dice[diceChosen[i].dieIndex] -= diceChosen[i].quantity;
-          }
-          this.updateDiceUi();
-          console.log("Enemy selected dice:", this.selectedDice);
-          console.log("Enemy dice inventory after selection:", this.dice);
-        },
 
-        slay() {
+        }
+
+
+        this.updateDiceUi();
+
+      },
+
+/*How to fix this. Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'dieIndex')
+    at Object.updateSelectedDice (code.js:360:58)
+    at Object.roll (code.js:474:11)
+    at handleTurn (code.js:644:41)*/
+  //
+  //How do I fix it? The problem is that updateSelectedDice is trying to access dieIndex on an object that doesn't exist. This is because the diceChosen array is initialized with objects that have a dieIndex property, but when we try to access it, it's undefined. To fix this, we need to make sure that the objects in the diceChosen array are properly initialized with a dieIndex property before we try to access it. We can do this by changing the initialization of the diceChosen array to include the dieIndex property for each object. For example:
+// var diceChosen = [
+//   { dieIndex: 0, quantity: 0 },
+    slay() {
           gameObjects.gold.add(this.goldWorth);
           gameObjects.slain.add(1);
 
@@ -395,6 +458,9 @@ addEventListener("load", () => {
           // Regenerate fresh pool targets augmented cleanly by scale tracking factor variables
           this.updateHealth(Math.round(this.baseHealth * this.strength));
           this.updateDamage(Math.round(this.baseDamage * this.strength));
+        this.bountyElement.innerHTML = "$" + this.goldWorth;
+          this.giveNewDice();
+          this.updateDiceUi();
         },
 
         reset() {
@@ -402,7 +468,10 @@ addEventListener("load", () => {
           this.dice = [...this.baseDice];
           this.updateHealth(this.baseHealth);
           this.updateDamage(this.baseDamage);
+          this.bountyElement.innerHTML = "$" + this.goldWorth;
+          this.giveNewDice();
           this.updateDiceUi();
+
         },
       },
     },
