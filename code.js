@@ -227,29 +227,48 @@ addEventListener("load", () => {
       },
     },
 
-    async roll(obj) {
-      let diceToRoll = [];
-      console.log("Rolling with selected dice:", obj.selectedDice);
-      obj.selectedDice.forEach((amt, i) => {
-        if (amt > 0) {
-          const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
-          diceToRoll.push(amt + types[i]);
-          obj.dice[i] -= amt;
-        }
-      });
-      
-      return new Promise((resolve) => {
-        obj.box.onRollComplete = (results) => {
-          obj.currentDiceValue = results.reduce((sum, d) => sum + d.value, 0);
-          resolve(obj.currentDiceValue);
-        };
+async roll(obj) {
+  let diceToRoll = [];
+  console.log("Rolling with selected dice:", obj.selectedDice);
+  
+  const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
+  obj.selectedDice.forEach((amt, i) => {
+    if (amt > 0) {
+      diceToRoll.push(amt + types[i]);
+      obj.dice[i] -= amt;
+    }
+  });
 
-        obj.selectedDice = [0, 0, 0, 0, 0, 0];
-        obj.box.roll(diceToRoll);
-        gameObjects.diceObjects.player.updateDiceInv();
-      });
-    },
+  console.log("Dice to roll:", diceToRoll);
+
+  if (diceToRoll.length === 0) {
+    obj.currentDiceValue = 0;
+    obj.selectedDice = [0, 0, 0, 0, 0, 0]; // Reset on empty attempt
+    return 0;
+  }
+
+  return new Promise((resolve) => {
+    obj.box.onRollComplete = (results) => {
+      obj.currentDiceValue = results.reduce((sum, d) => sum + d.value, 0);
+      
+      // RESET SELECTION HERE AFTER SUCCESSFUL ROLL
+      obj.selectedDice = [0, 0, 0, 0, 0, 0]; 
+      
+      setTimeout(() => {
+        obj.box.clear();
+      }, 1500);
+
+      obj.box.onRollComplete = null;
+      resolve(obj.currentDiceValue);
+    };
+
+    obj.box.roll(diceToRoll);
+    gameObjects.diceObjects.player.updateDiceInv();
+  });
+}
+
   };
+
 
   gameObjects.init();
 
