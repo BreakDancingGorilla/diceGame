@@ -71,3 +71,21 @@ Fixing the bug with dieIndex or whatever.
     So the enemy getting and using dice works perfectly now. 
     Going to do a couple ui tweeks than work on the player 
     getting the left over dice. 
+    12:38 finished that
+
+Okay now we are going to give the player the extra dice, should be simple enough. 
+done 1:09
+
+
+Now we do gambling!!!!!!!!!
+If the player gambles on if he kills the enemy, and if 
+they loose if the enemy isnt kill and gold resets. Why wouldn't 
+they go max everytime? 
+
+
+The bottom middle area can be inventory
+the left middle can be buttons and the right middle enemy die. 
+
+Right. Going to setup the inventory part now. 1:21
+
+

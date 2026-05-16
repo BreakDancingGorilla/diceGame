@@ -8,162 +8,13 @@
 
   <body>
     <div id="cardHolder">
-      <div id="playerDiceCard">
-        <div id="playerDiceHolder">
-          <div class="die" id="playerDie1">
-            <h1>4d</h1>
-            <div class="horzon">
-              <h2>DieQuanity:</h2>
-              <h2 id="4DieQuan"></h2>
-            </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="4SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="4SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan4"></h2>
-            </div>
-          </div>
-          <div class="die" id="playerDie2">
-            <h1>6d</h1>
-            <div class="horzon">
-              <h2>DieQuanity:</h2>
-              <h2 id="6DieQuan"></h2>
-            </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="6SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="6SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan6"></h2>
-            </div>
-          </div>
-          <div class="die" id="playerDie3">
-            <h1>8d</h1>
-            <div class="horzon">
-              <h2>DieQuanity:</h2>
-              <h2 id="8DieQuan"></h2>
-            </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="8SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="8SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan8"></h2>
-            </div>
-          </div>
-          <div class="die" id="playerDie4">
-            <h1>10d</h1>
-            <div class="horzon">
-              <h2>DieQuanity:</h2>
-              <h2 id="10DieQuan"></h2>
-            </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="10SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="10SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan10"></h2>
-            </div>
-          </div>
-          <div class="die" id="playerDie5">
-            <h1>12d</h1>
-            <div class="horzon">
-              <h2>DieQuanity:</h2>
-              <h2 id="12DieQuan"></h2>
-            </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="12SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="12SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan12"></h2>
-            </div>
-          </div>
-          <div class="die" id="playerDie6">
-            <h1>20d</h1>
-            <div class="horzon">
-              <h2>DieQuanity:</h2>
-              <h2 id="20DieQuan"></h2>
-            </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="20SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="20SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan20"></h2>
-            </div>
-          </div>
-        </div>
+      <div id="actionButtonsFlex">
+        <button class="actionButton" id="healbutton">Heal Roll</button>
+        <button class="actionButton" id="attackButton">Attack Roll</button>
+        <button class="actionButton" id="diceButton">Shop</button>
       </div>
       <div class="statCard">
-                <h1>Player</h1>
+        <h1>Player</h1>
         <div id="playerStatGrid">
           <div class="playerStat">
             <h2><u>HP</u></h2>
@@ -198,12 +49,159 @@
         <h2><u>Bounty</u></h2>
         <h2 id="enemyBounty">Loading</h2>
       </div>
-      <div id="actionButtonsFlex">
-        <button class="actionButton" id="healbutton">Heal Roll</button>
-        <button class="actionButton" id="attackButton">Attack Roll</button>
-        <button class="actionButton" id="diceButton">Shop</button>
+      hello
+      <div id="inv">
+        <div id="invTitleBox">
+          <h1>Inventory</h1>
+        </div>
+        <div id="playerDiceHolder">
+          <div class="die" id="playerDie1">
+            <div class="horzon">
+              <h1>4d</h1>
+              <h1 id="4DieQuan">0</h1>
+            </div>
+
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="4SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="4SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan4"></h2>
+            </div>
+          </div>
+          <div class="die" id="playerDie2">
+            <div class="horzon">
+              <h1>6d</h1>
+              <h1 id="6DieQuan">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="6SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="6SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan6"></h2>
+            </div>
+          </div>
+          <div class="die" id="playerDie3">
+            <div class="horzon">
+              <h1>8d</h1>
+              <h1 id="8DieQuan">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="8SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="8SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan8"></h2>
+            </div>
+          </div>
+          <div class="die" id="playerDie4">
+            <div class="horzon">
+              <h1>10d</h1>
+              <h1 id="10DieQuan">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="10SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="10SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan10"></h2>
+            </div>
+          </div>
+          <div class="die" id="playerDie5">
+            <div class="horzon">
+              <h1>12d</h1>
+              <h1 id="12DieQuan">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="12SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="12SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan12"></h2>
+            </div>
+          </div>
+          <div class="die" id="playerDie6">
+            <div class="horzon">
+              <h1>20d</h1>
+              <h1 id="20DieQuan">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="20SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="20SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan20"></h2>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="gambleBox"></div>
     </div>
 
     <div id="diceGrid">

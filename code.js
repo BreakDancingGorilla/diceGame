@@ -61,6 +61,9 @@ addEventListener("load", () => {
     // ========================================================================
     // STATE ENGINE SUB-OBJECT: SLAIN ENEMY TRACKER
     // ========================================================================
+   
+    ///Going to do the give player the extra die thing in this method. 
+      ///Well shit we have to find where to put it before the dice is reset 
     slain: {
       num: 0,
       element: document.getElementById("slainCount"),
@@ -72,6 +75,9 @@ addEventListener("load", () => {
         this.num = 0;
         this.element.innerHTML = 0;
       },
+
+
+
     },
 
     // ========================================================================
@@ -115,7 +121,10 @@ addEventListener("load", () => {
         }),
 
         // UI DOM caching mapping to render live values when allocation indicators change
+          ///The hell is this comment.
         diceInvUi: {
+          ///Wish I would have made these mother fuckers arrays,
+            ///But i dont want to go back and redo all the syntaxx.
           quan: {
             select: {
               d4: document.getElementById("selectedDieQuan4"),
@@ -143,7 +152,7 @@ addEventListener("load", () => {
           const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
           for (let i = 0; i < this.dice.length; i++) {
             this.diceInvUi.quan.select[types[i]].innerHTML =
-              this.selectedDice[i];
+            this.selectedDice[i];
             this.diceInvUi.quan.total[types[i]].innerHTML = this.dice[i];
           }
         },
@@ -287,6 +296,19 @@ addEventListener("load", () => {
         diceContainer: document.getElementById("enemyDiceContainer"),
 
         updateDiceUi() {
+          let skip = true;
+          for (let i = 0; i < this.dice.length; i++) {
+            console.log(`Checking die index ${i} with quantity ${this.dice[i]}`);
+            if (this.dice[i] > 0) {
+              console.log("Enemy has dice, showing container.");
+              this.diceContainer.classList.remove("hide");
+              skip = false;
+            }
+          }
+          if (skip) {
+            console.log("Enemy has no dice, hiding container.");
+            this.diceContainer.classList.add("hide");
+          }
           let elementTexts = [];
           for (let i = 0; i < this.dice.length; i++) {
             if (this.dice[i] > 0) {
@@ -401,7 +423,28 @@ addEventListener("load", () => {
           //and the agro weight base. 
              //The strength will decide how many dice to choose.
              //The agro will decide which dice to choose.
+
+
+             ///!!! We add the give player dice shit here 
         giveNewDice() {
+
+          ///give player the fucking scraps. 
+          for (let i = 0; i < this.dice.length; i++) {
+            ///Why are these saying can not set properties of undefined?
+            //w
+          gameObjects.diceObjects.player.diceInvUi.quan.total[types[i]].innerHTML = " + " + this.dice[i];
+          gameObjects.diceObjects.player.dice[i] += this.dice[i];
+          }
+            setTimeout(() => {
+              for (let i = 0; i < this.dice.length; i++) {
+             gameObjects.diceObjects.player.diceInvUi.quan.total[types[i]].innerHTML = gameObjects.diceObjects.player.dice[i];
+        
+          
+          }
+              }, 1500);
+          
+            
+
           this.dice = [0,0,0,0,0,0];
          
           let diceToGive = Math.ceil(this.strength); // Number of dice to give based on strength

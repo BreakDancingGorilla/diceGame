@@ -2,3 +2,17 @@ for the boss inventroy when we get to the ui point have it different then the pl
 it doesnt have quanites but shows like 2 4die and 1 8die for example that the player gets if he slays the enemy.
 But the enemy has a chance to use a die, and if that chance rolls the player will be notified bofore hand. 
 But maybe the player can get a special intell die that will give them more of a notice before the enemy will use its die. 
+
+
+
+
+
+CRAZY FEATURE IDEA!!!!!!!!!!!!!
+rememeber how I want to make the bounty board a sub domain on the mainwebsite?
+and have vistors be able to create cards for that? 
+What if those cards show up in the game? 
+Naw we link them for real!!!!!! especlly with the bounty. 
+
+
+Use the screen recorder to make gifs for the totorial, 
+
