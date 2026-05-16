@@ -37,9 +37,15 @@ We need to do code for updating the index, so if we use a 6d, we deincremint tha
             to
             diceToChoose [2,5,2]    //But now we have to keep track of which is which. Maybe we use objects in replace of nums. 
 
-            new diceToChoose [die {die:4d, amt:2}]
-            
-            
+            New
 
+            enemy.dice to this 
+             diceToChoose [die {die:4d, amt:2}]
+            Go through the ranNumMath
+            add to this
+            diceChosen [{die:4d,amt:1}]
+            then after loop
+            from diceChosen to
+            enemy.selectedDice 
 
 Okay, so that is how we decide what dice

@@ -191,6 +191,10 @@ addEventListener("load", () => {
           this.updateHealth(targetHealth);
         },
 
+        updateSelectedDice(){
+          this.selectedDice = [0, 0, 0, 0, 0, 0];
+          },
+
         reset() {
           this.dice = [...this.baseDice];
           this.updateHealth(this.baseHealth);
@@ -236,6 +240,9 @@ addEventListener("load", () => {
          * ENEMY VISUAL HEALTH MANAGER
          * Displays the math reduction string, then updates raw values when timer concludes
          */
+
+
+
         updateHealth(num) {
           var damage = this.healthNum - num;
           this.healthElement.innerHTML = `${this.healthNum} - ${damage}`;
@@ -265,6 +272,13 @@ addEventListener("load", () => {
          * ENEMY SLAIN / DEFEAT CONSEQUENCES ENGINE
          * Distributes drops, updates metrics, inflates difficulty coefficients, and rolls fresh generation
          */
+
+          ///This is where we will stage the enemyDiceOutline. Going to have the same one for player,, just so we can call them for both in the same function.
+          updateSelectedDice(){
+
+          },
+
+
         slay() {
           gameObjects.gold.add(this.goldWorth);
           gameObjects.slain.add(1);
@@ -290,7 +304,20 @@ addEventListener("load", () => {
     // ========================================================================
     async roll(obj) {
       let diceToRoll = [];
+      
+      
+         ////Do a select dice handler here, right a method for both the player and the enemy to use. 
+        ////We are going to have to make the enenmy dice system now. 
+        ////Refer to apple text document for outline. 
+        obj.updateSelectedDice(); 
+
+
+      
       console.log("Rolling with selected dice:", obj.selectedDice);
+
+
+
+
 
       // Map loop targets directly against global dictionary indexes to compile 3D string prompts
       const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
@@ -425,9 +452,10 @@ addEventListener("load", () => {
     // ------------------------------------------------------------------------
     // BRANCH A: INTERCEPT SELECTION DRIVEN ATTACK MECHANICS ROUTINES
     // ------------------------------------------------------------------------
-      ////Do a select dice handler here, right a method for both the player and the enemy to use. 
-        ////We are going to have to make the enenmy dice system now. 
-        ////Refer to apple text document for outline. 
+   
+        
+
+
 
     if (actionType === "attack") {
       // Execute canvas operations and await response payloads explicitly
