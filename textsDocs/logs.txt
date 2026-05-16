@@ -5,3 +5,16 @@ never mind, would be a good reference though.
 
 To do next from bathroom break. 
 Put all the buttons into one card in the middle left. 
+
+
+
+9:48
+Player dice selection is reseting before roll is complete. 
+This is because we are calling that selection thing.
+This is becoming a pain in the ass to call. 
+
+
+Going to regorinize the stat card. 
+Maybe we can use the bottoms for the dice? 
+Could put the gold and enimes slain to the player stat card to save space. 
+and put little icons. 

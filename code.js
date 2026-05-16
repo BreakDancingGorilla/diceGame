@@ -192,7 +192,8 @@ addEventListener("load", () => {
         },
 
         updateSelectedDice(){
-          this.selectedDice = [0, 0, 0, 0, 0, 0];
+         ///The selection reset was moved to 
+          ///enemy.applyDamage and this fixes the ordering problem. 
           },
 
         reset() {
@@ -266,6 +267,7 @@ addEventListener("load", () => {
           // Math.max guarantees that if damage overshoots current HP, it lands squarely on 0
           const targetHealth = Math.max(0, this.healthNum - (gameObjects.diceObjects.player.damageNum + playerRoll));
           this.updateHealth(targetHealth);
+          gameObjects.diceObjects.player.selectedDice = [0, 0, 0, 0, 0, 0]; // Reset player selections immediately when enemy applies damage so the UI reflects the change right away without waiting for the next roll cycle to trigger updates
         },
 
         /**

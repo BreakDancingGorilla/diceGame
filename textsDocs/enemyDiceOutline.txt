@@ -49,3 +49,19 @@ We need to do code for updating the index, so if we use a 6d, we deincremint tha
             enemy.selectedDice 
 
 Okay, so that is how we decide what dice
+
+
+
+9am
+Okay going to make the base ui for showing the enemy dice. 
+I want this to just list what it has.
+    d4 5 
+    d10 2
+For example. 
+So we are going to new to write code that will add a 
+    h1 element to the div container as well as clearing it.
+        So lets first just focus on making the container
+        and a class for the h1 element.
+        Then in the code we will remove all h1 elements
+        and then add them with a loop with that class to
+        the div. 
