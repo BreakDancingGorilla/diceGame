@@ -15,6 +15,13 @@ import DiceBox from "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.
  * Index 5 -> d20 (20-sided die)
  */
 
+function ranNum (min , max){
+    seed = Math.random();
+    seed = Math.floor(seed * (max - (min - 1))) + min;
+    return seed;
+}
+
+
 // The gameplay loop waits completely for the browser viewport window to finish loading HTML assets
 addEventListener("load", () => {
   
@@ -276,9 +283,31 @@ addEventListener("load", () => {
          */
 
           ///This is where we will stage the enemyDiceOutline. Going to have the same one for player,, just so we can call them for both in the same function.
-          updateSelectedDice(){
+          agroWeightBase: 60,
+          currentAgroWeight: 60,
+          ///Resets to base at the end of the enemy turn. 
+          agroDecayRate: 5, // Rate at which agro is decreased per ranNum call.
+         
 
-          },
+
+          updateSelectedDice(){
+            ///Build the diceToChoose array
+            var diceToChoose = [];
+            for(let i = 0; i < this.dice.length; i++){
+                diceToChoose.push({dieIndex: i, quantity: this.dice[i]});
+            }
+            ///to fill 
+            var diceChosen = [{dieIndex: 0, quantity: 0}, {dieIndex: 1, quantity: 0}, {dieIndex: 2, quantity: 0}, {dieIndex: 3, quantity: 0}, {dieIndex: 4, quantity: 0}, {dieIndex: 5, quantity: 0}];
+            
+            ///Now here is the logic for choosing the dice. 
+            while (this.currentAgroWeight > 0 && diceToChoose.length > 0){ 
+
+
+            }
+        
+        },
+
+
 
 
         slay() {

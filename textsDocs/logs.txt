@@ -18,3 +18,15 @@ Going to regorinize the stat card.
 Maybe we can use the bottoms for the dice? 
 Could put the gold and enimes slain to the player stat card to save space. 
 and put little icons. 
+
+
+okay stat card is reorginized.
+
+Going to work on wiring up the logic for
+the enemy dice. 
+
+first gatta make id's for all of them, 
+link them up,
+then decide where to write the method at. 
+Shit, should probably actually do the selector logic first
+    Going to do that. 
