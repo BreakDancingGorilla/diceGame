@@ -35,3 +35,21 @@ Shit, should probably actually do the selector logic first
 I think it would be cool to have a menu with a log option
     and I can open it and click what I want to console log. 
     ALSO DONT FORGET TO CREDIT THE DICE ENGINE DUDE!!!!!
+
+11:22pm
+internal part of the enemy dice selector made. 
+
+We will make a method and object for updating the enemy dice ui 
+and call it in the selector. 
+    Damn I forgot this is going to a whole thing because we need 
+    to dynamically add and remove all the element inside of the div. 
+
+11:42am 
+    Ohkay that is done.
+    But just realized we need to make the enemy new enemy get a new
+    set of dice.
+
+        Also thought, if we ever do bosses, we can use the dice graphics. 
+
+    After we make this, then we got to make the 
+    player gain the leftover dice.  

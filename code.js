@@ -4,7 +4,7 @@
 
 // Import the 3D dice rolling engine framework via a public delivery CDN network
 import DiceBox from "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js";
-
+const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
 /**
  * QUICK REFERENCE: DICE BOX INDEX SYSTEM MAP
  * Index 0 -> d4  (4-sided die)
@@ -280,23 +280,41 @@ addEventListener("load", () => {
           gameObjects.diceObjects.player.selectedDice = [0, 0, 0, 0, 0, 0]; // Reset player selections immediately when enemy applies damage so the UI reflects the change right away without waiting for the next roll cycle to trigger updates
         },
 
-        /**
-         * ENEMY SLAIN / DEFEAT CONSEQUENCES ENGINE
-         * Distributes drops, updates metrics, inflates difficulty coefficients, and rolls fresh generation
-         */
-
         ///This is where we will stage the enemyDiceOutline. Going to have the same one for player,, just so we can call them for both in the same function.
+        diceContainer: document.getElementById("enemyDiceContainer"),
+
+        updateDiceUi() {
+          let elementTexts = [];
+          for (let i = 0; i < this.dice.length; i++) {
+            if (this.dice[i] > 0) {
+              elementTexts.push(`${types[i]}  ${this.dice[i]}`);
+            }
+          }
+
+          // 1. Map the text array into an array of <h1> elements
+          const headingElements = elementTexts.map((text) => {
+            const h1 = document.createElement("h1");
+            h1.textContent = text;
+            h1.classList.add("enemyDieH2"); // Add the CSS class for styling
+            return h1;
+          });
+
+          // 2. Clear the div and add all the new <h1> elements at once
+          this.diceContainer.replaceChildren(...headingElements);
+        },
+
         agroWeightBase: 60,
         currentAgroWeight: 60,
         ///Resets to base at the end of the enemy turn.
         agroDecayRate: 5, // Rate at which agro is decreased per ranNum call.
 
         updateSelectedDice() {
+           this.updateDiceUi();
           if (this.dice.length < 0) {
-            return; 
+            return;
             console.log("Enemy has no dice left to choose from.");
           }
-          
+
           ///Build the diceToChoose array
           var diceToChoose = [];
           for (let i = 0; i < this.dice.length; i++) {
@@ -319,52 +337,54 @@ addEventListener("load", () => {
 
           ///Now here is the logic for choosing the dice.
 
-          while (this.currentAgroWeight > 0 || diceToChoose.length > 0 || cycleLimt > 100) {
-            ///To choose wheather to choose a die. 
-            if (ranNum(0,100) < this.currentAgroWeight) {
+          while (
+            this.currentAgroWeight > 0 ||
+            diceToChoose.length > 0 ||
+            cycleLimt > 100
+          ) {
+            ///To choose wheather to choose a die.
+            if (ranNum(0, 100) < this.currentAgroWeight) {
               let ranNumToUse = ranNum(0, this.currentAgroWeight);
 
-            this.currentAgroWeight -= this.agroDecayRate; // Decrease agro weight to increase chances of breaking out of the loop and adding some variability to the dice selection process.
-            // Formula: (num / 100) * arrayLength
-            let index = Math.floor((ranNumToUse / 100) * diceToChoose.length);
+              this.currentAgroWeight -= this.agroDecayRate; // Decrease agro weight to increase chances of breaking out of the loop and adding some variability to the dice selection process.
+              // Formula: (num / 100) * arrayLength
+              let index = Math.floor((ranNumToUse / 100) * diceToChoose.length);
 
-            // Safeguard: Ensure a random number of exactly 100 doesn't cause an out-of-bounds error
-            if (index >= diceToChoose.length) {
-              index = diceToChoose.length - 1;
-            }
-            console.log(diceChosen[diceToChoose[index].dieIndex])
-            diceChosen[diceToChoose[index].dieIndex].quantity += 1; // Increment the quantity of the chosen die in the diceChosen array
-            console.log(diceChosen[diceToChoose[index].dieIndex])
-            console.log()
-            diceToChoose[index].quantity -= 1; // Decrement the quantity of the chosen die in the diceToChoose array
-           
-            if (diceToChoose[index].quantity <= 0) {
-            console.log("test");
-              diceToChoose.splice(index, 1); // Remove the die from the diceToChoose array if its quantity drops to zero
-            console.log("test");
-            }
-            console.log(cycleLimt);
-            cycleLimt++;
-  
+              // Safeguard: Ensure a random number of exactly 100 doesn't cause an out-of-bounds error
+              if (index >= diceToChoose.length) {
+                index = diceToChoose.length - 1;
+              }
+              console.log(diceChosen[diceToChoose[index].dieIndex]);
+              diceChosen[diceToChoose[index].dieIndex].quantity += 1; // Increment the quantity of the chosen die in the diceChosen array
+              console.log(diceChosen[diceToChoose[index].dieIndex]);
+              console.log();
+              diceToChoose[index].quantity -= 1; // Decrement the quantity of the chosen die in the diceToChoose array
 
-  
-        }
-            else {
+              if (diceToChoose[index].quantity <= 0) {
+                console.log("test");
+                diceToChoose.splice(index, 1); // Remove the die from the diceToChoose array if its quantity drops to zero
+                console.log("test");
+              }
+              console.log(cycleLimt);
+              cycleLimt++;
+            } else {
               break;
             }
-            
-
-         
-
-        }
-        this.currentAgroWeight = this.agroWeightBase; // Reset agro weight for the next turn
-                  console.log("Enemy dice chosen:", diceChosen);
+          }
+          this.currentAgroWeight = this.agroWeightBase; // Reset agro weight for the next turn
+          console.log("Enemy dice chosen:", diceChosen);
           ///Now we update the selectedDice array with diceChosen.
           for (let i = 0; i < diceChosen.length; i++) {
             this.selectedDice[diceChosen[i].dieIndex] = diceChosen[i].quantity;
+          } 
+          //Now we get rid of the dice in the enemy inventory that were chosen.
+          for (let i = 0; i < diceChosen.length; i++) {
+            this.dice[diceChosen[i].dieIndex] -= diceChosen[i].quantity;
           }
-         console.log("Enemy selected dice:", this.selectedDice);
-      },
+          this.updateDiceUi();
+          console.log("Enemy selected dice:", this.selectedDice);
+          console.log("Enemy dice inventory after selection:", this.dice);
+        },
 
         slay() {
           gameObjects.gold.add(this.goldWorth);
@@ -382,6 +402,7 @@ addEventListener("load", () => {
           this.dice = [...this.baseDice];
           this.updateHealth(this.baseHealth);
           this.updateDamage(this.baseDamage);
+          this.updateDiceUi();
         },
       },
     },
@@ -400,7 +421,6 @@ addEventListener("load", () => {
       console.log("Rolling with selected dice:", obj.selectedDice);
 
       // Map loop targets directly against global dictionary indexes to compile 3D string prompts
-      const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
       obj.selectedDice.forEach((amt, i) => {
         if (amt > 0) {
           diceToRoll.push(amt + types[i]); // Compiles strings like: "2d6" or "1d20"
@@ -558,7 +578,6 @@ addEventListener("load", () => {
       // FIX: Calculate target limits ensuring total HP does not exceed maximum boundaries
       const targetHealth =
         gameObjects.diceObjects.player.healthNum + healAmount;
-x
       // Update data variables and sync visually to the DOM
       gameObjects.diceObjects.player.updateHealth(targetHealth);
     }
