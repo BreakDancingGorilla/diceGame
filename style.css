@@ -5,7 +5,9 @@ html, body {
     overflow: hidden; 
     display: flex;         /* New layout method */
     flex-direction: column; /* Stacks elements top-to-bottom */
+     line-height:0;
 }
+
 
 #cover {
      pointer-events: none;
@@ -55,6 +57,7 @@ html, body {
   background-color: black;
   border-radius: 25px;
 }
+
 
 #playerDiceHolder{
     font-size: 50%;
@@ -136,10 +139,32 @@ h1, h2, p {
 } 
 
 #player-dice-box {
+    position: relative;
     background-image: linear-gradient(rgba(26, 35, 126, 0.6), rgba(26, 35, 126, 0.6)), url(/public/assets/woodgrain2.jpg);
     background-size: cover;
     z-index: 1;
 }
+
+#numRolledTextPlayer {
+
+}
+
+.numRolledBox {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40%;
+    width: 40%;
+    top: 2%;
+    left: 30%;
+    font-size: 2em;
+    background-color: white;
+    opacity: 0.5;
+    z-index: 10001; /* Above the dice */
+}
+
+
 
 #player-dice-box canvas {
     pointer-events: none; 
@@ -149,6 +174,7 @@ h1, h2, p {
 }
 
 #enemy-dice-box {
+    position: relative;
     background-image: linear-gradient(rgba(183, 28, 28, 0.6), rgba(183, 28, 28, 0.6)), url(/public/assets/woodgrain2.jpg);
     background-size: cover;
 }
