@@ -1,32 +1,51 @@
+// ============================================================================
+// EXTERNAL MODULE IMPORTS & ENGINE INITIALIZATION
+// ============================================================================
+
+// Import the 3D dice rolling engine framework via a public delivery CDN network
 import DiceBox from "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js";
 
-/* 
-Die index value corresponds to the number of sides on the die 
-- 4, 6, 8, 10, 12, 20
-*/
+/**
+ * QUICK REFERENCE: DICE BOX INDEX SYSTEM MAP
+ * Index 0 -> d4  (4-sided die)
+ * Index 1 -> d6  (6-sided die)
+ * Index 2 -> d8  (8-sided die)
+ * Index 3 -> d10 (10-sided die)
+ * Index 4 -> d12 (12-sided die)
+ * Index 5 -> d20 (20-sided die)
+ */
 
-//The gameplay starts if either heal or attack roll are pressed then it starts the main loop.
-
+// The gameplay loop waits completely for the browser viewport window to finish loading HTML assets
 addEventListener("load", () => {
+  
+  // Attach game controller directly to window context so it can be debugged easily via browser console
   window.gameObjects = {
-    initialized: false,
+    initialized: false, // Flag tracking if the 3D canvases are ready to intercept user inputs
 
+    /**
+     * INITIALIZATION METHOD: Runs once at application startup
+     * Boots the 3D engines and loads the inventory array visuals
+     */
     async init() {
-      this.reset();
+      this.reset(); // Establish baseline player stats and wipe records clean
 
       try {
+        // Concurrently load canvas components for both dice trays so they initialize in parallel
         await Promise.all([
           this.diceObjects.player.box.init(),
           this.diceObjects.enemy.box.init(),
         ]);
         this.initialized = true;
         console.log("Dice boxes ready");
-        this.diceObjects.player.updateDiceInv();
+        this.diceObjects.player.updateDiceInv(); // Update DOM text to show beginning inventory values
       } catch (e) {
         console.error("Dice-Box failed to load:", e);
       }
     },
 
+    /**
+     * RESET ENGINE METHOD: Cascades reset commands down to every state machine tracking data
+     */
     reset() {
       this.slain.reset();
       this.gold.reset();
@@ -34,6 +53,9 @@ addEventListener("load", () => {
       this.diceObjects.enemy.reset();
     },
 
+    // ========================================================================
+    // STATE ENGINE SUB-OBJECT: SLAIN ENEMY TRACKER
+    // ========================================================================
     slain: {
       num: 0,
       element: document.getElementById("slainCount"),
@@ -47,6 +69,9 @@ addEventListener("load", () => {
       },
     },
 
+    // ========================================================================
+    // STATE ENGINE SUB-OBJECT: ECONOMY / GOLD TRACKER
+    // ========================================================================
     gold: {
       num: 0,
       element: document.getElementById("goldCount"),
@@ -57,9 +82,10 @@ addEventListener("load", () => {
       },
 
       remove(num) {
-        if (this.num - num < 0) return false;
+        if (this.num - num < 0) return false; // Guard clause: prevents spending below zero balance
         this.num -= num;
         this.element.innerHTML = this.num;
+        return true;
       },
 
       reset() {
@@ -68,7 +94,14 @@ addEventListener("load", () => {
       },
     },
 
+    // ========================================================================
+    // COMBATANTS DATA WRAPPERS & DICE BOX CONFIGURATIONS
+    // ========================================================================
     diceObjects: {
+      
+      // ----------------------------------------------------------------------
+      // PLAYER PROPERTIES, INVENTORY, AND STAT HOOKS
+      // ----------------------------------------------------------------------
       player: {
         box: new DiceBox({
           assetPath: "assets/",
@@ -77,6 +110,7 @@ addEventListener("load", () => {
           scale: 10,
         }),
 
+        // UI DOM caching mapping to render live values when allocation indicators change
         diceInvUi: {
           quan: {
             select: {
@@ -96,41 +130,24 @@ addEventListener("load", () => {
               d20: document.getElementById("20DieQuan"),
             },
           },
-          btn: {
-            up: {
-              d4: document.getElementById("4SelectUp"),
-              d6: document.getElementById("6SelectUp"),
-              d8: document.getElementById("8SelectUp"),
-              d10: document.getElementById("10SelectUp"),
-              d12: document.getElementById("12SelectUp"),
-              d20: document.getElementById("20SelectUp"),
-            },
-            down: {
-              d4: document.getElementById("4SelectDown"),
-              d6: document.getElementById("6SelectDown"),
-              d8: document.getElementById("8SelectDown"),
-              d10: document.getElementById("10SelectDown"),
-              d12: document.getElementById("12SelectDown"),
-              d20: document.getElementById("20SelectDown"),
-            },
-          },
         },
 
+        /**
+         * PLAYER DICE TRACER: Syncs raw JavaScript arrays out to HTML layouts
+         */
         updateDiceInv() {
           const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
           for (let i = 0; i < this.dice.length; i++) {
-            this.diceInvUi.quan.select[types[i]].innerHTML =
-              this.selectedDice[i];
+            this.diceInvUi.quan.select[types[i]].innerHTML = this.selectedDice[i];
             this.diceInvUi.quan.total[types[i]].innerHTML = this.dice[i];
           }
         },
 
-        // FIXED: Expanded from 5 entries to 6 entries to cover d20
-        dice: [2, 3, 1, 5, 3, 0],
-        baseDice: [2, 3, 5, 3, 0, 0],
-        selectedDice: [0, 0, 0, 0, 0, 0],
+        // Core data structures for tracking ammunition pools across turn actions
+        dice: [2, 3, 1, 5, 3, 0],         // Live mutable stockpile pools
+        baseDice: [2, 3, 5, 3, 0, 0],     // Fallback template defaults mapped during resets
+        selectedDice: [0, 0, 0, 0, 0, 0], // Staged choices awaiting submission to the 3D box
         currentDiceValue: 0,
-
         currentDiceValueUi: document.getElementById("numRolledTextPlayer"),
 
         baseHealth: 100,
@@ -142,13 +159,21 @@ addEventListener("load", () => {
         healthNum: 100,
         damageNum: 50,
 
-        showRollBox() {
-
+        toggleRollBox() {
+          document.getElementById("rolledBoxPlayer").classList.toggle("hide");
         },
 
+        /**
+         * PLAYER VISUAL HEALTH MANAGER
+         * Generates the math reduction string, then saves state when timer completes
+         */
         updateHealth(num) {
+          var damage = this.healthNum - num;
+          this.healthElement.innerHTML = `${this.healthNum} - ${damage}`;
           this.healthNum = num;
-          this.healthElement.innerHTML = num;
+          setTimeout(() => {  
+            this.healthElement.innerHTML = num;
+          }, 1500);
         },
 
         updateDamage(num) {
@@ -156,11 +181,14 @@ addEventListener("load", () => {
           this.damageElement.innerHTML = num;
         },
 
+        /**
+         * PLAYER DAMAGE INTAKE CALCULATION pipeline
+         * Deducts raw numbers based on incoming variables passed by enemy actions
+         */
         applyDamage(enemyRoll) {
-          this.updateHealth(
-            this.healthNum -
-              (gameObjects.diceObjects.enemy.damageNum + enemyRoll),
-          );
+          // Clamp calculation using Math.max to prevent player health from rendering below 0
+          const targetHealth = Math.max(0, this.healthNum - (gameObjects.diceObjects.enemy.damageNum + enemyRoll));
+          this.updateHealth(targetHealth);
         },
 
         reset() {
@@ -171,6 +199,9 @@ addEventListener("load", () => {
         },
       },
 
+      // ----------------------------------------------------------------------
+      // ENEMY PROPERTIES, PROGRESSION SCALING, AND STAT HOOKS
+      // ----------------------------------------------------------------------
       enemy: {
         box: new DiceBox({
           assetPath: "assets/",
@@ -179,18 +210,16 @@ addEventListener("load", () => {
           scale: 10,
         }),
 
-        // FIXED: Expanded from 5 entries to 6 entries to cover d20
         dice: [2, 1, 0, 0, 0, 0],
-        selectedDice: [2, 1, 0, 0, 0, 0], // To update for the new rolling system where you can select dice.
+        selectedDice: [2, 1, 0, 0, 0, 0], // AI automatically stages maximum pool resources out right away
         baseDice: [2, 1, 0, 0, 0, 0],
         currentDiceValue: 0,
-
         currentDiceValueUi: document.getElementById("numRolledTextEnemy"),
 
         baseHealth: 100,
         baseDamage: 7,
-        strength: 1.5,
-        strengthGrowthRate: 0.5,
+        strength: 1.5,           // Multiplier tracking incremental combat difficulties
+        strengthGrowthRate: 0.5, // Progression modifier added per kill record achieved
         goldWorth: 5,
 
         healthElement: document.getElementById("enemyHealth"),
@@ -199,9 +228,22 @@ addEventListener("load", () => {
         healthNum: 100,
         damageNum: 7,
 
+        toggleRollBox() {
+          document.getElementById("rolledBoxEnemy").classList.toggle("hide");
+        },
+
+        /**
+         * ENEMY VISUAL HEALTH MANAGER
+         * Displays the math reduction string, then updates raw values when timer concludes
+         */
         updateHealth(num) {
-          this.healthNum = num;
-          this.healthElement.innerHTML = num;
+          var damage = this.healthNum - num;
+          this.healthElement.innerHTML = `${this.healthNum} - ${damage}`;
+           this.healthNum = num;
+          setTimeout(() => {
+           
+            this.healthElement.innerHTML = num;
+          }, 1500);
         },
 
         updateDamage(num) {
@@ -209,19 +251,27 @@ addEventListener("load", () => {
           this.damageElement.innerHTML = num;
         },
 
+        /**
+         * ENEMY DAMAGE INTAKE CALCULATION pipeline
+         * FIX: Clamps reduction so health output bottoms out perfectly at 0 instead of hitting negatives
+         */
         applyDamage(playerRoll) {
-          this.updateHealth(
-            this.healthNum -
-              (gameObjects.diceObjects.player.damageNum + playerRoll),
-          );
+          // Math.max guarantees that if damage overshoots current HP, it lands squarely on 0
+          const targetHealth = Math.max(0, this.healthNum - (gameObjects.diceObjects.player.damageNum + playerRoll));
+          this.updateHealth(targetHealth);
         },
 
+        /**
+         * ENEMY SLAIN / DEFEAT CONSEQUENCES ENGINE
+         * Distributes drops, updates metrics, inflates difficulty coefficients, and rolls fresh generation
+         */
         slay() {
           gameObjects.gold.add(this.goldWorth);
           gameObjects.slain.add(1);
 
-          this.strength += this.strengthGrowthRate;
+          this.strength += this.strengthGrowthRate; // Scale combat curves harder for next lifecycle spawn
 
+          // Regenerate fresh pool targets augmented cleanly by scale tracking factor variables
           this.updateHealth(Math.round(this.baseHealth * this.strength));
           this.updateDamage(Math.round(this.baseDamage * this.strength));
         },
@@ -235,73 +285,89 @@ addEventListener("load", () => {
       },
     },
 
-async roll(obj) {
-  let diceToRoll = [];
-  console.log("Rolling with selected dice:", obj.selectedDice);
-  
-  const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
-  obj.selectedDice.forEach((amt, i) => {
-    if (amt > 0) {
-      diceToRoll.push(amt + types[i]);
-      obj.dice[i] -= amt;
-    }
-  });
+    // ========================================================================
+    // CORE ASYNCHRONOUS ENGINE: PHYSICAL 3D DICE DRAWER / RESOLVER
+    // ========================================================================
+    async roll(obj) {
+      let diceToRoll = [];
+      console.log("Rolling with selected dice:", obj.selectedDice);
 
-  console.log("Dice to roll:", diceToRoll);
+      // Map loop targets directly against global dictionary indexes to compile 3D string prompts
+      const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
+      obj.selectedDice.forEach((amt, i) => {
+        if (amt > 0) {
+          diceToRoll.push(amt + types[i]); // Compiles strings like: "2d6" or "1d20"
+          obj.dice[i] -= amt;             // Deduct spent ammo quantities permanently out of inventory pool
+        }
+        obj.selectedDice = [0, 0, 0, 0, 0, 0]; // Reset selections array back to default staging post-roll
+      });
 
-  if (diceToRoll.length === 0) {
-    obj.currentDiceValue = 0;
-    obj.selectedDice = [0, 0, 0, 0, 0, 0]; // Reset on empty attempt
-    return 0;
-  }
+      console.log("Dice to roll:", diceToRoll);
 
-  return new Promise((resolve) => {
-    obj.box.onRollComplete = (results) => {
-      obj.currentDiceValue = results.reduce((sum, d) => sum + d.value, 0);
-      obj.currentDiceValueUi.innerHTML = obj.currentDiceValue;
-      // RESET SELECTION HERE AFTER SUCCESSFUL ROLL
-      obj.selectedDice = [0, 0, 0, 0, 0, 0]; 
-      
-      setTimeout(() => {
-        obj.box.clear();
-      }, 1500);
+      // Guard check: halts engine routines if player pushes action triggers with zero dice selected
+      if (diceToRoll.length === 0) {
+        obj.currentDiceValue = 0;
+        obj.selectedDice = [0, 0, 0, 0, 0, 0]; 
+        return 0;
+      }
 
-      obj.box.onRollComplete = null;
-      resolve(obj.currentDiceValue);
-    };
+      // Capture callback completions into async promises so the main game script pauses naturally for 3D simulation loops
+      return new Promise((resolve) => {
+        // Define interceptor hook triggered natively when external physics tracking modules settle calculation frames
+        obj.box.onRollComplete = (results) => {
+          // Accumulate raw roll faces down into single arithmetic sum metrics
+          obj.currentDiceValue = results.reduce((sum, d) => sum + d.value, 0);
+          obj.currentDiceValueUi.innerHTML = obj.currentDiceValue;
+          
+          obj.toggleRollBox();                   // Display overlay panel readout cards to viewport tracking nodes
+          
+          // Clear physical meshes off the canvas container field after rendering display targets
+          setTimeout(() => {
+            obj.box.clear();
+            obj.toggleRollBox();
+          }, 1500);
 
-    obj.box.roll(diceToRoll);
-    gameObjects.diceObjects.player.updateDiceInv();
-  });
-}
+          obj.box.onRollComplete = null; // Clean up runtime hook references to prevent garbage collection memory leaking patterns
+          resolve(obj.currentDiceValue); // Feed compiled numeric sums straight back out into active game turn queues
+        };
 
+        // Fire physical vectors into rendering engine wrappers to trigger rolling behaviors
+        obj.box.roll(diceToRoll);
+        ///Player selected dice reset in here because I haent set that up for the enemy yet. 
+        gameObjects.diceObjects.player.updateDiceInv(); // Force canvas inventories to capture deduction alterations visually
+      });
+    },
   };
 
-
+  // Run core script bootstrapping routines
   gameObjects.init();
 
+  // Cache static interactive DOM pointer handles
   const attackBtn = document.getElementById("attackButton");
   const healBtn = document.getElementById("healbutton");
-
-  var rolling = false;
-
-  // Attach the listener to the parent container that ALWAYS exists
   const diceHolder = document.getElementById("playerDiceHolder");
 
-  if (diceHolder) {
-    diceHolder.addEventListener("click", (event) => {
-      // Find the closest button element, handling the nested <img> tag perfectly
-      const button = event.target.closest(".select-button");
+  // Global concurrency mutex lock tracker preventing actions from colliding mid-animation frame queues
+  var rolling = false;
 
-      // If the click wasn't on or inside a select-button, ignore it
-      if (!button) return;
+  // ============================================================================
+  // INTERACTION FLOW PIPELINE: CENTRALIZED EVENT EVENT LISTENER FOR DICE ALLOCATION
+  // ============================================================================
+  if (diceHolder) {
+    // Intercept clicks passing through parent containers to map target selectors seamlessly without duplications
+    diceHolder.addEventListener("click", (event) => {
+      
+      // Pull down reference mappings to structural button containers housing active asset pointers
+      const button = event.target.closest(".select-button");
+      if (!button) return; // Disregard arbitrary ambient clicks targeting empty canvas zones or background graphics
 
       console.log("button clicked", button.id);
       const clickedId = button.id;
 
       var dieIndex;
-      var increment = clickedId.includes("Up") ? 1 : -1;
+      var increment = clickedId.includes("Up") ? 1 : -1; // Inspect element ID strings to isolate vector directions
 
+      // Route string definitions straight down into indexed structural numeric arrays mapping target parameters
       switch (clickedId) {
         case "4SelectDown":
         case "4SelectUp":
@@ -331,8 +397,10 @@ async roll(obj) {
 
       const player = gameObjects.diceObjects.player;
 
+      // Restrict selections inside boundary thresholds checking live stockpile quantities
       if (increment === 1) {
         if (player.selectedDice[dieIndex] < player.dice[dieIndex]) {
+          console.log(`Incrementing die index ${dieIndex}`);
           player.selectedDice[dieIndex] += 1;
         }
       } else {
@@ -341,55 +409,68 @@ async roll(obj) {
         }
       }
       console.log("Selected dice:", player.selectedDice);
-      gameObjects.diceObjects.player.updateDiceInv();
+      gameObjects.diceObjects.player.updateDiceInv(); // Cascade changes out to visible overlay layout maps
     });
   } else {
     console.error("Could not find #playerDiceHolder in the DOM!");
   }
 
-  healBtn.addEventListener("click", async () => {
-    if (rolling) return;
+  // ============================================================================
+  // CENTRALIZED STATE ENGINE GAMEPLAY TURN MACHINE PIPELINE
+  // ============================================================================
+  async function handleTurn(actionType) {
+    if (rolling) return; // Mutex Guard Clause: locks interface controls down while animations resolve asynchronously
     rolling = true;
-    console.log("hello");
-    const playerRoll = await gameObjects.roll(gameObjects.diceObjects.player);
-    gameObjects.diceObjects.enemy.applyDamage(playerRoll);
 
-    if (gameObjects.diceObjects.enemy.healthNum <= 0) {
-      gameObjects.diceObjects.enemy.slay();
-      rolling = false;
-      return;
+    // ------------------------------------------------------------------------
+    // BRANCH A: INTERCEPT SELECTION DRIVEN ATTACK MECHANICS ROUTINES
+    // ------------------------------------------------------------------------
+      ////Do a select dice handler here, right a method for both the player and the enemy to use. 
+        ////We are going to have to make the enenmy dice system now. 
+
+    if (actionType === "attack") {
+      // Execute canvas operations and await response payloads explicitly
+      const playerRoll = await gameObjects.roll(gameObjects.diceObjects.player);
+      gameObjects.diceObjects.enemy.applyDamage(playerRoll);
+
+      // Check for structural enemy lifecycle failure states instantly before allowing execution frames to pass turns
+      console.log("Enemy health after attack:", gameObjects.diceObjects.enemy.healthNum);
+      if (gameObjects.diceObjects.enemy.healthNum <= 0) {
+        gameObjects.diceObjects.enemy.slay();
+        rolling = false;
+        return; // Early return terminates workflow execution lines completely so dead targets cannot counter-attack
+      }
+    
+    // ------------------------------------------------------------------------
+    // BRANCH B: INTERCEPT SELECTION DRIVEN PLAYER HEALING MECHANICS ROUTINES
+    // ------------------------------------------------------------------------
+    } else if (actionType === "heal") {
+      // Collect healing values straight out of active dice boxes
+      const healAmount = await gameObjects.roll(gameObjects.diceObjects.player);
+      
+      // FIX: Calculate target limits ensuring total HP does not exceed maximum boundaries
+      const targetHealth = gameObjects.diceObjects.player.healthNum + healAmount;
+      
+      // Update data variables and sync visually to the DOM 
+      gameObjects.diceObjects.player.updateHealth(targetHealth); 
     }
 
+    // ------------------------------------------------------------------------
+    // ENEMY TURN: COUNTER-ATTACK PROCESSING QUEUE
+    // ------------------------------------------------------------------------
+    // The active enemy resolves its automatic dice routine now (fires regardless of whether Player chose attack or heal)
     const enemyRoll = await gameObjects.roll(gameObjects.diceObjects.enemy);
     gameObjects.diceObjects.player.applyDamage(enemyRoll);
 
+    // Evaluate global game-over defeat threshold tracking loops
     if (gameObjects.diceObjects.player.healthNum <= 0) {
-      gameObjects.reset();
+      gameObjects.reset(); // Full systemic cascade state tracking reset wipe
     }
 
-    rolling = false;
-  });
+    rolling = false; // Open interface locks up again allowing follow-up action requests to go through
+  }
 
-  attackBtn.addEventListener("click", async () => {
-    if (rolling) return;
-    rolling = true;
-
-    const playerRoll = await gameObjects.roll(gameObjects.diceObjects.player);
-    gameObjects.diceObjects.enemy.applyDamage(playerRoll);
-
-    if (gameObjects.diceObjects.enemy.healthNum <= 0) {
-      gameObjects.diceObjects.enemy.slay();
-      rolling = false;
-      return;
-    }
-
-    const enemyRoll = await gameObjects.roll(gameObjects.diceObjects.enemy);
-    gameObjects.diceObjects.player.applyDamage(enemyRoll);
-
-    if (gameObjects.diceObjects.player.healthNum <= 0) {
-      gameObjects.reset();
-    }
-
-    rolling = false;
-  });
+  // Bind unified processing triggers to main controller buttons
+  attackBtn.addEventListener("click", () => handleTurn("attack"));
+  healBtn.addEventListener("click", () => handleTurn("heal"));
 });

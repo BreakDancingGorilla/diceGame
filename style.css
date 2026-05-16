@@ -13,6 +13,10 @@ html, body {
      pointer-events: none;
 }
 
+.hide {
+    visibility: hidden;
+}
+
 .horzon {
     display: flex;
     flex-direction: row;
