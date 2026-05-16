@@ -8,18 +8,6 @@
 
   <body>
     <div id="cardHolder">
-      <div class="row">
-        <h1>
-          Enemies Slain
-          <h1 id="slainCount">Loading</h1>
-        </h1>
-      </div>
-      <div class="row">
-        <h1>
-          Gold
-          <h1 id="goldCount">Loading</h1>
-        </h1>
-      </div>
       <div id="playerDiceCard">
         <div id="playerDiceHolder">
           <div class="die" id="playerDie1">
@@ -175,11 +163,25 @@
         </div>
       </div>
       <div class="statCard">
-        <h1>Player</h1>
-        <h2><u>Health</u></h2>
-        <h2 id="playerHealth">Loading</h2>
-        <h2><u>Base Damage</u></h2>
-        <h2 id="playerDamage">Loading</h2>
+                <h1>Player</h1>
+        <div id="playerStatGrid">
+          <div class="playerStat">
+            <h2><u>HP</u></h2>
+            <h2 id="playerHealth">Loading</h2>
+          </div>
+          <div class="playerStat">
+            <h2><u>DPS</u></h2>
+            <h2 id="playerDamage">Loading</h2>
+          </div>
+          <div class="playerStat">
+            <h2><u>Slain</u></h2>
+            <h2 id="slainCount">Loading</h2>
+          </div>
+          <div class="playerStat">
+            <h2><u>Gold</u></h2>
+            <h2 id="goldCount">Loading</h2>
+          </div>
+        </div>
       </div>
       <div class="statCard">
         <div id="enemyDiceContainer" class="absolute-badge">
