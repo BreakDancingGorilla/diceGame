@@ -34,7 +34,6 @@
         </div>
       </div>
       <div class="statCard">
-       
         <h1>Enemy</h1>
         <h2><u>Health</u></h2>
         <h2 id="enemyHealth">Loading</h2>
@@ -43,12 +42,12 @@
         <h2><u>Bounty</u></h2>
         <h2 id="enemyBounty">Loading</h2>
       </div>
-      <div id="enemyDiceContainer" >
-          <h2 class="center enemyDieH2">Loading</h2>
-          <h2 class="center enemyDieH2">Loading</h2>
-          <h2 class="center enemyDieH2">Loading</h2>
-          <h2 class="center enemyDieH2">Loading</h2>
-        </div>
+      <div id="enemyDiceContainer">
+        <h2 class="center enemyDieH2">Loading</h2>
+        <h2 class="center enemyDieH2">Loading</h2>
+        <h2 class="center enemyDieH2">Loading</h2>
+        <h2 class="center enemyDieH2">Loading</h2>
+      </div>
       <div id="inv">
         <div id="invTitleBox">
           <h1>Inventory</h1>
@@ -225,7 +224,7 @@
               <h2 id="selectedReRoll"></h2>
             </div>
           </div>
-          
+
           <div class="die">
             <div class="horzon">
               <h1>Weighted Die</h1>
@@ -250,12 +249,8 @@
               <h2 id="selectedWeighted"></h2>
             </div>
           </div>
-
-          
-
         </div>
       </div>
-      
     </div>
 
     <div id="diceGrid">
@@ -272,9 +267,205 @@
     </div>
 
     <div id="shopBox">
-      <div id="shopLayout"></div>
-    </div>
+      <div id="shopTitleBox">
+        <h1 id="shopTitle">Shop</h1>
+      </div>
+      <div id="shopExitBox">
+        <img src="./svg/x-circle.svg" />
+      </div>
+      <div id="shopLayout">
+        <div id="shopTopSpacer"></div>
+        <div class="shopColumnTitleBox">
+          <h1>Items</h1>
+        </div>
+        <div class="shopColumnTitleBox">
+          <h1>Stats</h1>
+        </div>
+        <div class="shopItemsBox">
+          <div class="shopItem">
+            <h1 class="shopItemName">Re-Roll Token</h1>
+            <h1 class="shopItemCost">$5</h1>
+            <img src="./svg/plus-circle.svg" />
+            <h1 id="amtToBuy">0</h1>
+          </div>
+          <div class="shopItem">
+            <h1 class="shopItemName">Weight Dice</h1>
+            <h1 class="shopItemCost">$5</h1>
+            <img src="./svg/plus-circle.svg" />
+            <h1 id="amtToBuy">0</h1>
+          </div>
+        </div>
+        <div class="shopItemsBox">
+          <div class="shopItem">
+            <h1 class="shopItemName">x Damage Points</h1>
+            <h1 class="shopItemCost">$5</h1>
+            <img src="./svg/plus-circle.svg" />
+            <h1 id="amtToBuy">0</h1>
+          </div>
+          <div class="shopItem">
+            <h1 class="shopItemName">x Health Points</h1>
+            <h1 class="shopItemCost">$5</h1>
+            <img src="./svg/plus-circle.svg" />
+            <h1 id="amtToBuy">0</h1>
+          </div>
+        </div>
+        <div class="shopColumnTitleBox">
+          <h1>Sell Dice</h1>
+        </div>
+        <div id="diceSellBox">
+         <button id="diceSellBtn">Sell</button>
+          <h1>+50$</h1>
+        </div>
+        <div id="shopDiceHolder">
+          <div class="shopDie" id="playerDie1">
+            <div class="horzon">
+              <h1>4d</h1>
+              <h1 id="4DieQuan">0</h1>
+            </div>
 
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="4SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="4SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan4"></h2>
+            </div>
+          </div>
+          <div class="shopDie" id="playerDie2">
+            <div class="horzon">
+              <h1>6d</h1>
+              <h1 id="6DieQuan">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="6SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="6SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan6"></h2>
+            </div>
+          </div>
+          <div class="shopDie" id="playerDie3">
+            <div class="horzon">
+              <h1>8d</h1>
+              <h1 id="8DieQuan">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="8SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="8SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan8"></h2>
+            </div>
+          </div>
+          <div class="shopDie" id="playerDie4">
+            <div class="horzon">
+              <h1>10d</h1>
+              <h1 id="10DieQuan">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="10SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="10SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan10"></h2>
+            </div>
+          </div>
+          <div class="shopDie" id="playerDie5">
+            <div class="horzon">
+              <h1>12d</h1>
+              <h1 id="12DieQuan">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="12SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="12SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan12"></h2>
+            </div>
+          </div>
+
+          <div class="shopDie" id="playerDie6">
+            <div class="horzon">
+              <h1>20d</h1>
+              <h1 id="20DieQuan">0</h1>
+            </div>
+            <div class="horzon">
+              <button class="list-item-button-up select-button" id="20SelectUp">
+                <img
+                  src="./pitfallSvgsPort/arrow-up-circle.svg"
+                  class="list-item-button-img-up"
+                />
+              </button>
+              <button
+                class="list-item-button-down select-button"
+                id="20SelectDown"
+              >
+                <img
+                  src="./pitfallSvgsPort/arrow-down-circle.svg"
+                  class="list-item-button-img-down"
+                />
+              </button>
+              <h2 id="selectedDieQuan20"></h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="./code.js"></script>
   </body>

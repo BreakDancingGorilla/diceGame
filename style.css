@@ -103,21 +103,51 @@ html, body {
     gap: 5px;
 }
 
+svg {
+    color: red;
+    width: 100%;
+    height: 100%;
+}
+
+.shopDie {
+    border-radius: 0 !important;
+    width: 100%;
+    height: 100%;
+    
+    display: flex;
+    flex-direction: column;
+    background-color: black;
+    color: white;
+    justify-content: center;
+    align-content: center;
+    font-size:50%;
+}
+
 #playerDiceHolder { 
     margin-left: 10px;
     margin-right: 10px;
-    border-radius: 25px;
     display: grid;
     width: 100%;
     height: 75%;
     gap: 5px;
-    grid-template-rows: 1fr;
+    grid-template-rows: 1fr; 
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+#shopDiceHolder {
+    grid-column: span 2;
+    margin-left: 5%;
+    border-radius: 0 !important;
+    display: grid;
+    width: 90%;
+    height: 75%;
+    gap: 5px;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
 }
 
 #shopBox {
     position: absolute;
-    border-radius: 25px;
     background-color: pink;
     transform: translate(10vw,10vh);
     z-index: 999999;
@@ -127,16 +157,97 @@ html, body {
     height: 80vh;
 }
 
+#shopTopSpacer {
+    grid-column: span 2;
+
+}
+
+.shopColumnTitleBox {
+    display: flex;
+    justify-content: flex-start;
+    padding-left: 10%;
+}
+
 #shopLayout {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: grid;
+    grid-template-columns:  1fr 1fr ;
+    grid-template-rows: 0.10fr  0.10fr 0.20fr  0.10fr 0.20fr 0.15fr 0.15fr ;
+}
+
+#shopTitle {
+    font-size: 300%;
+}
+
+.shopItemCost {
+    align-self: center;
+}
+
+.diceSellBtn {
+ 
+   display: flex !important;
+    justify-content: center !important; /* Horizontally centers */
+    align-items: center !important;     /* Vertically centers */
+    clear: both !important;   
+}
+
+#diceSellBox {
+    font-size: 100%;
+   display: grid;
+   grid-template-rows: 1fr;
+   grid-template-columns: 1fr 1fr;
+    padding-right: 10%;
     
 }
 
+.shopItem {
+   display: grid;
+   padding-left: 10%;
+   width: 90%;
+   grid-template-rows: 1fr;
+   grid-template-columns: 0.70fr 0.10fr 0.10fr 0.10fr;
+   font-size: 50%;
+}
+
+#shopExitBox {
+     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: whitesmoke;
+    opacity: 0.5;
+    border-radius: 25px;
+    position: absolute;
+    width: 10%;
+    height: 10%;
+    top: 0;
+    left: 0;
+    transform: translate(920%, -40%);
+}
+
+#shopTitleBox {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: whitesmoke;
+    opacity: 0.5;
+    border-radius: 25px;
+    position: absolute;
+    width: 50%;
+    height: 15%;
+    top: 0;
+    left: 0;
+    transform: translate(50%, -45%);
+}
 
 .die {
     border-radius: 25px;
     width: 100%;
     height: 100%;
-
+    
     display: flex;
     flex-direction: column;
     background-color: black;
