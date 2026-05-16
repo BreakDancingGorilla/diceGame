@@ -30,3 +30,8 @@ link them up,
 then decide where to write the method at. 
 Shit, should probably actually do the selector logic first
     Going to do that. 
+
+
+I think it would be cool to have a menu with a log option
+    and I can open it and click what I want to console log. 
+    ALSO DONT FORGET TO CREDIT THE DICE ENGINE DUDE!!!!!

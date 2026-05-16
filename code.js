@@ -15,16 +15,14 @@ import DiceBox from "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.
  * Index 5 -> d20 (20-sided die)
  */
 
-function ranNum (min , max){
-    seed = Math.random();
-    seed = Math.floor(seed * (max - (min - 1))) + min;
-    return seed;
+function ranNum(min, max) {
+  let seed = Math.random();
+  seed = Math.floor(seed * (max - (min - 1))) + min;
+  return seed;
 }
-
 
 // The gameplay loop waits completely for the browser viewport window to finish loading HTML assets
 addEventListener("load", () => {
-  
   // Attach game controller directly to window context so it can be debugged easily via browser console
   window.gameObjects = {
     initialized: false, // Flag tracking if the 3D canvases are ready to intercept user inputs
@@ -105,7 +103,6 @@ addEventListener("load", () => {
     // COMBATANTS DATA WRAPPERS & DICE BOX CONFIGURATIONS
     // ========================================================================
     diceObjects: {
-      
       // ----------------------------------------------------------------------
       // PLAYER PROPERTIES, INVENTORY, AND STAT HOOKS
       // ----------------------------------------------------------------------
@@ -145,14 +142,15 @@ addEventListener("load", () => {
         updateDiceInv() {
           const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
           for (let i = 0; i < this.dice.length; i++) {
-            this.diceInvUi.quan.select[types[i]].innerHTML = this.selectedDice[i];
+            this.diceInvUi.quan.select[types[i]].innerHTML =
+              this.selectedDice[i];
             this.diceInvUi.quan.total[types[i]].innerHTML = this.dice[i];
           }
         },
 
         // Core data structures for tracking ammunition pools across turn actions
-        dice: [2, 3, 1, 5, 3, 0],         // Live mutable stockpile pools
-        baseDice: [2, 3, 5, 3, 0, 0],     // Fallback template defaults mapped during resets
+        dice: [2, 3, 1, 5, 3, 0], // Live mutable stockpile pools
+        baseDice: [2, 3, 5, 3, 0, 0], // Fallback template defaults mapped during resets
         selectedDice: [0, 0, 0, 0, 0, 0], // Staged choices awaiting submission to the 3D box
         currentDiceValue: 0,
         currentDiceValueUi: document.getElementById("numRolledTextPlayer"),
@@ -178,7 +176,7 @@ addEventListener("load", () => {
           var damage = this.healthNum - num;
           this.healthElement.innerHTML = `${this.healthNum} - ${damage}`;
           this.healthNum = num;
-          setTimeout(() => {  
+          setTimeout(() => {
             this.healthElement.innerHTML = num;
           }, 1500);
         },
@@ -194,14 +192,18 @@ addEventListener("load", () => {
          */
         applyDamage(enemyRoll) {
           // Clamp calculation using Math.max to prevent player health from rendering below 0
-          const targetHealth = Math.max(0, this.healthNum - (gameObjects.diceObjects.enemy.damageNum + enemyRoll));
+          const targetHealth = Math.max(
+            0,
+            this.healthNum -
+              (gameObjects.diceObjects.enemy.damageNum + enemyRoll),
+          );
           this.updateHealth(targetHealth);
         },
 
-        updateSelectedDice(){
-         ///The selection reset was moved to 
-          ///enemy.applyDamage and this fixes the ordering problem. 
-          },
+        updateSelectedDice() {
+          ///The selection reset was moved to
+          ///enemy.applyDamage and this fixes the ordering problem.
+        },
 
         reset() {
           this.dice = [...this.baseDice];
@@ -230,7 +232,7 @@ addEventListener("load", () => {
 
         baseHealth: 100,
         baseDamage: 7,
-        strength: 1.5,           // Multiplier tracking incremental combat difficulties
+        strength: 1.5, // Multiplier tracking incremental combat difficulties
         strengthGrowthRate: 0.5, // Progression modifier added per kill record achieved
         goldWorth: 5,
 
@@ -249,14 +251,11 @@ addEventListener("load", () => {
          * Displays the math reduction string, then updates raw values when timer concludes
          */
 
-
-
         updateHealth(num) {
           var damage = this.healthNum - num;
           this.healthElement.innerHTML = `${this.healthNum} - ${damage}`;
-           this.healthNum = num;
+          this.healthNum = num;
           setTimeout(() => {
-           
             this.healthElement.innerHTML = num;
           }, 1500);
         },
@@ -272,7 +271,11 @@ addEventListener("load", () => {
          */
         applyDamage(playerRoll) {
           // Math.max guarantees that if damage overshoots current HP, it lands squarely on 0
-          const targetHealth = Math.max(0, this.healthNum - (gameObjects.diceObjects.player.damageNum + playerRoll));
+          const targetHealth = Math.max(
+            0,
+            this.healthNum -
+              (gameObjects.diceObjects.player.damageNum + playerRoll),
+          );
           this.updateHealth(targetHealth);
           gameObjects.diceObjects.player.selectedDice = [0, 0, 0, 0, 0, 0]; // Reset player selections immediately when enemy applies damage so the UI reflects the change right away without waiting for the next roll cycle to trigger updates
         },
@@ -282,33 +285,86 @@ addEventListener("load", () => {
          * Distributes drops, updates metrics, inflates difficulty coefficients, and rolls fresh generation
          */
 
-          ///This is where we will stage the enemyDiceOutline. Going to have the same one for player,, just so we can call them for both in the same function.
-          agroWeightBase: 60,
-          currentAgroWeight: 60,
-          ///Resets to base at the end of the enemy turn. 
-          agroDecayRate: 5, // Rate at which agro is decreased per ranNum call.
+        ///This is where we will stage the enemyDiceOutline. Going to have the same one for player,, just so we can call them for both in the same function.
+        agroWeightBase: 60,
+        currentAgroWeight: 60,
+        ///Resets to base at the end of the enemy turn.
+        agroDecayRate: 5, // Rate at which agro is decreased per ranNum call.
+
+        updateSelectedDice() {
+          if (this.dice.length < 0) {
+            return; 
+            console.log("Enemy has no dice left to choose from.");
+          }
+          
+          ///Build the diceToChoose array
+          var diceToChoose = [];
+          for (let i = 0; i < this.dice.length; i++) {
+            if (this.dice[i] > 0) {
+              diceToChoose.push({ dieIndex: i, quantity: this.dice[i] });
+            }
+          }
+          console.log("Enemy dice to choose from:", diceToChoose);
+          ///to fill
+          var diceChosen = [
+            { dieIndex: 0, quantity: 0 },
+            { dieIndex: 1, quantity: 0 },
+            { dieIndex: 2, quantity: 0 },
+            { dieIndex: 3, quantity: 0 },
+            { dieIndex: 4, quantity: 0 },
+            { dieIndex: 5, quantity: 0 },
+          ];
+
+          let cycleLimt = 0; // Safety limit to prevent infinite loops in edge cases where agroWeight doesn't decrease properly
+
+          ///Now here is the logic for choosing the dice.
+
+          while (this.currentAgroWeight > 0 || diceToChoose.length > 0 || cycleLimt > 100) {
+            ///To choose wheather to choose a die. 
+            if (ranNum(0,100) < this.currentAgroWeight) {
+              let ranNumToUse = ranNum(0, this.currentAgroWeight);
+
+            this.currentAgroWeight -= this.agroDecayRate; // Decrease agro weight to increase chances of breaking out of the loop and adding some variability to the dice selection process.
+            // Formula: (num / 100) * arrayLength
+            let index = Math.floor((ranNumToUse / 100) * diceToChoose.length);
+
+            // Safeguard: Ensure a random number of exactly 100 doesn't cause an out-of-bounds error
+            if (index >= diceToChoose.length) {
+              index = diceToChoose.length - 1;
+            }
+            console.log(diceChosen[diceToChoose[index].dieIndex])
+            diceChosen[diceToChoose[index].dieIndex].quantity += 1; // Increment the quantity of the chosen die in the diceChosen array
+            console.log(diceChosen[diceToChoose[index].dieIndex])
+            console.log()
+            diceToChoose[index].quantity -= 1; // Decrement the quantity of the chosen die in the diceToChoose array
+           
+            if (diceToChoose[index].quantity <= 0) {
+            console.log("test");
+              diceToChoose.splice(index, 1); // Remove the die from the diceToChoose array if its quantity drops to zero
+            console.log("test");
+            }
+            console.log(cycleLimt);
+            cycleLimt++;
+  
+
+  
+        }
+            else {
+              break;
+            }
+            
+
          
 
-
-          updateSelectedDice(){
-            ///Build the diceToChoose array
-            var diceToChoose = [];
-            for(let i = 0; i < this.dice.length; i++){
-                diceToChoose.push({dieIndex: i, quantity: this.dice[i]});
-            }
-            ///to fill 
-            var diceChosen = [{dieIndex: 0, quantity: 0}, {dieIndex: 1, quantity: 0}, {dieIndex: 2, quantity: 0}, {dieIndex: 3, quantity: 0}, {dieIndex: 4, quantity: 0}, {dieIndex: 5, quantity: 0}];
-            
-            ///Now here is the logic for choosing the dice. 
-            while (this.currentAgroWeight > 0 && diceToChoose.length > 0){ 
-
-
-            }
-        
-        },
-
-
-
+        }
+        this.currentAgroWeight = this.agroWeightBase; // Reset agro weight for the next turn
+                  console.log("Enemy dice chosen:", diceChosen);
+          ///Now we update the selectedDice array with diceChosen.
+          for (let i = 0; i < diceChosen.length; i++) {
+            this.selectedDice[diceChosen[i].dieIndex] = diceChosen[i].quantity;
+          }
+         console.log("Enemy selected dice:", this.selectedDice);
+      },
 
         slay() {
           gameObjects.gold.add(this.goldWorth);
@@ -335,27 +391,20 @@ addEventListener("load", () => {
     // ========================================================================
     async roll(obj) {
       let diceToRoll = [];
-      
-      
-         ////Do a select dice handler here, right a method for both the player and the enemy to use. 
-        ////We are going to have to make the enenmy dice system now. 
-        ////Refer to apple text document for outline. 
-        obj.updateSelectedDice(); 
 
+      ////Do a select dice handler here, right a method for both the player and the enemy to use.
+      ////We are going to have to make the enenmy dice system now.
+      ////Refer to apple text document for outline.
+      obj.updateSelectedDice();
 
-      
       console.log("Rolling with selected dice:", obj.selectedDice);
-
-
-
-
 
       // Map loop targets directly against global dictionary indexes to compile 3D string prompts
       const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
       obj.selectedDice.forEach((amt, i) => {
         if (amt > 0) {
           diceToRoll.push(amt + types[i]); // Compiles strings like: "2d6" or "1d20"
-          obj.dice[i] -= amt;             // Deduct spent ammo quantities permanently out of inventory pool
+          obj.dice[i] -= amt; // Deduct spent ammo quantities permanently out of inventory pool
         }
         obj.selectedDice = [0, 0, 0, 0, 0, 0]; // Reset selections array back to default staging post-roll
       });
@@ -365,7 +414,7 @@ addEventListener("load", () => {
       // Guard check: halts engine routines if player pushes action triggers with zero dice selected
       if (diceToRoll.length === 0) {
         obj.currentDiceValue = 0;
-        obj.selectedDice = [0, 0, 0, 0, 0, 0]; 
+        obj.selectedDice = [0, 0, 0, 0, 0, 0];
         return 0;
       }
 
@@ -376,9 +425,9 @@ addEventListener("load", () => {
           // Accumulate raw roll faces down into single arithmetic sum metrics
           obj.currentDiceValue = results.reduce((sum, d) => sum + d.value, 0);
           obj.currentDiceValueUi.innerHTML = obj.currentDiceValue;
-          
-          obj.toggleRollBox();                   // Display overlay panel readout cards to viewport tracking nodes
-          
+
+          obj.toggleRollBox(); // Display overlay panel readout cards to viewport tracking nodes
+
           // Clear physical meshes off the canvas container field after rendering display targets
           setTimeout(() => {
             obj.box.clear();
@@ -391,7 +440,7 @@ addEventListener("load", () => {
 
         // Fire physical vectors into rendering engine wrappers to trigger rolling behaviors
         obj.box.roll(diceToRoll);
-        ///Player selected dice reset in here because I haent set that up for the enemy yet. 
+        ///Player selected dice reset in here because I haent set that up for the enemy yet.
         gameObjects.diceObjects.player.updateDiceInv(); // Force canvas inventories to capture deduction alterations visually
       });
     },
@@ -414,7 +463,6 @@ addEventListener("load", () => {
   if (diceHolder) {
     // Intercept clicks passing through parent containers to map target selectors seamlessly without duplications
     diceHolder.addEventListener("click", (event) => {
-      
       // Pull down reference mappings to structural button containers housing active asset pointers
       const button = event.target.closest(".select-button");
       if (!button) return; // Disregard arbitrary ambient clicks targeting empty canvas zones or background graphics
@@ -483,10 +531,6 @@ addEventListener("load", () => {
     // ------------------------------------------------------------------------
     // BRANCH A: INTERCEPT SELECTION DRIVEN ATTACK MECHANICS ROUTINES
     // ------------------------------------------------------------------------
-   
-        
-
-
 
     if (actionType === "attack") {
       // Execute canvas operations and await response payloads explicitly
@@ -494,25 +538,29 @@ addEventListener("load", () => {
       gameObjects.diceObjects.enemy.applyDamage(playerRoll);
 
       // Check for structural enemy lifecycle failure states instantly before allowing execution frames to pass turns
-      console.log("Enemy health after attack:", gameObjects.diceObjects.enemy.healthNum);
+      console.log(
+        "Enemy health after attack:",
+        gameObjects.diceObjects.enemy.healthNum,
+      );
       if (gameObjects.diceObjects.enemy.healthNum <= 0) {
         gameObjects.diceObjects.enemy.slay();
         rolling = false;
         return; // Early return terminates workflow execution lines completely so dead targets cannot counter-attack
       }
-    
-    // ------------------------------------------------------------------------
-    // BRANCH B: INTERCEPT SELECTION DRIVEN PLAYER HEALING MECHANICS ROUTINES
-    // ------------------------------------------------------------------------
+
+      // ------------------------------------------------------------------------
+      // BRANCH B: INTERCEPT SELECTION DRIVEN PLAYER HEALING MECHANICS ROUTINES
+      // ------------------------------------------------------------------------
     } else if (actionType === "heal") {
       // Collect healing values straight out of active dice boxes
       const healAmount = await gameObjects.roll(gameObjects.diceObjects.player);
-      
+
       // FIX: Calculate target limits ensuring total HP does not exceed maximum boundaries
-      const targetHealth = gameObjects.diceObjects.player.healthNum + healAmount;
-      
-      // Update data variables and sync visually to the DOM 
-      gameObjects.diceObjects.player.updateHealth(targetHealth); 
+      const targetHealth =
+        gameObjects.diceObjects.player.healthNum + healAmount;
+x
+      // Update data variables and sync visually to the DOM
+      gameObjects.diceObjects.player.updateHealth(targetHealth);
     }
 
     // ------------------------------------------------------------------------
