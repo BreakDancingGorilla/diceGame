@@ -127,11 +127,20 @@ html, body {
     font-size:50%;
 }
 
+
+.actionButton {
+    height: 100%;
+    border-radius: 25px;
+    width: 100%;
+    font-size: 100%;
+}
+
 #actionButtonsFlex {
+    position: relative;
     display: flex;
     width: 100%;
     flex-direction: column;
-    height: 12vh;
+    height: 100%;
     gap: 20px;
     margin-left: 20px;
     margin-right: 20px;
@@ -254,11 +263,10 @@ h1, h2, p {
 }
 
 #enemyDiceContainer{
-    position: absolute;
     background-color: red;
     display: flex;
-    width: 50%;
-    height: 50%;
+    width: 100%;
+    height: 100%;
     border-radius: 25px;
     opacity: 0.5;
     flex-direction: column;
@@ -325,12 +333,6 @@ img.diePlaceHolderImg {
     box-sizing: border-box;
 }
 
-.actionButton {
-    height: 100%;
-    border-radius: 25px;
-    width: 50%;
-    font-size: 50%;
-}
 
 #bottomSpace {
     display: flex;
@@ -341,6 +343,3 @@ img.diePlaceHolderImg {
     width: 100%;
 }
 
-#diceButton {
-    width: 25%;
-}
