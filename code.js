@@ -427,6 +427,7 @@ addEventListener("load", () => {
     // ------------------------------------------------------------------------
       ////Do a select dice handler here, right a method for both the player and the enemy to use. 
         ////We are going to have to make the enenmy dice system now. 
+        ////Refer to apple text document for outline. 
 
     if (actionType === "attack") {
       // Execute canvas operations and await response payloads explicitly

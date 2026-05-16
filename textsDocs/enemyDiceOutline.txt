@@ -1,0 +1,45 @@
+Enemy Dice System Outline. 
+Each enemy will have a random selection of dice. 
+They will have a argo weight to decide the chances of them selecting how many dice. 
+So we do a random number generator, two, one for the chance to use a stronger die, and one
+For a chance to select a additional die. Both of those based on the weight
+
+
+So goes like this. 
+	sudo code for enemy dice system. 
+	agro weight 0-100, 80
+	agroWeightDecay, 0-100, 10. 
+
+	ranNum(0,100);
+	if ranNum > 100-agroWeight
+		true:
+		agroWeight - agroWeightDecay
+		 
+			//Need to get a random number, and bracket the diceLength
+			//For each die, and choose the one the random number falls
+		dice.length
+
+	Ai code for the math. 
+	const randomNumber = 17; // Your random number (0 - 100)
+
+// Math: (num / 100) * 6, rounded down, capped at index 5
+const index = Math.min(Math.floor((randomNumber / 100) * 6), 5);
+
+console.log(index); // 17 results in Index 1 (Range: 16.67 to 33.33)
+
+And now we repeat this until agro weight is at or below zero. 
+
+We need to do code for updating the index, so if we use a 6d, we deincremint that index, than we skip indexes that are zero.
+        Okay but now how do we account for indexes that are 0 while still spliting?
+            We make a new array that just holds the avaiable dice. 
+            so like this. 
+            enemy.dice [2,5,0,2,0,0] 
+            to
+            diceToChoose [2,5,2]    //But now we have to keep track of which is which. Maybe we use objects in replace of nums. 
+
+            new diceToChoose [die {die:4d, amt:2}]
+            
+            
+
+
+Okay, so that is how we decide what dice
