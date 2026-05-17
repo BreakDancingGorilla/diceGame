@@ -373,7 +373,33 @@ padding: 12px 24px;
   animation: popImpact 1.9s ease-out forwards;
 }
 
+button:disabled {
+  opacity: 0.5;         /* Makes the button look faded out */
+  cursor: not-allowed;  /* Changes the mouse cursor to a red circle with a slash */
+  pointer-events: none; /* Extra security step to kill all hover/click logic */
+}
 
+#loadingScreen{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999999;
+    width: 100vw;
+    height: 100vh;
+  /* Steps(1) prevents fading; it makes the change instant */
+  animation: hideAfterTime 2s steps(1) forwards;
+}
+
+@keyframes hideAfterTime {
+  0% {
+    visibility: visible;
+  }
+  100% {
+    visibility: hidden;
+    /* Optional: use display: none if you want to remove its physical space */
+    display: none; 
+  }
+}
 
 .neon-flash-green {
   display: inline-block;

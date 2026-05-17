@@ -8,3 +8,8 @@ shopTitle
 
 
 going to work on locking out the action button after play turn is clicked.
+
+
+bug
+The first click doesn't time out button
+after the enemy dies, button locks out permenetly. 

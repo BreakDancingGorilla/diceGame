@@ -1,10 +1,15 @@
 // ============================================================================
 // EXTERNAL MODULE IMPORTS & ENGINE INITIALIZATION
 // ============================================================================
-
-// Import the 3D dice rolling engine framework via a public delivery CDN network
 import DiceBox from "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js";
 const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
+
+
+// The gameplay loop waits completely for the browser viewport window to finish loading HTML assets
+addEventListener("load", () => {
+
+  // Import the 3D dice rolling engine framework via a public delivery CDN network
+
 /**
  * QUICK REFERENCE: DICE BOX INDEX SYSTEM MAP
  * Index 0 -> d4  (4-sided die)
@@ -89,8 +94,31 @@ function addSubToStats(arrayOfObjects) {
   }
 }
 
-// The gameplay loop waits completely for the browser viewport window to finish loading HTML assets
-addEventListener("load", () => {
+///From ai
+function buttonTimeout(bool) {
+const allButtons = document.querySelectorAll("button");
+
+// 2. Loop through them and attach the click listener
+allButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    
+    // 3. Instantly disable ALL buttons on the page
+    if (bool) {
+       allButtons.forEach(btn => btn.disabled = true);
+    }else {
+            allButtons.forEach(btn => btn.disabled = false);
+    }
+   
+
+    // 4. Set a timeout to unlock them after     1 second (1000 milliseconds)
+
+  
+
+
+  });
+});
+}
+
   // Attach game controller directly to window context so it can be debugged easily via browser console
   window.gameObjects = {
     initialized: false, // Flag tracking if the 3D canvases are ready to intercept user inputs
@@ -282,6 +310,7 @@ addEventListener("load", () => {
 
         reset() {
           this.dice = [...this.baseDice];
+          
           this.updateHealth(this.baseHealth);
           this.updateDamage(this.baseDamage);
           this.selectedDice = [0, 0, 0, 0, 0, 0];
@@ -426,18 +455,9 @@ addEventListener("load", () => {
           // Guard clause: Exit if there are no dice available to choose from
           if (diceToChoose.length === 0) {
             console.log("Enemy has no dice left to choose from.");
-            obj.toggleRollBox(); // Display overlay panel readout cards to viewport tracking nodes
-
-          // Clear physical meshes off the canvas container field after rendering display targets
-          setTimeout(() => {
-            obj.box.clear();
-            obj.toggleRollBox();
-          }, 1800);
-            return;
-          }
-
+      
           console.log("Enemy dice to choose from:", diceToChoose);
-
+          }
           // Initialize the selection tracker
           var diceChosen = [
             { dieIndex: 0, quantity: 0 },
@@ -1014,11 +1034,16 @@ addEventListener("load", () => {
     ///think im going to make a while loop here.
   });
 
-  async function handleTurn(actionType) {
+
+///Just running this shit to try to fix a bug that only happens the first turn.
+
+async function handleTurn(actionType) {
+
     if (rolling) return; // Mutex Guard Clause: locks interface controls down while animations resolve asynchronously
     if (shop.data.general.shopOpen) {
       return;
     }
+   
     rolling = true;
 
     // ------------------------------------------------------------------------
@@ -1026,6 +1051,7 @@ addEventListener("load", () => {
     // ------------------------------------------------------------------------
 
     if (actionType === "attack") {
+           buttonTimeout(5000);
       // Execute canvas operations and await response payloads explicitly
       const playerRoll = await gameObjects.roll(gameObjects.diceObjects.player);
       gameObjects.diceObjects.enemy.applyDamage(playerRoll);
@@ -1075,4 +1101,6 @@ addEventListener("load", () => {
   ///We got rid of this so the above is complicated for no reason. Might add back.
   ///Yeah we need to add back the roll of health points!!
   // healBtn.addEventListener("click", () => handleTurn("heal"));
+
+
 });
