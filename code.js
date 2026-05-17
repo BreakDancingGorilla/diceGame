@@ -724,7 +724,7 @@ addEventListener("load", () => {
           healthPoints: 0,
         },
       },
-      health: {
+      damage: {
         ui: {
           h1: {
             name: document.getElementById("damageName"),
@@ -756,7 +756,7 @@ addEventListener("load", () => {
             }
           },
           data: {
-            sellPrice: 0,
+            sellPrice: 100,
             amtSelected: 0,
           },
         },
@@ -858,28 +858,34 @@ addEventListener("load", () => {
       },
       ////Updates all the ui elements with the data 
       ///stats/items
-      updateAllUiHelper(root,select){
-        root.select.ui.h1.amtSelected = root.select.data.amtSelected;
+      updateAllUiHelper(root){
+        root.ui.h1.amtSelected.innerHTML = root.data.amtSelected;
+        root.ui.h1.cost.innerHTML = root.data.cost;
       },
-      
-   
 
       updateAllui() {
         ///Items
-        this.updateAllUiHelper(shop.data.items,reRoll);
-        this.updateAllUiHelper(shop.data.items,weightedDice);
+        this.updateAllUiHelper(shop.data.items.reRoll);
+        this.updateAllUiHelper(shop.data.items.weightedDice);
         ///Stats
-        this.updateAllUiHelper(shop.data.stats,health);
-        this.updateAllUiHelper(shop.data.stats,dmaage);
+        this.updateAllUiHelper(shop.data.stats.health);
+        this.updateAllUiHelper(shop.data.stats.damage);
+
+        ///Stat names
+        shop.data.stats.health.ui.h1.name.innerHTML = `${shop.data.stats.health.data.healthPoints} Health Points`;
+        shop.data.stats.damage.ui.h1.name.innerHTML = `${shop.data.stats.damage.data.damagePoints} Damage Points`;
+
         //dice
         for (let i = 0; i < shop.data.dice.length; i++) {
-            let uiRoot = shop.data.dice[i].h1;
+            let uiRoot = shop.data.dice[i].ui.h1;
             let dataRoot = shop.data.dice[i].data;
-            uiRoot.dieSelectAmt = dataRoot.amtSelected;
-            uiRoot.dieSellPrice = dataRoot.sellPrice;
+            console.log(uiRoot);
+            uiRoot.dieSelectAmt .innerHTML= dataRoot.amtSelected;
+            console.log(uiRoot.dieSellPrice.innerHTML)
+            uiRoot.dieSellPrice.innerHTML = dataRoot.sellPrice;
         }
         //general 
-        
+        shop.data.general.shopTitle.innerHTML = `Cash: ${gameObjects.gold.num}`
       },
       
       
@@ -893,7 +899,7 @@ addEventListener("load", () => {
 
   shop.data.general.openButton.addEventListener("click", function() {
     if (rolling) {return}; //Stop shop from opening if mid turn.
-
+    shop.methods.updateAllui();
     shop.methods.showShop(true); 
     ///Shop is now visiable 
 
