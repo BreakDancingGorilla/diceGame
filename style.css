@@ -301,9 +301,7 @@ margin-left: 9%;
     grid-template-rows: 0.12fr  0.10fr 0.20fr  0.35fr 0.48fr;
 }
 
-#shopTitle {
-    font-size: 300%;
-}
+
 
 .shopItemCost {
     align-self: center;
@@ -352,10 +350,26 @@ padding: 12px 24px;
 
 }
 
+#shopTitle {
+
+ 
+}
+
+#brokeGif {
+    position: absolute;
+    z-index: 99999999;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
 #shopTitleBox {
+       font-size: 100%;
     border: 1px solid black;
     position: relative;
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     background-color: whitesmoke;

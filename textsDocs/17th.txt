@@ -1,0 +1,6 @@
+give the enemy more dice. That will make the game funner. 
+
+Add a full screen gif that plays if you try to buy something but
+are too broke.
+
+shopTitle

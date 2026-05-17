@@ -644,10 +644,20 @@ addEventListener("load", () => {
 
   ////Going to do all the shop stuff here.
   ///DataStructureFirst
-  var shopData = {
-    openButton: document.getElementById("shopOpenButton"),
-    closeButton: document.getElementById("shopExitButton"),
-    
+  var shop = {
+    data: {
+
+    general: {
+      shopTitle: document.getElementById("shopTitle"),
+      brokegif: document.getElementById("brokeGif"),
+      shopOpen: false,
+      openButton: document.getElementById("shopOpenButton"),
+      closeButton: document.getElementById("shopExitButton"),
+      diceMenu: document.getElementById("shopBox"),
+    },
+
+
+
     buySell: {
       ui: {
       buy: {
@@ -752,7 +762,7 @@ addEventListener("load", () => {
         },
         {
           ui: {
-            h2: {
+            h1: {
               dieSelectAmt: document.getElementById("dieSelectedAmt2"),
               dieSellPrice: document.getElementById("dieSellPrice2"),
             },
@@ -768,7 +778,7 @@ addEventListener("load", () => {
         },
         {
           ui: {
-            h3: {
+            h1: {
               dieSelectAmt: document.getElementById("dieSelectedAmt3"),
               dieSellPrice: document.getElementById("dieSellPrice3"),
             },
@@ -784,7 +794,7 @@ addEventListener("load", () => {
         },
         {
           ui: {
-            h4: {
+            h1: {
               dieSelectAmt: document.getElementById("dieSelectedAmt4"),
               dieSellPrice: document.getElementById("dieSellPrice4"),
             },
@@ -800,7 +810,7 @@ addEventListener("load", () => {
         },
         {
           ui: {
-            h5: {
+            h1: {
               dieSelectAmt: document.getElementById("dieSelectedAmt5"),
               dieSellPrice: document.getElementById("dieSellPrice5"),
             },
@@ -816,7 +826,7 @@ addEventListener("load", () => {
         },
        {
           ui: {
-            h6: {
+            h1: {
               dieSelectAmt: document.getElementById("dieSelectedAmt6"),
               dieSellPrice: document.getElementById("dieSellPrice6"),
             },
@@ -831,10 +841,76 @@ addEventListener("load", () => {
           },
         },
       ],
+    },
+    methods: {
+
+      showShop(bool) {
+        if (bool) {
+          shop.data.general.diceMenu.classList.remove("hide");
+          shop.data.general.shopOpen = true;
+          return;
+        }
+        else {
+           shop.data.general.diceMenu.classList.add("hide");
+           shop.data.general.shopOpen = false;
+           return;
+        }
+      },
+      ////Updates all the ui elements with the data 
+      ///stats/items
+      updateAllUiHelper(root,select){
+        root.select.ui.h1.amtSelected = root.select.data.amtSelected;
+      },
+      
+   
+
+      updateAllui() {
+        ///Items
+        this.updateAllUiHelper(shop.data.items,reRoll);
+        this.updateAllUiHelper(shop.data.items,weightedDice);
+        ///Stats
+        this.updateAllUiHelper(shop.data.stats,health);
+        this.updateAllUiHelper(shop.data.stats,dmaage);
+        //dice
+        for (let i = 0; i < shop.data.dice.length; i++) {
+            let uiRoot = shop.data.dice[i].h1;
+            let dataRoot = shop.data.dice[i].data;
+            uiRoot.dieSelectAmt = dataRoot.amtSelected;
+            uiRoot.dieSellPrice = dataRoot.sellPrice;
+        }
+        //general 
+        
+      },
+      
+      
+      
+    }
   };
+
+  shop.data.general.closeButton.addEventListener("click", function() {
+  shop.methods.showShop(false);
+  });
+
+  shop.data.general.openButton.addEventListener("click", function() {
+    if (rolling) {return}; //Stop shop from opening if mid turn.
+
+    shop.methods.showShop(true); 
+    ///Shop is now visiable 
+
+
+    ///think im going to make a while loop here. 
+
+
+
+
+  });
+
+
+
 
   async function handleTurn(actionType) {
     if (rolling) return; // Mutex Guard Clause: locks interface controls down while animations resolve asynchronously
+    if(shop.data.general.shopOpen) {return}; 
     rolling = true;
 
     // ------------------------------------------------------------------------
