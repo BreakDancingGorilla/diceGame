@@ -1,3 +1,9 @@
+shopExitButton Btn
+    close the shop window
+
+shopOpenButton Btn
+    open the shop window
+
 Shop Buying Stats & Items 
 -------------------------
 

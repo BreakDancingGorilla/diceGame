@@ -11,7 +11,7 @@
     <div id="cardHolder">
       <div id="actionButtonsFlex">
         <button class="actionButton" id="attackButton">Play Turn</button>
-        <button class="actionButton" id="diceButton">Shop</button>
+        <button class="actionButton" id="shopOpenButton">Shop</button>
       </div>
       <div class="statCard">
         <h1>Player</h1>
@@ -268,7 +268,7 @@
     </div>
 
     <div id="shopBox">
-      <div id="shopTitleBox">
+      <div id="shopTitleBox"> 
         <h1 id="shopTitle">Shop</h1>
       </div>
       <button id="shopExitButton">
@@ -339,13 +339,13 @@
             <button id="sellDice" class="diceSellBtn">Sell Dice</button>
           </div>
           <div id="diceSellBtnWrap">
-            <h1 class="fs">$0</h1>
+            <h1 >$0</h1>
           </div>
         </div>
 
         <div id="shopRowGroup">
           <div id="diceSellBtnWrap">
-            <button class="buySelected">Purchase</button>
+            <button class="diceSellBtn" id="buySelected">Purchase</button>
           </div>
           <div id="diceSellBtnWrap">
             <h1 class="selectedBuyTotal">$0</h1>
