@@ -21,6 +21,74 @@ function ranNum(min, max) {
   return seed;
 }
 
+///Going to rewrite to include more cases
+/* function addSubToStats(arrayOfElements,amt,addBool) {
+for (let i = 0; i < arrayOfObjects.length; i++) {
+  let ogValue = Number(arrayOfObjects[i].innerHTML);
+  if (addBool) {
+    let newValue = ogValue + num;
+    arrayOfElements[i].classList.add("neon-flash-green");
+    arrayOfElements[i].innerHTML = `${ogValue} + ${amt}`;
+    setTimeout(() => {
+            arrayOfElements[i].classList.remove("neon-flash-green");
+            arrayOfElements[i].innerHTML = `${newValue}`;
+          }, 1900);
+  }
+  else {
+    let newValue = ogValue + num;
+    arrayOfElements[i].classList.add("neon-flash-red");
+    arrayOfElements[i].innerHTML = `${ogValue} - ${amt}`;
+    setTimeout(() => {
+            arrayOfElements[i].classList.remove("neon-flash-green");
+            arrayOfElements[i].innerHTML = `${newValue}`;
+          }, 1900);
+  }
+}
+}; */
+
+///OBJECTS MUST HAVE THIS STRUCTURE AND KEY NAMES.
+///Does not work on if the innerHtml has text
+/* 
+  [
+  {
+    element: x (documentElement),
+    add: x (bool) (false if sub),
+    amt: x (num), 
+  },
+  ...
+  ]
+
+*/
+
+
+function addSubToStats(arrayOfObjects) {
+  for (let i = 0; i < arrayOfObjects.length; i++) {
+    ////Pull Data
+    let element = arrayOfObjects[i].element;
+    let oldNum = Number(element.innerHTML.split(" ")[0]) || 0; ///Used from ai for edge case if player clicks during timeout
+    let amt = arrayOfObjects[i].amt;
+    let add = arrayOfObjects[i].add;
+
+    if (add) {
+      let newValue = oldNum + amt;
+      element.classList.add("neon-flash-green");
+      element.innerHTML = `+ ${amt}`;
+      setTimeout(() => {
+        element.classList.remove("neon-flash-green");
+        element.innerHTML = `${newValue}`;
+      }, 1900);
+    } else {
+      let newValue = oldNum - amt;
+      element.classList.add("neon-flash-red");
+      element.innerHTML = `- ${amt}`;
+      setTimeout(() => {
+        element.classList.remove("neon-flash-red");
+        element.innerHTML = `${newValue}`;
+      }, 1900);
+    }
+  }
+}
+
 // The gameplay loop waits completely for the browser viewport window to finish loading HTML assets
 addEventListener("load", () => {
   // Attach game controller directly to window context so it can be debugged easily via browser console
@@ -64,6 +132,7 @@ addEventListener("load", () => {
 
     ///Going to do the give player the extra die thing in this method.
     ///Well shit we have to find where to put it before the dice is reset
+    ///Where the fuck did I put it?!?!?!!?
     slain: {
       num: 0,
       element: document.getElementById("slainCount"),
@@ -322,6 +391,21 @@ addEventListener("load", () => {
           // 2. Clear the div and add all the new <h1> elements at once
           this.diceContainer.replaceChildren(...headingElements);
         },
+        /*   ////Going to make another weight for how many dice
+          ///The enemy gets because I want them to have more. 
+        agroDiceBase: 100,
+        currentAgroDice: 100, 
+        agroDiceDecay: 10, */
+
+        ///Read Me.
+        ///Okay so the strength agro the value of the dice chosen
+        ///The strength decides how many dice chosen
+        ///So use this variable to increase more dice.
+
+        ///Extra number of dice per enemy
+        minDiceBonus: 5,
+        ///Multiples the strength
+        diceBonusMultipler: 1.5,
 
         agroWeightBase: 60,
         currentAgroWeight: 60,
@@ -342,6 +426,13 @@ addEventListener("load", () => {
           // Guard clause: Exit if there are no dice available to choose from
           if (diceToChoose.length === 0) {
             console.log("Enemy has no dice left to choose from.");
+            obj.toggleRollBox(); // Display overlay panel readout cards to viewport tracking nodes
+
+          // Clear physical meshes off the canvas container field after rendering display targets
+          setTimeout(() => {
+            obj.box.clear();
+            obj.toggleRollBox();
+          }, 1800);
             return;
           }
 
@@ -423,32 +514,54 @@ addEventListener("load", () => {
         ///!!! We add the give player dice shit here
         giveNewDice() {
           ///give player the fucking scraps.
-          for (let i = 0; i < this.dice.length; i++) {
-            ///Why are these saying can not set properties of undefined?
-            //w
-            gameObjects.diceObjects.player.diceInvUi.quan.total[
+          //for (let i = 0; i < this.dice.length; i++) {
+          ///Why are these saying can not set properties of undefined?
+          //going to test out my new addSub function
+          /*   gameObjects.diceObjects.player.diceInvUi.quan.total[
               types[i]
             ].innerHTML = " + " + this.dice[i];
-            gameObjects.diceObjects.player.dice[i] += this.dice[i];
+            
+          element: x (documentElement),
+    add: x (bool) (false if sub),
+    amt: x (num), 
+
+             */
+          var arrayToPass = [];
+          for (let i = 0; i < this.dice.length; i++) {
+            arrayToPass[i] = {
+              element: gameObjects.diceObjects.player.diceInvUi.quan.total[types[i]],
+              add: true,
+              amt: gameObjects.diceObjects.enemy.dice[i],
+            };
+            gameObjects.diceObjects.player.dice[i] +=
+            gameObjects.diceObjects.enemy.dice[i];
           }
-          setTimeout(() => {
+          addSubToStats(arrayToPass);
+/*           gameObjects.diceObjects.player.dice[i] +=
+            gameObjects.diceObjects.enemy.dice[i]; */
+          //}
+          /*  setTimeout(() => {
             for (let i = 0; i < this.dice.length; i++) {
               gameObjects.diceObjects.player.diceInvUi.quan.total[
                 types[i]
               ].innerHTML = gameObjects.diceObjects.player.dice[i];
             }
-          }, 1500);
+          }, 1500); */
 
           this.dice = [0, 0, 0, 0, 0, 0];
 
-          let diceToGive = Math.ceil(this.strength); // Number of dice to give based on strength
+          ///Not seeing anything pass D10 ///Fixed
+
+          let diceToGive = Math.ceil(
+            this.strength * this.diceBonusMultipler + this.minDiceBonus,
+          ); // Number of dice to give based on strength
           for (let i = 0; i < diceToGive; i++) {
             ///Pulling the same while loop from updateSelectedDice
             let cycleLimt = 0; // Safety limit to prevent infinite loops in edge cases where agroWeight doesn't decrease properly
-            while (this.currentAgroWeight > 0 || cycleLimt > 100) {
+            while (this.currentAgroWeight > 0 || cycleLimt > 200) {
               ///To choose wheather to choose a die.
               if (ranNum(0, 100) < this.currentAgroWeight) {
-                let ranNumToUse = ranNum(0, this.currentAgroWeight);
+                let ranNumToUse = ranNum(0, 100);
 
                 this.currentAgroWeight -= this.agroDecayRate; // Decrease agro weight to increase chances of breaking out of the loop and adding some variability to the dice selection process.
                 // Formula: (num / 100) * arrayLength
@@ -549,7 +662,7 @@ addEventListener("load", () => {
           setTimeout(() => {
             obj.box.clear();
             obj.toggleRollBox();
-          }, 1500);
+          }, 1800);
 
           obj.box.onRollComplete = null; // Clean up runtime hook references to prevent garbage collection memory leaking patterns
           resolve(obj.currentDiceValue); // Feed compiled numeric sums straight back out into active game turn queues
@@ -646,104 +759,102 @@ addEventListener("load", () => {
   ///DataStructureFirst
   var shop = {
     data: {
-
-    general: {
-      shopTitle: document.getElementById("shopTitle"),
-      brokegif: document.getElementById("brokeGif"),
-      shopOpen: false,
-      openButton: document.getElementById("shopOpenButton"),
-      closeButton: document.getElementById("shopExitButton"),
-      diceMenu: document.getElementById("shopBox"),
-    },
-
-
-
-    buySell: {
-      ui: {
-      buy: {
-        buySelectedButton: document.getElementById("buySelected"),
-        selectedTotal: document.getElementById("selectedBuyTotal"),
+      general: {
+        shopTitle: document.getElementById("shopTitle"),
+        brokegif: document.getElementById("brokeGif"),
+        shopOpen: false,
+        openButton: document.getElementById("shopOpenButton"),
+        closeButton: document.getElementById("shopExitButton"),
+        diceMenu: document.getElementById("shopBox"),
       },
-      sell: {
-        sellSelectedButton: document.getElementById("sellDice"),
-        selectedTotal: document.getElementById("selectedDiceSellTotal"),
-      },
-    }
-    },
 
-    items: {
-      reRoll: {
+      buySell: {
         ui: {
-          h1: {
-            cost: document.getElementById("reRollCost"),
-            amtSelected: document.getElementById("reRollSelectedAmt"),
+          buy: {
+            buySelectedButton: document.getElementById("buySelected"),
+            selectedTotal: document.getElementById("selectedBuyTotal"),
           },
-          btn: {
-            selectUp: document.getElementById("reRollSelectUp"),
-            selectDown: document.getElementById("reRollSelectDown"),
+          sell: {
+            sellSelectedButton: document.getElementById("sellDice"),
+            selectedTotal: document.getElementById("selectedDiceSellTotal"),
           },
-        },
-        data: {
-          cost: 5,
-          amtSelected: 0,
         },
       },
-      weightedDice: {
-        ui: {
-          h1: {
-            cost: document.getElementById("weightedDiceCost"),
-            amtSelected: document.getElementById("weightedDiceSelectedAmt"),
+
+      items: {
+        reRoll: {
+          ui: {
+            h1: {
+              cost: document.getElementById("reRollCost"),
+              amtSelected: document.getElementById("reRollSelectedAmt"),
+            },
+            btn: {
+              selectUp: document.getElementById("reRollSelectUp"),
+              selectDown: document.getElementById("reRollSelectDown"),
+            },
           },
-          btn: {
-            selectUp: document.getElementById("weightedDiceSelectUp"),
-            selectDown: document.getElementById("weightedDiceSelectDown"),
+          data: {
+            cost: 5,
+            amtSelected: 0,
           },
         },
-        data: {
-          cost: 5,
-          amtSelected: 0,
+        weightedDice: {
+          ui: {
+            h1: {
+              cost: document.getElementById("weightedDiceCost"),
+              amtSelected: document.getElementById("weightedDiceSelectedAmt"),
+            },
+            btn: {
+              selectUp: document.getElementById("weightedDiceSelectUp"),
+              selectDown: document.getElementById("weightedDiceSelectDown"),
+            },
+          },
+          data: {
+            cost: 5,
+            amtSelected: 0,
+          },
         },
       },
-    },
-    stats: {
-      health: {
-        ui: {
-          h1: {
-            name: document.getElementById("healthName"),
-            cost: document.getElementById("healthCost"),
-            amtSelected: document.getElementById("healthSelectedAmt"),
+      stats: {
+        health: {
+          ui: {
+            h1: {
+              name: document.getElementById("healthName"),
+              cost: document.getElementById("healthCost"),
+              amtSelected: document.getElementById("healthSelectedAmt"),
+            },
+            btn: {
+              selectUp: document.getElementById("healthSelectUp"),
+              selectDown: document.getElementById("healthSelectDown"),
+            },
           },
-          btn: {
-            selectUp: document.getElementById("healthSelectUp"),
-            selectDown: document.getElementById("healthSelectDown"),
+          data: {
+            cost: 5,
+            amtSelected: 0,
+            healthPoints: 0,
           },
         },
-        data: {
-          cost: 5,
-          amtSelected: 0,
-          healthPoints: 0,
+        damage: {
+          ui: {
+            h1: {
+              name: document.getElementById("damageName"),
+              cost: document.getElementById("damageCost"),
+              amtSelected: document.getElementById("damageSelectedAmt"),
+            },
+            btn: {
+              selectUp: document.getElementById("damageSelectUp"),
+              selectDown: document.getElementById("damageSelectDown"),
+            },
+          },
+          data: {
+            cost: 5,
+            amtSelected: 0,
+            damagePoints: 0,
+          },
         },
       },
-      damage: {
-        ui: {
-          h1: {
-            name: document.getElementById("damageName"),
-            cost: document.getElementById("damageCost"),
-            amtSelected: document.getElementById("damageSelectedAmt"),
-          },
-          btn: {
-            selectUp: document.getElementById("damageSelectUp"),
-            selectDown: document.getElementById("damageSelectDown"),
-          },
-        },
-        data: {
-          cost: 5,
-          amtSelected: 0,
-          damagePoints: 0,
-        },
-      },
-    },
-      dice: [ //Remember this an array, each index has the data for each die. 
+      dice: [
+        //Remember this an array, each index has the data for each die.
         {
           ui: {
             h1: {
@@ -753,7 +864,7 @@ addEventListener("load", () => {
             btn: {
               dieSelectUp: document.getElementById("shopDieSelectUp1"),
               dieSelectDown: document.getElementById("shopDieSelectDown1"),
-            }
+            },
           },
           data: {
             sellPrice: 100,
@@ -769,7 +880,7 @@ addEventListener("load", () => {
             btn: {
               dieSelectUp: document.getElementById("shopDieSelectUp2"),
               dieSelectDown: document.getElementById("shopDieSelectDown2"),
-            }
+            },
           },
           data: {
             sellPrice: 0,
@@ -785,7 +896,7 @@ addEventListener("load", () => {
             btn: {
               dieSelectUp: document.getElementById("shopDieSelectUp3"),
               dieSelectDown: document.getElementById("shopDieSelectDown3"),
-            }
+            },
           },
           data: {
             sellPrice: 0,
@@ -801,7 +912,7 @@ addEventListener("load", () => {
             btn: {
               dieSelectUp: document.getElementById("shopDieSelectUp4"),
               dieSelectDown: document.getElementById("shopDieSelectDown4"),
-            }
+            },
           },
           data: {
             sellPrice: 0,
@@ -817,14 +928,14 @@ addEventListener("load", () => {
             btn: {
               dieSelectUp: document.getElementById("shopDieSelectUp5"),
               dieSelectDown: document.getElementById("shopDieSelectDown5"),
-            }
+            },
           },
           data: {
             sellPrice: 0,
             amtSelected: 0,
           },
         },
-       {
+        {
           ui: {
             h1: {
               dieSelectAmt: document.getElementById("dieSelectedAmt6"),
@@ -833,7 +944,7 @@ addEventListener("load", () => {
             btn: {
               dieSelectUp: document.getElementById("shopDieSelectUp6"),
               dieSelectDown: document.getElementById("shopDieSelectDown6"),
-            }
+            },
           },
           data: {
             sellPrice: 0,
@@ -843,22 +954,20 @@ addEventListener("load", () => {
       ],
     },
     methods: {
-
       showShop(bool) {
         if (bool) {
           shop.data.general.diceMenu.classList.remove("hide");
           shop.data.general.shopOpen = true;
           return;
-        }
-        else {
-           shop.data.general.diceMenu.classList.add("hide");
-           shop.data.general.shopOpen = false;
-           return;
+        } else {
+          shop.data.general.diceMenu.classList.add("hide");
+          shop.data.general.shopOpen = false;
+          return;
         }
       },
-      ////Updates all the ui elements with the data 
+      ////Updates all the ui elements with the data
       ///stats/items
-      updateAllUiHelper(root){
+      updateAllUiHelper(root) {
         root.ui.h1.amtSelected.innerHTML = root.data.amtSelected;
         root.ui.h1.cost.innerHTML = root.data.cost;
       },
@@ -877,46 +986,39 @@ addEventListener("load", () => {
 
         //dice
         for (let i = 0; i < shop.data.dice.length; i++) {
-            let uiRoot = shop.data.dice[i].ui.h1;
-            let dataRoot = shop.data.dice[i].data;
-            console.log(uiRoot);
-            uiRoot.dieSelectAmt .innerHTML= dataRoot.amtSelected;
-            console.log(uiRoot.dieSellPrice.innerHTML)
-            uiRoot.dieSellPrice.innerHTML = dataRoot.sellPrice;
+          let uiRoot = shop.data.dice[i].ui.h1;
+          let dataRoot = shop.data.dice[i].data;
+          console.log(uiRoot);
+          uiRoot.dieSelectAmt.innerHTML = dataRoot.amtSelected;
+          console.log(uiRoot.dieSellPrice.innerHTML);
+          uiRoot.dieSellPrice.innerHTML = dataRoot.sellPrice;
         }
-        //general 
-        shop.data.general.shopTitle.innerHTML = `Cash: ${gameObjects.gold.num}`
+        //general
+        shop.data.general.shopTitle.innerHTML = `Cash: ${gameObjects.gold.num}`;
       },
-      
-      
-      
-    }
+    },
   };
 
-  shop.data.general.closeButton.addEventListener("click", function() {
-  shop.methods.showShop(false);
+  shop.data.general.closeButton.addEventListener("click", function () {
+    shop.methods.showShop(false);
   });
 
-  shop.data.general.openButton.addEventListener("click", function() {
-    if (rolling) {return}; //Stop shop from opening if mid turn.
+  shop.data.general.openButton.addEventListener("click", function () {
+    if (rolling) {
+      return;
+    } //Stop shop from opening if mid turn.
     shop.methods.updateAllui();
-    shop.methods.showShop(true); 
-    ///Shop is now visiable 
+    shop.methods.showShop(true);
+    ///Shop is now visiable
 
-
-    ///think im going to make a while loop here. 
-
-
-
-
+    ///think im going to make a while loop here.
   });
-
-
-
 
   async function handleTurn(actionType) {
     if (rolling) return; // Mutex Guard Clause: locks interface controls down while animations resolve asynchronously
-    if(shop.data.general.shopOpen) {return}; 
+    if (shop.data.general.shopOpen) {
+      return;
+    }
     rolling = true;
 
     // ------------------------------------------------------------------------
@@ -970,7 +1072,7 @@ addEventListener("load", () => {
 
   // Bind unified processing triggers to main controller buttons
   attackBtn.addEventListener("click", () => handleTurn("attack"));
-  ///We got rid of this so the above is complicated for no reason. Might add back. 
-  ///Yeah we need to add back the roll of health points!! 
- // healBtn.addEventListener("click", () => handleTurn("heal"));
+  ///We got rid of this so the above is complicated for no reason. Might add back.
+  ///Yeah we need to add back the roll of health points!!
+  // healBtn.addEventListener("click", () => handleTurn("heal"));
 });

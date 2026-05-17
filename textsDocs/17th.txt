@@ -4,3 +4,7 @@ Add a full screen gif that plays if you try to buy something but
 are too broke.
 
 shopTitle
+
+
+
+going to work on locking out the action button after play turn is clicked.

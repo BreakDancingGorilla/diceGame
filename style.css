@@ -355,6 +355,62 @@ padding: 12px 24px;
  
 }
 
+/*used in the js addSubToStats function*/
+
+.neon-flash-red {
+  display: inline-block;
+  color: #fff;
+  font-weight: bold;
+  
+  /* 1. High-intensity multi-layer neon glow */
+  text-shadow: 
+    0 0 5px #fff,
+    0 0 10px #FF073A,
+    0 0 20px #FF073A,
+    0 0 40px #FF073A;
+
+  /* 2. Rapid entry animation: scales up and twists slightly */
+  animation: popImpact 1.9s ease-out forwards;
+}
+
+
+
+.neon-flash-green {
+  display: inline-block;
+  color: #fff;
+  font-weight: bold;
+  
+  /* 1. High-intensity multi-layer neon glow */
+  text-shadow: 
+    0 0 5px #fff,
+    0 0 10px #39FF14,
+    0 0 20px #39FF14,
+    0 0 40px #39FF14;
+
+  /* 2. Rapid entry animation: scales up and twists slightly */
+  animation: popImpact 1.9s ease-out forwards;
+}
+
+@keyframes popImpact {
+  0% { 
+    transform: scale(1); 
+  }
+  50% { 
+    transform: scale(1.25) rotate(-2deg); 
+  }
+  100% { 
+    transform: scale(1.15) rotate(0deg); 
+  }
+}
+.subColor {
+   color: #fff;
+  text-shadow: 
+    0 0 5px #fff,
+    0 0 10px #FF073A,
+    0 0 20px #FF073A,
+    0 0 40px #FF073A;
+}
+
 #brokeGif {
     position: absolute;
     z-index: 99999999;
