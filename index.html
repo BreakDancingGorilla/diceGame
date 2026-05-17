@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1024" />
     <title>Fight Game</title>
     <link href="./style.css" rel="stylesheet" />
   </head>
@@ -284,38 +285,58 @@
         <div class="shopItemsBox">
           <div class="shopItem">
             <h1 class="shopItemName">Re-Roll Token</h1>
-            <h1 class="shopItemCost">$5</h1>
-            <img src="./svg/dash-circle.svg" />
-            <img src="./svg/plus-circle.svg" />
-            <h1 id="amtToBuy">0</h1>
+            <h1 id="reRollCost" class="shopItemCost">$5</h1>
+            <button id="reRollSelectUp" class="itemButton">
+              <img src="./svg/dash-circle.svg" />
+            </button>
+            <button id="reRollSelectDown" class="itemButton">
+              <img src="./svg/plus-circle.svg" />
+            </button>
+
+            <h1 id="reRollSelectedAmt">0</h1>
           </div>
           <div class="shopItem">
-            <h1 class="shopItemName">Weight Dice</h1>
-            <h1 class="shopItemCost">$5</h1>
-            <img src="./svg/dash-circle.svg" />
-            <img src="./svg/plus-circle.svg" />
-            <h1 id="amtToBuy">0</h1>
+            <h1 class="shopItemName">Weighted Dice</h1>
+            <h1 id="weightedDiceCost" class="shopItemCost">$5</h1>
+            <button id="weightedDiceSelectUp" class="itemButton">
+              <img src="./svg/dash-circle.svg" />
+            </button>
+            <button id="weightedDiceSelectDown" class="itemButton">
+              <img src="./svg/plus-circle.svg" />
+            </button>
+
+            <h1 id="weightedDiceSelectedAmt">0</h1>
           </div>
         </div>
         <div class="shopItemsBox">
           <div class="shopItem">
-            <h1 class="shopItemName">x Damage Points</h1>
-            <h1 class="shopItemCost">$5</h1>
-            <img src="./svg/dash-circle.svg" />
-            <img src="./svg/plus-circle.svg" />
-            <h1 id="amtToBuy">0</h1>
+            <h1 id="healthName" class="shopItemName">x Health Points</h1>
+            <h1 id="healthCost" class="shopItemCost">$5</h1>
+            <button id="healthSelectUp" class="itemButton">
+              <img src="./svg/dash-circle.svg" />
+            </button>
+            <button id="healthSelectDown" class="itemButton">
+              <img src="./svg/plus-circle.svg" />
+            </button>
+
+            <h1 id="damageSelectedAmt">0</h1>
           </div>
           <div class="shopItem">
-            <h1 class="shopItemName">x Health Points</h1>
-            <h1 class="shopItemCost">$5</h1>
-            <img src="./svg/dash-circle.svg" />
-            <img src="./svg/plus-circle.svg" />
-            <h1 id="amtToBuy">0</h1>
+            <h1 id="damageName" class="shopItemName">x Damage Points</h1>
+            <h1 id="damageCost" class="shopItemCost">$5</h1>
+            <button id="damageSelectUp" class="itemButton">
+              <img src="./svg/dash-circle.svg" />
+            </button>
+            <button id="damageSelectDown" class="itemButton">
+              <img src="./svg/plus-circle.svg" />
+            </button>
+
+            <h1 id="damageSelectedAmt">0</h1>
           </div>
         </div>
         <div id="shopRowGroup">
           <div id="diceSellBtnWrap">
-            <button id="diceSellBtn">Sell Dice</button>
+            <button id="sellDice" class="diceSellBtn">Sell Dice</button>
           </div>
           <div id="diceSellBtnWrap">
             <h1 class="fs">$0</h1>
@@ -324,158 +345,148 @@
 
         <div id="shopRowGroup">
           <div id="diceSellBtnWrap">
-            <button id="diceSellBtn">Buy Items</button>
+            <button class="buySelected">Purchase</button>
           </div>
           <div id="diceSellBtnWrap">
-            <h1 class="fs">$0</h1>
+            <h1 class="selectedBuyTotal">$0</h1>
           </div>
         </div>
         <div id="shopDiceHolder">
-          
-          
           <div class="shopDieTest" id="shopDie1">
             <h1>D4</h1>
-            <h1>0</h1>
+            <h1 id="dieSelectedAmt1">0</h1>
 
-            <button class="shopDieSelectUp" id="6SelectUp">
+            <button class="shopDieSelectUp" id="shopDieSelectUp1">
               <img
                 src="./pitfallSvgsPort/arrow-up-circle.svg"
                 class="shopDieSelectImg"
               />
             </button>
 
-            <button
-              class="shopDieSelectDown"
-              id="6SelectDown"
-            >
+            <button class="shopDieSelectDown" id="shopDieSelectDown1">
               <img
                 src="./pitfallSvgsPort/arrow-down-circle.svg"
                 class="shopDieSelectImg"
               />
             </button>
 
-            <div id="priceHolder"></div>
-
-          </div>
-          <div class="shopDie" id="playerDie2">
-            <div class="horzon">
-              <h1>6d</h1>
-              <h1 id="6DieQuan">0</h1>
-            </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="6SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="6SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan6"></h2>
-            </div>
-          </div>
-          <div class="shopDie" id="playerDie3">
-            <div class="horzon">
-              <h1>8d</h1>
-              <h1 id="8DieQuan">0</h1>
-            </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="8SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="8SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan8"></h2>
-            </div>
-          </div>
-          <div class="shopDie" id="playerDie4">
-            <div class="horzon">
-              <h1>10d</h1>
-              <h1 id="10DieQuan">0</h1>
-            </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="10SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="10SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan10"></h2>
-            </div>
-          </div>
-          <div class="shopDie" id="playerDie5">
-            <div class="horzon">
-              <h1>12d</h1>
-              <h1 id="12DieQuan">0</h1>
-            </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="12SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="12SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan12"></h2>
+            <div id="priceHolder">
+              <h1 id="dieSellPrice1">$100</h1>
             </div>
           </div>
 
-          <div class="shopDie" id="playerDie6">
-            <div class="horzon">
-              <h1>20d</h1>
-              <h1 id="20DieQuan">0</h1>
+          <div class="shopDieTest" id="shopDie2">
+            <h1>D6</h1>
+            <h1 id="dieSelectedAmt2">0</h1>
+
+            <button class="shopDieSelectUp" id="shopDieSelectUp2">
+              <img
+                src="./pitfallSvgsPort/arrow-up-circle.svg"
+                class="shopDieSelectImg"
+              />
+            </button>
+
+            <button class="shopDieSelectDown" id="shopDieSelectDown2">
+              <img
+                src="./pitfallSvgsPort/arrow-down-circle.svg"
+                class="shopDieSelectImg"
+              />
+            </button>
+
+            <div id="priceHolder">
+              <h1 id="dieSellPrice2">$100</h1>
             </div>
-            <div class="horzon">
-              <button class="list-item-button-up select-button" id="20SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-              <button
-                class="list-item-button-down select-button"
-                id="20SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-down"
-                />
-              </button>
-              <h2 id="selectedDieQuan20"></h2>
+          </div>
+
+          <div class="shopDieTest" id="shopDie1">
+            <h1>D8</h1>
+            <h1 id="dieSelectedAmt3">0</h1>
+
+            <button class="shopDieSelectUp" id="shopDieSelectUp3">
+              <img
+                src="./pitfallSvgsPort/arrow-up-circle.svg"
+                class="shopDieSelectImg"
+              />
+            </button>
+
+            <button class="shopDieSelectDown" id="shopDieSelectDown3">
+              <img
+                src="./pitfallSvgsPort/arrow-down-circle.svg"
+                class="shopDieSelectImg"
+              />
+            </button>
+
+            <div id="priceHolder">
+              <h1 id="dieSellPrice3">$100</h1>
+            </div>
+          </div>
+
+          <div class="shopDieTest" id="shopDie1">
+            <h1>D10</h1>
+            <h1 id="dieSelectedAmt4">0</h1>
+
+            <button class="shopDieSelectUp" id="shopDieSelectUp4">
+              <img
+                src="./pitfallSvgsPort/arrow-up-circle.svg"
+                class="shopDieSelectImg"
+              />
+            </button>
+
+            <button class="shopDieSelectDown" id="shopDieSelectDown4">
+              <img
+                src="./pitfallSvgsPort/arrow-down-circle.svg"
+                class="shopDieSelectImg"
+              />
+            </button>
+
+            <div id="priceHolder">
+              <h1 id="dieSellPrice4">$100</h1>
+            </div>
+          </div>
+
+          <div class="shopDieTest" id="shopDie1">
+            <h1>D12</h1>
+            <h1 id="dieSelectedAmt5">0</h1>
+
+            <button class="shopDieSelectUp" id="shopDieSelectUp5">
+              <img
+                src="./pitfallSvgsPort/arrow-up-circle.svg"
+                class="shopDieSelectImg"
+              />
+            </button>
+
+            <button class="shopDieSelectDown" id="shopDieSelectDown5">
+              <img
+                src="./pitfallSvgsPort/arrow-down-circle.svg"
+                class="shopDieSelectImg"
+              />
+            </button>
+
+            <div id="priceHolder">
+              <h1 id="dieSellPrice5">$100</h1>
+            </div>
+          </div>
+
+          <div class="shopDieTest" id="shopDie1">
+            <h1>D20</h1>
+            <h1 id="dieSelectedAmt6">0</h1>
+
+            <button class="shopDieSelectUp" id="shopDieSelectUp6">
+              <img
+                src="./pitfallSvgsPort/arrow-up-circle.svg"
+                class="shopDieSelectImg"
+              />
+            </button>
+
+            <button class="shopDieSelectDown" id="shopDieSelectDown6">
+              <img
+                src="./pitfallSvgsPort/arrow-down-circle.svg"
+                class="shopDieSelectImg"
+              />
+            </button>
+
+            <div id="priceHolder">
+              <h1 id="dieSellPrice6">$100</h1>
             </div>
           </div>
         </div>

@@ -1,0 +1,97 @@
+Shop Buying Stats & Items 
+-------------------------
+
+buySelected Btn
+    buy all selected stats and items 
+
+selectedBuyTotal Btn
+    total price of all selected stats and items
+
+Items 
+-----
+reRollCost H1
+    cost of the reRoll Token 
+
+reRollSelectedAmt H1 
+    amt of reRolls selected to buy.
+
+reRollSelectUp Btn
+    increments amt to buy
+
+reRollSelectDown Btn 
+    deincrement amt to buy
+
+
+weightedDiceCost H1
+    cost of the weighted Dice
+
+weightedDiceSelectedAmt H1 
+    amt of weighted Dice selected to buy.
+
+weightedDiceSelectUp Btn
+    increments amt to buy
+
+weightedDiceSelectDown Btn 
+    deincrement amt to buy
+
+Stats
+-----
+
+healthName H1
+    format: x Health Points
+    We will have to use two variables for this. 
+    One for the text, and one to hold the amt
+    to sell to the player which will have to scale
+    like the prices.
+
+healthCost H1 
+    cost of health points
+
+healthSelectedAmt H1 
+    amt of weighted Dice selected to buy.
+
+healthSelectUp Btn
+    increments amt to buy
+
+healthSelectDown Btn 
+    deincrement amt to buy
+
+
+damageName H1
+    format: x damage Points
+    We will have to use two variables for this. 
+    One for the text, and one to hold the amt
+    to sell to the player which will have to scale
+    like the prices.
+
+damageCost H1 
+    cost of damage points
+
+damageSelectedAmt H1 
+    amt of weighted Dice selected to buy.
+
+damageSelectUp Btn
+    increments amt to buy
+
+damageSelectDown Btn 
+    deincrement amt to buy
+
+
+
+Shop Selling Dice 
+-----------------
+
+sellDice Btn
+    Sell selected dice
+
+dieSelectedAmt 1-6 H1
+    Amt selected to sell. 
+
+shopDieSelectUp 1-6 Btn
+    increment amt to sell. 
+
+shopDieSelectDown 1-6 Btn
+    deincrement amt to sell. 
+
+dieSellPrice 1-6 H1
+    value to sell per unit. 

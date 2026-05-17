@@ -116,6 +116,7 @@ button {
 }
 
 .shopDie {
+    border: 1px solid black;
     position: relative;
     border-radius: 15px !important;
     width: 75%;
@@ -130,6 +131,24 @@ button {
     font-size:50%;
 }
 
+#priceHolder {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+      position: absolute;
+z-index: 900000;
+    bottom: 0;
+    border-radius: 25px;
+    width: 50%;
+    height: auto;
+    height: auto;
+    transform: translate(0, 30%);
+  background-color: green   ;
+  border: 1px solid black;
+  font-size: 50%;
+}
+
 .shopDieSelectUp {
     position: absolute;
 z-index: 900000;
@@ -138,7 +157,7 @@ z-index: 900000;
     transform: translate(-40%, 30%);
     border-radius: 25px;
     width: 30%;
-    height: 40%;
+    height: auto;
 
   background-color: transparent;
   border: none;
@@ -152,7 +171,7 @@ z-index: 900000;
     transform: translate(40%, 30%);
     border-radius: 25px;
     width: 30%;
-    height: 40%;
+    height: auto;
 
   background-color: transparent;
   border: none;
@@ -172,6 +191,7 @@ img {
 
 
 .shopDieTest {
+    border: 1px solid black;
     flex-wrap: wrap;
     position: relative;
     border-radius: 15px !important;
@@ -231,7 +251,7 @@ img {
     border-radius: 25px;
     background-color: whitesmoke;
     opacity: 1;
-    transform: translate(1850%,-35%);
+    transform: translate(77vw,-35%);
     position: absolute;
     z-index: 999999;
     top: 0;
@@ -239,6 +259,7 @@ img {
 }
 
 #shopBox {
+border:1px solid black;
     position: absolute;
     background-color: pink;
     border-radius: 25px;
@@ -299,7 +320,8 @@ margin-left: 9%;
     margin-right: 7%;
 }
 
-#diceSellBtn {
+.diceSellBtn {
+border: 1px solid black;
     margin: 0;
     border-radius: 25px;
 padding: 12px 24px;      
@@ -331,12 +353,13 @@ padding: 12px 24px;
 }
 
 #shopTitleBox {
+    border: 1px solid black;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: whitesmoke;
-    opacity: 0.5;
+    opacity: 1;
     border-radius: 25px;
     position: absolute;
     width: 50%;
@@ -401,8 +424,23 @@ padding: 12px 24px;
     z-index: 1;
 }
 
+.itemButton {
+      background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: inline-block; /* Matches default image behavior */
+  line-height: 0;        /* Prevents extra bottom whitespace */
+}
+
 h1, h2, p {
     z-index: 9999;
+display: inline-block !important;
+  width: auto !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  word-break: keep-all !important;
 }
 
 /* Anchored to the viewport bottom to clear control button layouts */
