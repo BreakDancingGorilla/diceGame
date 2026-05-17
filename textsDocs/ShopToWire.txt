@@ -87,6 +87,9 @@ damageSelectDown Btn
 Shop Selling Dice 
 -----------------
 
+selectedDiceSellTotal H1 
+    total of amt selected
+
 sellDice Btn
     Sell selected dice
 

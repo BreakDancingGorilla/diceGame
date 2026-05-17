@@ -61,9 +61,9 @@ addEventListener("load", () => {
     // ========================================================================
     // STATE ENGINE SUB-OBJECT: SLAIN ENEMY TRACKER
     // ========================================================================
-   
-    ///Going to do the give player the extra die thing in this method. 
-      ///Well shit we have to find where to put it before the dice is reset 
+
+    ///Going to do the give player the extra die thing in this method.
+    ///Well shit we have to find where to put it before the dice is reset
     slain: {
       num: 0,
       element: document.getElementById("slainCount"),
@@ -75,9 +75,6 @@ addEventListener("load", () => {
         this.num = 0;
         this.element.innerHTML = 0;
       },
-
-
-
     },
 
     // ========================================================================
@@ -121,10 +118,10 @@ addEventListener("load", () => {
         }),
 
         // UI DOM caching mapping to render live values when allocation indicators change
-          ///The hell is this comment.
+        ///The hell is this comment.
         diceInvUi: {
           ///Wish I would have made these mother fuckers arrays,
-            ///But i dont want to go back and redo all the syntaxx.
+          ///But i dont want to go back and redo all the syntaxx.
           quan: {
             select: {
               d4: document.getElementById("selectedDieQuan4"),
@@ -152,7 +149,7 @@ addEventListener("load", () => {
           const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
           for (let i = 0; i < this.dice.length; i++) {
             this.diceInvUi.quan.select[types[i]].innerHTML =
-            this.selectedDice[i];
+              this.selectedDice[i];
             this.diceInvUi.quan.total[types[i]].innerHTML = this.dice[i];
           }
         },
@@ -245,8 +242,6 @@ addEventListener("load", () => {
         strengthGrowthRate: 0.5, // Progression modifier added per kill record achieved
         goldWorth: 5,
 
-
-
         healthElement: document.getElementById("enemyHealth"),
         damageElement: document.getElementById("enemyDamage"),
         bountyElement: document.getElementById("enemyBounty"),
@@ -333,166 +328,157 @@ addEventListener("load", () => {
         ///Resets to base at the end of the enemy turn.
         agroDecayRate: 5, // Rate at which agro is decreased per ranNum call.
 
-      updateSelectedDice: function() {
-  this.updateDiceUi();
-  
-  // 1. Build the diceToChoose array properly
-  let diceToChoose = [];
-  for (let i = 0; i < this.dice.length; i++) {
-    if (this.dice[i] > 0) {
-      diceToChoose.push({ dieIndex: i, quantity: this.dice[i] });
-    }
-  }
+        updateSelectedDice: function () {
+          this.updateDiceUi();
 
-  // Guard clause: Exit if there are no dice available to choose from
-  if (diceToChoose.length === 0) {
-    console.log("Enemy has no dice left to choose from.");
-    return;
-  }
+          // 1. Build the diceToChoose array properly
+          let diceToChoose = [];
+          for (let i = 0; i < this.dice.length; i++) {
+            if (this.dice[i] > 0) {
+              diceToChoose.push({ dieIndex: i, quantity: this.dice[i] });
+            }
+          }
 
-  console.log("Enemy dice to choose from:", diceToChoose);
+          // Guard clause: Exit if there are no dice available to choose from
+          if (diceToChoose.length === 0) {
+            console.log("Enemy has no dice left to choose from.");
+            return;
+          }
 
-  // Initialize the selection tracker
-  var diceChosen = [
-    { dieIndex: 0, quantity: 0 },
-    { dieIndex: 1, quantity: 0 },
-    { dieIndex: 2, quantity: 0 },
-    { dieIndex: 3, quantity: 0 },
-    { dieIndex: 4, quantity: 0 },
-    { dieIndex: 5, quantity: 0 },
-  ];
+          console.log("Enemy dice to choose from:", diceToChoose);
 
-  let cycleLimit = 0; 
+          // Initialize the selection tracker
+          var diceChosen = [
+            { dieIndex: 0, quantity: 0 },
+            { dieIndex: 1, quantity: 0 },
+            { dieIndex: 2, quantity: 0 },
+            { dieIndex: 3, quantity: 0 },
+            { dieIndex: 4, quantity: 0 },
+            { dieIndex: 5, quantity: 0 },
+          ];
 
-  // 2. Loop continues ONLY if we have agro left AND dice are available AND we haven't hit the safety limit
-  while (this.currentAgroWeight > 0 && diceToChoose.length > 0 && cycleLimit < 100) {
-    cycleLimit++;
+          let cycleLimit = 0;
 
-    // Roll to see if enemy wants to take a die
-    if (ranNum(0, 100) < this.currentAgroWeight) {
-      
-      // Select a random index based on what is physically left in the pool
-      let index = Math.floor(ranNum(0, diceToChoose.length));
-      
-      // Safeguard against out-of-bounds math
-      if (index >= diceToChoose.length) {
-        index = diceToChoose.length - 1;
-      }
+          // 2. Loop continues ONLY if we have agro left AND dice are available AND we haven't hit the safety limit
+          while (
+            this.currentAgroWeight > 0 &&
+            diceToChoose.length > 0 &&
+            cycleLimit < 100
+          ) {
+            cycleLimit++;
 
-      let chosenDie = diceToChoose[index];
+            // Roll to see if enemy wants to take a die
+            if (ranNum(0, 100) < this.currentAgroWeight) {
+              // Select a random index based on what is physically left in the pool
+              let index = Math.floor(ranNum(0, diceToChoose.length));
 
-      // Move a die to the chosen pool
-      diceChosen[chosenDie.dieIndex].quantity += 1;
-      chosenDie.quantity -= 1; 
+              // Safeguard against out-of-bounds math
+              if (index >= diceToChoose.length) {
+                index = diceToChoose.length - 1;
+              }
 
-      // Reduce agro weight per choice
-      this.currentAgroWeight -= this.agroDecayRate; 
+              let chosenDie = diceToChoose[index];
 
-      // FIXED: Physically remove the die option from pool if empty to prevent undefined crashes
-      if (chosenDie.quantity <= 0) {
-        diceToChoose.splice(index, 1);
-      }
-    } else {
-      // Enemy rolled above current agro weight, decides to stop choosing
-      break;
-    }
-  }
+              // Move a die to the chosen pool
+              diceChosen[chosenDie.dieIndex].quantity += 1;
+              chosenDie.quantity -= 1;
 
-  // Reset agro weight for the next turn
-  this.currentAgroWeight = this.agroWeightBase; 
-  console.log("Enemy dice chosen:", diceChosen);
+              // Reduce agro weight per choice
+              this.currentAgroWeight -= this.agroDecayRate;
 
-  // 3. Update the permanent selectedDice tracking array
-  for (let i = 0; i < diceChosen.length; i++) {
-    this.selectedDice[diceChosen[i].dieIndex] = diceChosen[i].quantity;
-  } 
+              // FIXED: Physically remove the die option from pool if empty to prevent undefined crashes
+              if (chosenDie.quantity <= 0) {
+                diceToChoose.splice(index, 1);
+              }
+            } else {
+              // Enemy rolled above current agro weight, decides to stop choosing
+              break;
+            }
+          }
 
-  // 4. Deduct the chosen dice from the enemy's available pool
-  for (let i = 0; i < diceChosen.length; i++) {
-    this.dice[diceChosen[i].dieIndex] -= diceChosen[i].quantity;
-  }
+          // Reset agro weight for the next turn
+          this.currentAgroWeight = this.agroWeightBase;
+          console.log("Enemy dice chosen:", diceChosen);
 
-  this.updateDiceUi();
-  console.log("Enemy selected dice:", this.selectedDice);
-  console.log("Enemy dice inventory after selection:", this.dice);
-},
+          // 3. Update the permanent selectedDice tracking array
+          for (let i = 0; i < diceChosen.length; i++) {
+            this.selectedDice[diceChosen[i].dieIndex] = diceChosen[i].quantity;
+          }
 
+          // 4. Deduct the chosen dice from the enemy's available pool
+          for (let i = 0; i < diceChosen.length; i++) {
+            this.dice[diceChosen[i].dieIndex] -= diceChosen[i].quantity;
+          }
 
+          this.updateDiceUi();
+          console.log("Enemy selected dice:", this.selectedDice);
+          console.log("Enemy dice inventory after selection:", this.dice);
+        },
 
         //This will use the strength variable to scale
-          //and the agro weight base. 
-             //The strength will decide how many dice to choose.
-             //The agro will decide which dice to choose.
+        //and the agro weight base.
+        //The strength will decide how many dice to choose.
+        //The agro will decide which dice to choose.
 
-
-             ///!!! We add the give player dice shit here 
+        ///!!! We add the give player dice shit here
         giveNewDice() {
-
-          ///give player the fucking scraps. 
+          ///give player the fucking scraps.
           for (let i = 0; i < this.dice.length; i++) {
             ///Why are these saying can not set properties of undefined?
             //w
-          gameObjects.diceObjects.player.diceInvUi.quan.total[types[i]].innerHTML = " + " + this.dice[i];
-          gameObjects.diceObjects.player.dice[i] += this.dice[i];
+            gameObjects.diceObjects.player.diceInvUi.quan.total[
+              types[i]
+            ].innerHTML = " + " + this.dice[i];
+            gameObjects.diceObjects.player.dice[i] += this.dice[i];
           }
-            setTimeout(() => {
-              for (let i = 0; i < this.dice.length; i++) {
-             gameObjects.diceObjects.player.diceInvUi.quan.total[types[i]].innerHTML = gameObjects.diceObjects.player.dice[i];
-        
-          
-          }
-              }, 1500);
-          
-            
+          setTimeout(() => {
+            for (let i = 0; i < this.dice.length; i++) {
+              gameObjects.diceObjects.player.diceInvUi.quan.total[
+                types[i]
+              ].innerHTML = gameObjects.diceObjects.player.dice[i];
+            }
+          }, 1500);
 
-          this.dice = [0,0,0,0,0,0];
-         
+          this.dice = [0, 0, 0, 0, 0, 0];
+
           let diceToGive = Math.ceil(this.strength); // Number of dice to give based on strength
           for (let i = 0; i < diceToGive; i++) {
-            
             ///Pulling the same while loop from updateSelectedDice
             let cycleLimt = 0; // Safety limit to prevent infinite loops in edge cases where agroWeight doesn't decrease properly
-          while (
-            this.currentAgroWeight > 0 ||
-            cycleLimt > 100
-          ) {
-            ///To choose wheather to choose a die.
-            if (ranNum(0, 100) < this.currentAgroWeight) {
-              let ranNumToUse = ranNum(0, this.currentAgroWeight);
+            while (this.currentAgroWeight > 0 || cycleLimt > 100) {
+              ///To choose wheather to choose a die.
+              if (ranNum(0, 100) < this.currentAgroWeight) {
+                let ranNumToUse = ranNum(0, this.currentAgroWeight);
 
-              this.currentAgroWeight -= this.agroDecayRate; // Decrease agro weight to increase chances of breaking out of the loop and adding some variability to the dice selection process.
-              // Formula: (num / 100) * arrayLength
-              let index = Math.floor((ranNumToUse / 100) * this.dice.length);
+                this.currentAgroWeight -= this.agroDecayRate; // Decrease agro weight to increase chances of breaking out of the loop and adding some variability to the dice selection process.
+                // Formula: (num / 100) * arrayLength
+                let index = Math.floor((ranNumToUse / 100) * this.dice.length);
 
-              // Safeguard: Ensure a random number of exactly 100 doesn't cause an out-of-bounds error
-              if (index >= this.dice.length) {
-                index = this.dice.length - 1;
+                // Safeguard: Ensure a random number of exactly 100 doesn't cause an out-of-bounds error
+                if (index >= this.dice.length) {
+                  index = this.dice.length - 1;
+                }
+                this.dice[index] += 1; // Increment the quantity of the chosen die in the diceChosen array
+                console.log(cycleLimt);
+                cycleLimt++;
+              } else {
+                break;
               }
-              this.dice[index] += 1; // Increment the quantity of the chosen die in the diceChosen array
-              console.log(cycleLimt);
-              cycleLimt++;
-            } else {
-              break;
             }
-            
           }
 
-        }
+          this.updateDiceUi();
+        },
 
-
-        this.updateDiceUi();
-
-      },
-
-/*How to fix this. Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'dieIndex')
+        /*How to fix this. Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'dieIndex')
     at Object.updateSelectedDice (code.js:360:58)
     at Object.roll (code.js:474:11)
     at handleTurn (code.js:644:41)*/
-  //
-  //How do I fix it? The problem is that updateSelectedDice is trying to access dieIndex on an object that doesn't exist. This is because the diceChosen array is initialized with objects that have a dieIndex property, but when we try to access it, it's undefined. To fix this, we need to make sure that the objects in the diceChosen array are properly initialized with a dieIndex property before we try to access it. We can do this by changing the initialization of the diceChosen array to include the dieIndex property for each object. For example:
-// var diceChosen = [
-//   { dieIndex: 0, quantity: 0 },
-    slay() {
+        //
+        //How do I fix it? The problem is that updateSelectedDice is trying to access dieIndex on an object that doesn't exist. This is because the diceChosen array is initialized with objects that have a dieIndex property, but when we try to access it, it's undefined. To fix this, we need to make sure that the objects in the diceChosen array are properly initialized with a dieIndex property before we try to access it. We can do this by changing the initialization of the diceChosen array to include the dieIndex property for each object. For example:
+        // var diceChosen = [
+        //   { dieIndex: 0, quantity: 0 },
+        slay() {
           gameObjects.gold.add(this.goldWorth);
           gameObjects.slain.add(1);
 
@@ -501,7 +487,7 @@ addEventListener("load", () => {
           // Regenerate fresh pool targets augmented cleanly by scale tracking factor variables
           this.updateHealth(Math.round(this.baseHealth * this.strength));
           this.updateDamage(Math.round(this.baseDamage * this.strength));
-        this.bountyElement.innerHTML = "$" + this.goldWorth;
+          this.bountyElement.innerHTML = "$" + this.goldWorth;
           this.giveNewDice();
           this.updateDiceUi();
         },
@@ -514,7 +500,6 @@ addEventListener("load", () => {
           this.bountyElement.innerHTML = "$" + this.goldWorth;
           this.giveNewDice();
           this.updateDiceUi();
-
         },
       },
     },
@@ -656,6 +641,198 @@ addEventListener("load", () => {
   // ============================================================================
   // CENTRALIZED STATE ENGINE GAMEPLAY TURN MACHINE PIPELINE
   // ============================================================================
+
+  ////Going to do all the shop stuff here.
+  ///DataStructureFirst
+  var shopData = {
+    openButton: document.getElementById("shopOpenButton"),
+    closeButton: document.getElementById("shopExitButton"),
+    
+    buySell: {
+      ui: {
+      buy: {
+        buySelectedButton: document.getElementById("buySelected"),
+        selectedTotal: document.getElementById("selectedBuyTotal"),
+      },
+      sell: {
+        sellSelectedButton: document.getElementById("sellDice"),
+        selectedTotal: document.getElementById("selectedDiceSellTotal"),
+      },
+    }
+    },
+
+    items: {
+      reRoll: {
+        ui: {
+          h1: {
+            cost: document.getElementById("reRollCost"),
+            amtSelected: document.getElementById("reRollSelectedAmt"),
+          },
+          btn: {
+            selectUp: document.getElementById("reRollSelectUp"),
+            selectDown: document.getElementById("reRollSelectDown"),
+          },
+        },
+        data: {
+          cost: 5,
+          amtSelected: 0,
+        },
+      },
+      weightedDice: {
+        ui: {
+          h1: {
+            cost: document.getElementById("weightedDiceCost"),
+            amtSelected: document.getElementById("weightedDiceSelectedAmt"),
+          },
+          btn: {
+            selectUp: document.getElementById("weightedDiceSelectUp"),
+            selectDown: document.getElementById("weightedDiceSelectDown"),
+          },
+        },
+        data: {
+          cost: 5,
+          amtSelected: 0,
+        },
+      },
+    },
+    stats: {
+      health: {
+        ui: {
+          h1: {
+            name: document.getElementById("healthName"),
+            cost: document.getElementById("healthCost"),
+            amtSelected: document.getElementById("healthSelectedAmt"),
+          },
+          btn: {
+            selectUp: document.getElementById("healthSelectUp"),
+            selectDown: document.getElementById("healthSelectDown"),
+          },
+        },
+        data: {
+          cost: 5,
+          amtSelected: 0,
+          healthPoints: 0,
+        },
+      },
+      health: {
+        ui: {
+          h1: {
+            name: document.getElementById("damageName"),
+            cost: document.getElementById("damageCost"),
+            amtSelected: document.getElementById("damageSelectedAmt"),
+          },
+          btn: {
+            selectUp: document.getElementById("damageSelectUp"),
+            selectDown: document.getElementById("damageSelectDown"),
+          },
+        },
+        data: {
+          cost: 5,
+          amtSelected: 0,
+          damagePoints: 0,
+        },
+      },
+    },
+      dice: [ //Remember this an array, each index has the data for each die. 
+        {
+          ui: {
+            h1: {
+              dieSelectAmt: document.getElementById("dieSelectedAmt1"),
+              dieSellPrice: document.getElementById("dieSellPrice1"),
+            },
+            btn: {
+              dieSelectUp: document.getElementById("shopDieSelectUp1"),
+              dieSelectDown: document.getElementById("shopDieSelectDown1"),
+            }
+          },
+          data: {
+            sellPrice: 0,
+            amtSelected: 0,
+          },
+        },
+        {
+          ui: {
+            h2: {
+              dieSelectAmt: document.getElementById("dieSelectedAmt2"),
+              dieSellPrice: document.getElementById("dieSellPrice2"),
+            },
+            btn: {
+              dieSelectUp: document.getElementById("shopDieSelectUp2"),
+              dieSelectDown: document.getElementById("shopDieSelectDown2"),
+            }
+          },
+          data: {
+            sellPrice: 0,
+            amtSelected: 0,
+          },
+        },
+        {
+          ui: {
+            h3: {
+              dieSelectAmt: document.getElementById("dieSelectedAmt3"),
+              dieSellPrice: document.getElementById("dieSellPrice3"),
+            },
+            btn: {
+              dieSelectUp: document.getElementById("shopDieSelectUp3"),
+              dieSelectDown: document.getElementById("shopDieSelectDown3"),
+            }
+          },
+          data: {
+            sellPrice: 0,
+            amtSelected: 0,
+          },
+        },
+        {
+          ui: {
+            h4: {
+              dieSelectAmt: document.getElementById("dieSelectedAmt4"),
+              dieSellPrice: document.getElementById("dieSellPrice4"),
+            },
+            btn: {
+              dieSelectUp: document.getElementById("shopDieSelectUp4"),
+              dieSelectDown: document.getElementById("shopDieSelectDown4"),
+            }
+          },
+          data: {
+            sellPrice: 0,
+            amtSelected: 0,
+          },
+        },
+        {
+          ui: {
+            h5: {
+              dieSelectAmt: document.getElementById("dieSelectedAmt5"),
+              dieSellPrice: document.getElementById("dieSellPrice5"),
+            },
+            btn: {
+              dieSelectUp: document.getElementById("shopDieSelectUp5"),
+              dieSelectDown: document.getElementById("shopDieSelectDown5"),
+            }
+          },
+          data: {
+            sellPrice: 0,
+            amtSelected: 0,
+          },
+        },
+       {
+          ui: {
+            h6: {
+              dieSelectAmt: document.getElementById("dieSelectedAmt6"),
+              dieSellPrice: document.getElementById("dieSellPrice6"),
+            },
+            btn: {
+              dieSelectUp: document.getElementById("shopDieSelectUp6"),
+              dieSelectDown: document.getElementById("shopDieSelectDown6"),
+            }
+          },
+          data: {
+            sellPrice: 0,
+            amtSelected: 0,
+          },
+        },
+      ],
+  };
+
   async function handleTurn(actionType) {
     if (rolling) return; // Mutex Guard Clause: locks interface controls down while animations resolve asynchronously
     rolling = true;
@@ -711,5 +888,7 @@ addEventListener("load", () => {
 
   // Bind unified processing triggers to main controller buttons
   attackBtn.addEventListener("click", () => handleTurn("attack"));
-  healBtn.addEventListener("click", () => handleTurn("heal"));
+  ///We got rid of this so the above is complicated for no reason. Might add back. 
+  ///Yeah we need to add back the roll of health points!! 
+ // healBtn.addEventListener("click", () => handleTurn("heal"));
 });
