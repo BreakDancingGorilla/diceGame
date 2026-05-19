@@ -8,8 +8,7 @@
   </head>
 
   <body>
-
-    <img id="loadingScreen" src="./img/Lemme Think GIF.gif"/>
+    <img id="loadingScreen" src="./img/Lemme Think GIF.gif" />
 
     <div id="cardHolder">
       <div id="actionButtonsFlex">
@@ -35,6 +34,14 @@
             <h2><u>Cash</u></h2>
             <h2 id="goldCount">Loading</h2>
           </div>
+          <label class="mode-switch">
+            <input type="checkbox" id="card-mode-toggle" />
+            <div class="slider">
+              <span class="label-attack">Attack</span>
+              <span class="label-heal">Heal</span>
+              <div class="slider-button"></div>
+            </div>
+          </label>
         </div>
       </div>
       <div class="statCard">
@@ -206,7 +213,7 @@
 
           <div class="die">
             <div class="horzon">
-              <h1>ReRoll Tokens</h1>
+              <h1>ReRoll </h1><h1>tokens</h1>
               <h1 id="reRoll">0</h1>
             </div>
             <div class="horzon">
@@ -231,7 +238,7 @@
 
           <div class="die">
             <div class="horzon">
-              <h1>Weighted Die</h1>
+              <h1>Weighted </h1><h1>dice</h1>
               <h1 id="weighted">0</h1>
             </div>
             <div class="horzon">
@@ -271,9 +278,8 @@
     </div>
 
     <div class="hide" id="shopBox">
-      <div id="shopTitleBox"> 
+      <div id="shopTitleBox">
         <h1 id="shopTitle">Cash:</h1>
-
       </div>
       <button id="shopExitButton">
         <img id="shopExitSvg" src="./svg/x-circle.svg" />
@@ -343,7 +349,7 @@
             <button id="sellDice" class="diceSellBtn">Sell Dice</button>
           </div>
           <div id="diceSellBtnWrap">
-            <h1 id="selectedDiceSellTotal" >$0</h1>
+            <h1 id="selectedDiceSellTotal">$0</h1>
           </div>
         </div>
 
@@ -496,13 +502,12 @@
         </div>
       </div>
     </div>
-    <img id="brokeGif" class="hide" src="./img/Struggling No Money GIF.gif"/>
-
+    <img id="brokeGif" class="hide" src="./img/Struggling No Money GIF.gif" />
 
     <script type="module" src="./scripts/helpers.js" defer></script>
     <script type="module" src="./scripts/dice.js" defer></script>
     <script type="module" src="./scripts/shop.js" defer></script>
-    <script type="module" src="./main.js" defer></script>
 
+    <script type="module" src="./main.js" defer></script>
   </body>
 </html>

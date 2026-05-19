@@ -1,5 +1,6 @@
- import { gameObjects } from "./dice";
- export var shop = {
+  import { gameObjects } from "./dice.js";
+  import {ranNum, addSubToStats, buttonTimeout} from './helpers.js'; 
+ export const shop = {
     data: {
       general: {
         shopTitle: document.getElementById("shopTitle"),

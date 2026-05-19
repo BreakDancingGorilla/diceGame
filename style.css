@@ -6,6 +6,13 @@ html, body {
     display: flex;         /* New layout method */
     flex-direction: column; /* Stacks elements top-to-bottom */
      line-height:0;
+     background-color: black;
+}
+
+
+
+button {
+      background-color: #ddd;
 }
 
 
@@ -32,9 +39,9 @@ html, body {
     display: grid;
     font-size: 70%;
     width: 100%;
-    height: 50%;
+    height: 100%;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
+    grid-template-rows: 0.25fr 0.25fr 0.5fr;
     gap: 2%;
 }
 
@@ -306,6 +313,83 @@ margin-left: 9%;
 .shopItemCost {
     align-self: center;
 }
+
+
+/* Example Card Grid Container */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Example 4-column grid */
+  gap: 10px;
+}
+
+/* 1. Force the switch wrapper to span exactly 2 grid cells */
+.mode-switch {
+    align-self: center;
+    justify-self: center;
+  grid-column: span 2; 
+  display: block; /* Ensures it behaves as a block in the grid */
+  width: 90%;    /* Fills the 2 grid cells completely */
+  height: 100%;
+}
+
+/* Hide default checkbox */
+.mode-switch input {
+  display: none;
+}
+
+/* 2. Fluid Slider Background */
+.mode-switch .slider {
+  position: relative;
+  display: flex;
+  justify-content: space-around; /* Distributes labels evenly */
+  align-items: center;
+  width: 100%; /* Spans full width of the 2 grid cells */
+  height: 90%;
+  background-color: #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  box-sizing: border-box;
+  font-weight: bold;
+}
+
+/* Text Labels */
+.label-attack, .label-heal {
+  flex: 1;
+  text-align: center;
+  z-index: 2;
+  transition: 0.3s;
+}
+.label-attack { color: #cc0000; }
+.label-heal { color: #666; }
+
+/* 3. Fluid Sliding Pill Button */
+.slider-button {
+  position: absolute;
+  align-self: center;
+  justify-self: center;
+  top: 0;
+  left: 0;
+  width: 50%; /* Dynamically scales to exactly half the width */
+  height: 100%;
+  background-color: #ffcccc;
+  border-radius: 16px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  z-index: 1;
+}
+
+/* --- STATE CHANGES --- */
+
+/* Move the slider pill by exactly 100% of its own width */
+.mode-switch input:checked + .slider .slider-button {
+  transform: translateX(100%); 
+  background-color: #ccffcc;
+}
+
+/* Swap text colors */
+.mode-switch input:checked + .slider .label-attack { color: #666; }
+.mode-switch input:checked + .slider .label-heal { color: #008800; }
+
+
 
 #diceSellBtnWrap {
     display: flex;
