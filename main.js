@@ -14,7 +14,7 @@ addEventListener("load", () => {
     diceHolder = document.getElementById("playerDiceHolder"),
             
   } */
-
+ ///force update
   // Cache static interactive DOM po  inter handles
   const attackBtn = document.getElementById("attackButton");
   const healBtn = document.getElementById("healbutton");
