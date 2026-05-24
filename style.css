@@ -51,7 +51,7 @@ button {
     align-items: center;
     gap: 10px;
     justify-content: center;
-        background-color: green;
+        background-color: blue;
         border-radius: 25px;
 }
 
@@ -406,6 +406,7 @@ margin-left: 9%;
   cursor: pointer;
   box-sizing: border-box;
   font-weight: bold;
+  font-size: 150%;
 }
 
 /* Text Labels */
@@ -609,13 +610,14 @@ button:disabled {
 
 
 .actionButton {
-    height: 100%;
+    height: 40%;
     border-radius: 25px;
-    width: 100%;
-    font-size: 100%;
+    width: 80%;
+    font-size: 150%;
 }
 
 #actionButtonsFlex {
+    border-radius: 25px;
     position: relative;
     display: flex;
     width: 100%;
@@ -758,12 +760,10 @@ display: inline-block !important;
 }
 
 #enemyDiceContainer{
-    background-color: red;
     display: flex;
     width: 100%;
     height: 100%;
     border-radius: 25px;
-    opacity: 0.5;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -815,12 +815,20 @@ img.diePlaceHolderImg {
     pointer-events: none;
 } 
 
+.enemyColor {
+  background-color: red !important;
+}
+.playerColor {
+  background-color: blue !important;
+}
+
+
 .statCard {
     position: relative;
     display: flex;
     align-items: center; 
     flex-direction: column;
-    background-color: green;
+    background-color: gray;
     border-radius: 25px;
     width: 100%;
     height: 100%;

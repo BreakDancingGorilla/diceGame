@@ -11,11 +11,11 @@
     <img id="loadingScreen" src="./img/Lemme Think GIF.gif" />
 
     <div id="cardHolder">
-      <div id="actionButtonsFlex">
+      <div id="actionButtonsFlex" class="playerColor">
         <button class="actionButton" id="attackButton">Play Turn</button>
         <button class="actionButton" id="shopOpenButton">Shop</button>
       </div>
-      <div class="statCard">
+      <div class="statCard playerColor">
         <h1>Player</h1>
         <div id="playerStatGrid">
           <div class="playerStat">
@@ -44,7 +44,7 @@
           </label>
         </div>
       </div>
-      <div class="statCard">
+      <div class="statCard enemyColor">
         <h1>Enemy</h1>
         <h2><u>Health</u></h2>
         <h2 id="enemyHealth">Loading</h2>
@@ -53,7 +53,7 @@
         <h2><u>Bounty</u></h2>
         <h2 id="enemyBounty">Loading</h2>
       </div>
-      <div id="enemyDiceContainer">
+      <div id="enemyDiceContainer" class="enemyColor">
         <h2 class="center enemyDieH2">Loading</h2>
         <h2 class="center enemyDieH2">Loading</h2>
         <h2 class="center enemyDieH2">Loading</h2>
@@ -218,12 +218,12 @@
     </div>
 
     <div id="diceGrid">
-      <div id="player-dice-box">
+      <div id="player-dice-box" class="playerColor">
         <div id="rolledBoxPlayer" class="numRolledBox hide">
           <h1 id="numRolledTextPlayer">20</h1>
         </div>
       </div>
-      <div id="enemy-dice-box">
+      <div id="enemy-dice-box" class="enemyColor">
         <div id="rolledBoxEnemy" class="numRolledBox hide">
           <h1 id="numRolledTextEnemy">20</h1>
         </div>

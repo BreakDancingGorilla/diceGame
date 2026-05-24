@@ -15,10 +15,6 @@ export const gameObjects = {
    * Index 5 -> d20 (20-sided die)
    */
 
-  /**
-   * INITIALIZATION METHOD: Runs once at application startup
-   * Boots the 3D engines and loads the inventory array visuals
-   */
   async init() {
     console.log("gameObjects.async called, calling gameObjects.reset");
     this.reset(); // Establish baseline player stats and wipe records clean
@@ -26,12 +22,15 @@ export const gameObjects = {
     try {
       // Concurrently load canvas components for both dice trays so they initialize in parallel
       await Promise.all([
-        this.diceObjects.player.box.init(),
-        this.diceObjects.enemy.box.init(),
+        this.diceObjects.player.data.dice.box.init(),
+        this.diceObjects.enemy.data.dice.box.init(),
       ]);
       this.initialized = true;
       console.log("Dice boxes ready");
-      this.diceObjects.player.updateDiceInv(); // Update DOM text to show beginning inventory values
+      this.diceObjects.player.data.dice.updateDiceUi();
+      this.diceObjects.player.eventListeners.diceSelection.init();
+      this.diceObjects.player.data.stats.currentMode.init();
+      
     } catch (e) {
       console.error("Dice-Box failed to load:", e);
     }
@@ -43,22 +42,11 @@ export const gameObjects = {
    * RESET ENGINE METHOD: Cascades reset commands down to every state machine tracking data
    */
   reset() {
-    console.log(
-      `gameObjects.reset running:
-        to run:
-    this.slain.reset();
-    this.gold.reset();
-    this.diceObjects.player.reset();
-    this.diceObjects.enemy.reset();
-    this.diceObjects.player.updateDiceInv();
-      `,
-    );
-    this.slain.reset();
-    this.gold.reset();
-    this.diceObjects.player.reset();
-    this.diceObjects.enemy.reset();
-    this.diceObjects.player.updateDiceInv();
-    console.log("firstReset set to false");
+    this.diceObjects.player.data.stats.reset();
+    this.diceObjects.player.data.dice.reset();
+    this.diceObjects.enemy.data.stats.reset();
+    this.diceObjects.enemy.data.dice.reset();
+    this.diceObjects.player.data.dice.updateDiceUi();
     this.firstReset = false;
   },
 
@@ -69,60 +57,80 @@ export const gameObjects = {
   ///Going to do the give player the extra die thing in this method.
   ///Well shit we have to find where to put it before the dice is reset
   ///Where the fuck did I put it?!?!?!!?
-  slain: {
-    num: 0,
-    element: document.getElementById("slainCount"),
-    add(num) {
-      this.num += num;
-      this.element.innerHTML = this.num;
-    },
-    reset() {
-      console.log(
-        `gameObjects.slain.reset running. Values to change: slain.num: ${this.num} , slain.element.innerHTML ${this.element.innerHTML}`,
-      );
-      this.num = 0;
-      this.element.innerHTML = 0;
-      console.log(`new values: ${this.num}, ${this.element.innerHTML}`);
-    },
-  },
 
   // ========================================================================
   // STATE ENGINE SUB-OBJECT: ECONOMY / GOLD TRACKER
   // ========================================================================
-  gold: {
-    num: 0,
-    element: document.getElementById("goldCount"),
 
-    add(num) {
-      this.num += num;
-      this.element.innerHTML = this.num;
-    },
-
-    remove(num) {
-      if (this.num - num < 0) return false; // Guard clause: prevents spending below zero balance
-      this.num -= num;
-      this.element.innerHTML = this.num;
-      return true;
-    },
-
-    reset() {
-      console.log(
-        `gameObjects.gold.reset running. Values to change: gold.num: ${this.num} , gold.element.innerHTML ${this.element.innerHTML}`,
-      );
-      this.num = 0;
-      this.element.innerHTML = 0;
-      console.log(`new values: ${this.num}, ${this.element.innerHTML}`);
-    },
-  },
-
-  // ========================================================================
-  // COMBATANTS DATA WRAPPERS & DICE BOX CONFIGURATIONS
-  // ========================================================================
   diceObjects: {
-    // ----------------------------------------------------------------------
-    // PLAYER PROPERTIES, INVENTORY, AND STAT HOOKS
-    // ----------------------------------------------------------------------
     player: {
+      eventListeners: {
+        diceSelection: {
+          init() {
+            const parentElement = document.getElementById("playerDiceHolder");
+
+            // Safety check to ensure the element exists before adding the listener
+            if (!parentElement) return;
+
+            parentElement.addEventListener("click", (event) => {
+              // Pull down reference mappings to structural button containers housing active asset pointers
+              const button = event.target.closest(".select-button");
+              if (!button) return; // Disregard arbitrary ambient clicks targeting empty canvas zones or background graphics
+
+              const clickedId = button.id;
+              var dieIndex;
+              var increment = clickedId.includes("Up") ? 1 : -1; // Inspect element ID strings to isolate vector directions
+
+              // Route string definitions straight down into indexed structural numeric arrays mapping target parameters
+              switch (clickedId) {
+                case "4SelectDown":
+                case "4SelectUp":
+                  dieIndex = 0;
+                  break;
+                case "6SelectDown":
+                case "6SelectUp":
+                  dieIndex = 1;
+                  break;
+                case "8SelectDown":
+                case "8SelectUp":
+                  dieIndex = 2;
+                  break;
+                case "10SelectDown":
+                case "10SelectUp":
+                  dieIndex = 3;
+                  break;
+                case "12SelectDown":
+                case "12SelectUp":
+                  dieIndex = 4;
+                  break;
+                case "20SelectDown":
+                case "20SelectUp":
+                  dieIndex = 5;
+                  break;
+              }
+
+              const player = gameObjects.diceObjects.player;
+
+              // Restrict selections inside boundary thresholds checking live stockpile quantities
+              if (increment === 1) {
+                if (player.selectedDice[dieIndex] < player.dice[dieIndex]) {
+                  console.log(`Incrementing die index ${dieIndex}`);
+                  player.selectedDice[dieIndex] += 1;
+                }
+              } else {
+                if (player.selectedDice[dieIndex] > 0) {
+                  player.selectedDice[dieIndex] -= 1;
+                }
+              }
+
+              console.log("Selected dice:", player.selectedDice);
+              // Okay all this does is update the ui. this is changing something
+              gameObjects.diceObjects.player.data.dice.updateDiceUi(); // Cascade changes out to visible overlay layout maps
+            });
+          },
+        },
+      },
+
       box: new DiceBox({
         assetPath: "assets/",
         origin: "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
@@ -130,150 +138,333 @@ export const gameObjects = {
         scale: 10,
       }),
 
-      // UI DOM caching mapping to render live values when allocation indicators change
-      ///The hell is this comment.
-      diceInvUi: {
-        ///Wish I would have made these mother fuckers arrays,
-        ///But i dont want to go back and redo all the syntaxx.
-        quan: {
-          select: {
-            d4: document.getElementById("selectedDieQuan4"),
-            d6: document.getElementById("selectedDieQuan6"),
-            d8: document.getElementById("selectedDieQuan8"),
-            d10: document.getElementById("selectedDieQuan10"),
-            d12: document.getElementById("selectedDieQuan12"),
-            d20: document.getElementById("selectedDieQuan20"),
+      data: {
+        dice: {
+          box: new DiceBox({
+            assetPath: "assets/",
+            origin: "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
+            container: "#player-dice-box",
+            scale: 10,
+          }),
+
+          diceInvUi: {
+            quan: {
+              select: {
+                d4: document.getElementById("selectedDieQuan4"),
+                d6: document.getElementById("selectedDieQuan6"),
+                d8: document.getElementById("selectedDieQuan8"),
+                d10: document.getElementById("selectedDieQuan10"),
+                d12: document.getElementById("selectedDieQuan12"),
+                d20: document.getElementById("selectedDieQuan20"),
+              },
+              total: {
+                d4: document.getElementById("4DieQuan"),
+                d6: document.getElementById("6DieQuan"),
+                d8: document.getElementById("8DieQuan"),
+                d10: document.getElementById("10DieQuan"),
+                d12: document.getElementById("12DieQuan"),
+                d20: document.getElementById("20DieQuan"),
+              },
+            },
           },
-          total: {
-            d4: document.getElementById("4DieQuan"),
-            d6: document.getElementById("6DieQuan"),
-            d8: document.getElementById("8DieQuan"),
-            d10: document.getElementById("10DieQuan"),
-            d12: document.getElementById("12DieQuan"),
-            d20: document.getElementById("20DieQuan"),
+
+          updateDiceUi() {
+            for (let i = 0; i < this.current.length; i++) {
+              this.diceInvUi.quan.select[types[i]].innerHTML = this.selected[i];
+              this.diceInvUi.quan.total[types[i]].innerHTML = this.current[i];
+            }
+          },
+
+          current: [3, 1, 0, 0, 0, 0],
+          selected: [2, 1, 0, 0, 0, 0],
+          base: [2, 1, 0, 0, 0, 0],
+          element: document.getElementById("enemyDiceContainer"),
+          currentValue: 0,
+          currentValueUi: document.getElementById("numRolledTextEnemy"),
+
+          async roll() {
+            let diceToRoll = [];
+            var root = gameObjects.diceObjects.player.data.dice;
+
+            console.log("Rolling with selected dice:", root.selected);
+
+            this.selected.forEach((amt, i) => {
+              if (amt > 0) {
+                diceToRoll.push(amt + types[i]);
+                this.current[i] -= amt;
+              }
+            });
+
+            this.selected = [0, 0, 0, 0, 0, 0];
+
+            console.log("Dice to roll:", diceToRoll);
+
+            if (diceToRoll.length === 0) {
+              return 0;
+            }
+
+            return new Promise((resolve) => {
+              this.box.onRollComplete = (results) => {
+                this.currentValue = results.reduce(
+                  (sum, d) => sum + d.value,
+                  0,
+                );
+                this.currentValueUi.innerHTML = this.currentValue;
+                root.toggleRollBox();
+
+                setTimeout(() => {
+                  this.box.clear();
+                  root.toggleRollBox();
+                }, 1800);
+
+                this.box.onRollComplete = null;
+                resolve(this.currentValue);
+                   console.log(`dice finished rolling for ${root}, sum: ${this.currentValue}`);
+              };
+
+              this.box.roll(diceToRoll);
+              var damage = gameObjects.diceObjects.player.data.stats.damage;
+
+              damage.toApply = damage.base + this.currentValue; 
+              this.updateDiceUi();
+            });
+          },
+
+          setBase() {
+            this.current = this.base;
+            this.updateUi();
+          },
+          reset() {
+            this.current = this.base;
+            ///Adding ?. fixes it from using the function
+            ///Before the object is created.
+            this.selected = [0,0,0,0,0,0];
+            this.updateDiceUi?.();
+          },
+        },
+        stats: {
+          weights: {},
+
+          currentMode: {
+            attack: true,
+            heal: false,
+            element: document.getElementById("card-mode-toggle"),
+            init() {
+              this.element.addEventListener("click", function () {
+                let currentMode = document.getElementById("card-mode-toggle")
+                  .checked
+                  ? "heal"
+                  : "attack";
+                switch (currentMode) {
+                  case "heal":
+                    this.heal = true;
+                    this.attack = false;
+                    break;
+                  case "attack":
+                    this.heal = false;
+                    this.attack = true;
+                    break;
+                  default:
+                    break;
+                }
+                console.log(`currentMode switched: New mode, ${currentMode}`);
+              });
+            },
+          },
+
+          slain: {
+            base: 0,
+            current: 0,
+            element: document.getElementById("slainCount"),
+            async add(amt) {
+              await addSubToStats([
+                {
+                  element: this.element,
+                  amt: amt,
+                  oldAmt: this.current,
+                  add: true,
+                },
+              ]);
+              this.current += amt;
+            },
+            async sub(amt) {
+              await addSubToStats([
+                {
+                  element: this.element,
+                  amt: amt,
+                  oldAmt: this.current,
+                  add: false,
+                },
+              ]);
+              this.current -= amt;
+            },
+            setBase() {
+              this.current = this.base;
+              this.element.innerHTML = this.base;
+            },
+          },
+
+          gold: {
+            base: 100,
+            current: 0,
+            element: document.getElementById("goldCount"),
+            async add(amt) {
+              await addSubToStats([
+                {
+                  element: this.element,
+                  amt: amt,
+                  oldAmt: this.current,
+                  add: true,
+                },
+              ]);
+              this.current += amt;
+            },
+            async sub(amt) {
+              await addSubToStats([
+                {
+                  element: this.element,
+                  amt: amt,
+                  oldAmt: this.current,
+                  add: false,
+                },
+              ]);
+              this.current -= amt;
+            },
+            setBase() {
+              this.current = this.base;
+              this.element.innerHTML = this.base;
+            },
+          },
+
+          health: {
+            base: 100,
+            current: 0,
+            element: document.getElementById("playerHealth"),
+            async add(amt) {
+              await addSubToStats([
+                {
+                  element: this.element,
+                  amt: amt,
+                  oldAmt: this.current,
+                  add: true,
+                },
+              ]);
+              this.current += amt;
+            },
+            async sub(amt) {
+              await addSubToStats([
+                {
+                  element: this.element,
+                  amt: amt,
+                  oldAmt: this.current,
+                  add: false,
+                },
+              ]);
+              this.current -= amt;
+            },
+            setBase() {
+              this.current = this.base;
+              this.element.innerHTML = this.base;
+            },
+          },
+          damage: {
+            base: 100,
+            current: 0,
+            element: document.getElementById("playerDamage"),
+            toApply: 100,
+            async add(amt) {
+              await addSubToStats([
+                {
+                  element: this.element,
+                  amt: amt,
+                  oldAmt: this.current,
+                  add: true,
+                },
+              ]);
+              this.current += amt;
+            },
+            async sub(amt) {
+              await addSubToStats([
+                {
+                  element: this.element,
+                  amt: amt,
+                  oldAmt: this.current,
+                  add: false,
+                },
+              ]);
+              this.current -= amt;
+            },
+            setBase() {
+              this.current = this.base;
+              this.element.innerHTML = this.base;
+            },
+          },
+          bounty: {
+            base: 5,
+            current: 5,
+            element: document.getElementById("enemyBounty"),
+            async add(amt) {
+              await addSubToStats([
+                {
+                  element: this.element,
+                  amt: amt,
+                  oldAmt: this.current,
+                  add: true,
+                },
+              ]);
+              this.current += amt;
+            },
+            async sub(amt) {
+              await addSubToStats([
+                {
+                  element: this.element,
+                  amt: amt,
+                  oldAmt: this.current,
+                  add: false,
+                },
+              ]);
+              this.current -= amt;
+            },
+            setBase() {
+              this.current = this.base;
+              this.element.innerHTML = `$${this.base}`;
+            },
+          },
+          reset() {
+            ///Targets every child of stats that isnt a function
+            ///And runs setBase();
+            for (const [key, value] of Object.entries(this)) {
+              if (
+                value &&
+                typeof value === "object" &&
+                typeof value.setBase === "function"
+              ) {
+                value.setBase();
+              }
+            }
+            ///Adding ?. fixes it from using the function
+            ///Before the object is created.
+            this.updateDiceUi?.();
           },
         },
       },
 
+      // UI DOM caching mapping to render live values when allocation indicators change
+      ///The hell is this comment.
+
       /**
        * PLAYER DICE TRACER: Syncs raw JavaScript arrays out to HTML layouts
        */
-      updateDiceInv() {
-        console.log(
-          "UpdateDiceInv running, to change innerHtmls for dice inventory.",
-        );
-        const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
-        for (let i = 0; i < this.dice.length; i++) {
-          this.diceInvUi.quan.select[types[i]].innerHTML = this.selectedDice[i];
-          this.diceInvUi.quan.total[types[i]].innerHTML = this.dice[i];
-        }
-      },
 
       // Core data structures for tracking ammunition pools across turn actions
-      dice: [2, 3, 5, 5, 3, 0], // Live mutable stockpile pools
-      baseDice: [2, 3, 5, 3, 0, 0], // Fallback template defaults mapped during resets
-      selectedDice: [0, 0, 0, 0, 0, 0], // Staged choices awaiting submission to the 3D box
-      currentDiceValue: 0,
-      currentDiceValueUi: document.getElementById("numRolledTextPlayer"),
-
-      baseHealth: 100,
-      baseDamage: 50,
-
-      healthElement: document.getElementById("playerHealth"),
-      damageElement: document.getElementById("playerDamage"),
-
-      healthNum: 100,
-      damageNum: 50,
 
       toggleRollBox() {
         document.getElementById("rolledBoxPlayer").classList.toggle("hide");
       },
 
-      /**
-       * PLAYER VISUAL HEALTH MANAGER
-       * Generates the math reduction string, then saves state when timer completes
-       */
-      async updateHealth(num, addOrSub) {
-        await addSubToStats([
-          {
-            element: gameObjects.diceObjects.player.healthElement,
-            amt: num + gameObjects.diceObjects.player.damageNum,
-            oldAmt: gameObjects.diceObjects.player.healthNum,
-            add: addOrSub,
-          },
-        ]);
-        if (addOrSub) {
-          this.healthNum += num;
-        } else {
-          this.healthNum -= num;
-        }
-      },
-
-      updateDamage(num) {
-        this.damageNum = num;
-        this.damageElement.innerHTML = num;
-      },
-
-      /**
-       * PLAYER DAMAGE INTAKE CALCULATION pipeline
-       * Deducts raw numbers based on incoming variables passed by enemy actions
-       */
-      async applyDamage(enemyRoll) {
-        await addSubToStats([
-          {
-            element: gameObjects.diceObjects.player.healthElement,
-            amt: enemyRoll + gameObjects.diceObjects.enemy.damageNum,
-            oldAmt: gameObjects.diceObjects.player.healthNum,
-            add: false,
-          },
-        ]);
-        this.healthNum -= enemyRoll + gameObjects.diceObjects.enemy.damageNum;
-      },
-
       async reset() {
-        console.log(
-          `gameObjects.player.reset running. 
-          Values to change: 
-          player.dice: ${this.dice} to be player.baseDice: ${this.baseDice}, 
-          player.selectedDice ${this.selectedDice},
-          player.healthElement & player.healthNum to be player.baseHealth: ${this.baseHealth},
-            using addSubToStats
-          player.damageElement & player.damageNum to be player.damageHealth: ${this.baseDamage},
-            using addSubToStats
-          `,
-        );
-
-        this.dice = [...this.baseDice];
-
-        ///updateHealth and damage
-        addSubToStats([
-          {
-            element: this.healthElement,
-            amt: this.baseHealth,
-            oldAmt: this.healthNum,
-            add: true,
-          },
-          {
-            element: this.damageElement,
-            amt: this.baseDamage,
-            oldAmt: this.damageNum,
-            add: true,
-          },
-        ]);
-        this.healthNum = this.baseHealth;
-        this.damageNum = this.baseDamage;
-
-        this.selectedDice = [0, 0, 0, 0, 0, 0];
-        console.log(
-          `new values in order: 
-          ${this.dice}
-          ${this.selectedDice},
-          ${this.healthElement.innerHTML},
-          ${this.healthNum},
-          ${this.damageElement.innerHTML},
-          ${this.damageNum},       
-          `,
-        );
+        this.data.dice.reset();
+        this.data.stats.reset();
       },
     },
 
@@ -297,13 +488,18 @@ export const gameObjects = {
           currentValue: 0,
           currentValueUi: document.getElementById("numRolledTextEnemy"),
 
+
+
+
           async roll() {
             let diceToRoll = [];
             var root = gameObjects.diceObjects.enemy;
 
-            console.log("Rolling with selected dice:", obj.selectedDice);
+            this.updateSelectedDice();
+            this.updateDiceUi();
+            console.log("Rolling with selected dice:", this.selected);
 
-            this.selectedDice.forEach((amt, i) => {
+            this.selected.forEach((amt, i) => {
               if (amt > 0) {
                 diceToRoll.push(amt + types[i]);
                 this.current[i] -= amt;
@@ -334,20 +530,22 @@ export const gameObjects = {
                 }, 1800);
 
                 this.box.onRollComplete = null;
-                resolve(obj.currentDiceValue);
+                resolve(this.currentValue);
               };
 
               this.box.roll(diceToRoll);
+              var damage = gameObjects.diceObjects.enemy.data.stats.damage;
 
+              damage.toApply = damage.base + this.currentValue; 
               this.updateDiceUi();
             });
           },
 
           async updateDiceUi() {
             let elementTexts = [];
-            for (let i = 0; i < this.dice.length; i++) {
-              if (this.dice[i] > 0) {
-                elementTexts.push(`${types[i]}  ${this.dice[i]}`);
+            for (let i = 0; i < this.current.length; i++) {
+              if (this.current[i] > 0) {
+                elementTexts.push(`${types[i]}  ${this.current[i]}`);
               }
             }
 
@@ -360,11 +558,11 @@ export const gameObjects = {
             });
 
             // 2. Clear the div and add all the new <h1> elements at once
-            this.diceContainer.replaceChildren(...headingElements);
+            this.element.replaceChildren(...headingElements);
           },
           updateSelectedDice() {
             // Guard clause: Exit if there are no dice available to choose from
-            for (let i = 0; i < dice.length; i++) {
+            for (let i = 0; i < this.current.length; i++) {
               if (i <= 0) {
                 console.log("Enemy has no dice left to choose from.");
                 break;
@@ -402,26 +600,29 @@ export const gameObjects = {
                 break;
               }
             }
-            stats.aggressiveness.setBase();
-            console.log("Enemy dice chosen:", diceChosen);
+            gameObjects.diceObjects.enemy.data.stats.weights.aggressiveness.setBase();
+            console.log("Enemy dice chosen:", this.selected);
             this.updateDiceUi();
           },
           NewDice() {
             ///Player is given leftover dice.
+            var player = gameObjects.diceObjects.player;
+            var enemy = gameObjects.diceObjects.enemy;
+
             if (!gameObjects.firstReset) {
               var arrayToPass = [];
-              for (let i = 0; i < this.dice.length; i++) {
+              for (let i = 0; i < this.current.length; i++) {
                 arrayToPass[i] = {
                   element:
-                    gameObjects.diceObjects.player.diceInvUi.quan.total[
+                    player.data.dice.diceInvUi.quan.total[
                       types[i]
                     ],
                   add: true,
-                  oldAmt: gameObjects.diceObjects.player.dice[i],
-                  amt: gameObjects.diceObjects.enemy.dice[i],
+                  oldAmt: player.data.dice.current[i],
+                  amt: enemy.data.dice.current[i],
                 };
-                gameObjects.diceObjects.player.dice[i] +=
-                  gameObjects.diceObjects.enemy.dice[i];
+                player.data.dice.current[i] +=
+                enemy.data.dice.current[i];
               }
               addSubToStats(arrayToPass);
             } else {
@@ -430,7 +631,7 @@ export const gameObjects = {
               );
             }
 
-            this.dice = [0, 0, 0, 0, 0, 0];
+            this.current = [0,0,0,0,0,0];
 
             // Number of dice to give based on strength
             let diceToGive = Math.ceil(
@@ -483,14 +684,9 @@ export const gameObjects = {
             this.current = this.base;
             this.updateDiceUi();
           },
-          roll() {},
+  
         },
         stats: {
-          dice: {
-            current: [3, 1, 0, 0, 0, 0],
-            selected: [2, 1, 0, 0, 0, 0],
-            base: [2, 1, 0, 0, 0, 0],
-          },
           weights: {
             strength: {
               current: 1.5,
@@ -498,7 +694,6 @@ export const gameObjects = {
               rate: 1.5,
               setBase() {
                 this.current = this.base;
-                this.element.innerHTML = this.base;
               },
               applyRate() {
                 this.current *= this.rate;
@@ -510,7 +705,6 @@ export const gameObjects = {
               rate: 5,
               setBase() {
                 this.current = this.base;
-                this.element.innerHTML = this.base;
               },
               applyRate() {
                 this.current -= this.rate;
@@ -522,7 +716,6 @@ export const gameObjects = {
               rate: 1.2,
               setBase() {
                 this.current = this.base;
-                this.element.innerHTML = this.base;
               },
               applyRate() {
                 this.current *= this.rate;
@@ -533,7 +726,7 @@ export const gameObjects = {
           health: {
             base: 100,
             current: 0,
-            element: document.getElementById("enemyDamage"),
+            element: document.getElementById("enemyHealth"),
             async add(amt) {
               await addSubToStats([
                 {
@@ -543,6 +736,7 @@ export const gameObjects = {
                   add: true,
                 },
               ]);
+              this.current += amt;
             },
             async sub(amt) {
               await addSubToStats([
@@ -553,6 +747,7 @@ export const gameObjects = {
                   add: false,
                 },
               ]);
+              this.current -= amt;
             },
             setBase() {
               this.current = this.base;
@@ -560,9 +755,10 @@ export const gameObjects = {
             },
           },
           damage: {
-            base: 100,
-            current: 0,
-            element: document.getElementByI,
+            base: 7,
+            current: 7,
+            element: document.getElementById("enemyDamage"),
+            toApply: 100,
             async add(amt) {
               await addSubToStats([
                 {
@@ -572,6 +768,7 @@ export const gameObjects = {
                   add: true,
                 },
               ]);
+              this.current += amt;
             },
             async sub(amt) {
               await addSubToStats([
@@ -582,6 +779,7 @@ export const gameObjects = {
                   add: false,
                 },
               ]);
+              this.current -= amt;
             },
             setBase() {
               this.current = this.base;
@@ -601,6 +799,7 @@ export const gameObjects = {
                   add: true,
                 },
               ]);
+              this.current += amt;
             },
             async sub(amt) {
               await addSubToStats([
@@ -611,6 +810,7 @@ export const gameObjects = {
                   add: false,
                 },
               ]);
+              this.current -= amt;
             },
             setBase() {
               this.current = this.base;
@@ -618,38 +818,60 @@ export const gameObjects = {
             },
           },
           reset() {
-            this.strength.setBase();
-            this.health.setBase();
-            this.damage.setBase();
-            this.bounty.setBase();
-            this.giveNewDice();
-            this.updateDiceUi();
+            ///Targets every child of stats that isnt a function
+            ///And runs setBase();
+            for (const [key, value] of Object.entries(this)) {
+              if (
+                value &&
+                typeof value === "object" &&
+                typeof value.setBase === "function"
+              ) {
+                value.setBase();
+              }
+            }
+            ///Adding ?. fixes it from using the function
+            ///Before the object is created.
+            this.updateDiceUi?.();
+
+            this.giveNewDice?.();
+            this.updateDiceUi?.();
           },
         },
       },
 
       async slay() {
-        gameObjects.gold.add(this.bounty);
-        gameObjects.slain.add(1);
 
-        this.strength += this.strengthGrowthRate; // Scale combat curves harder for next lifecycle spawn
+
+
+        var player = gameObjects.diceObjects.player;
+        var enemy = gameObjects.diceObjects.enemy;
+
+      
+
+        await player.data.stats.gold.add(this.data.stats.bounty.current);
+        await player.data.stats.slain.add(1);
+
+      
+        var stats = gameObjects.diceObjects.enemy.data.stats;
+        
+        ///enemy health can be negative after player attack
+        stats.health.current = 0;
+
+        await stats.bounty.add(Math.ceil(stats.bounty.base * stats.weights.strength.current));
+        stats.weights.strength.applyRate();
+
+
+        await stats.health.add(Math.ceil(stats.health.base * stats.weights.strength.current));
+
+        await stats.damage.add(Math.ceil(stats.damage.base * stats.weights.strength.current));
+
 
         // Regenerate fresh pool targets augmented cleanly by scale tracking factor variables
-        await this.updateHealth(
-          Math.ceil(this.baseHealth * this.strength),
-          true,
-        );
-        await this.updateDamage(
-          Math.ceil(this.baseDamage * this.strength),
-          true,
-        );
-        console.log(
-          `enemy.bounty to be ${Math.ceil(this.bounty * this.strength)}`,
-        );
-        this.bounty = Math.ceil(this.bounty * this.strength);
-        this.bountyElement.innerHTML = "$" + this.bounty;
-        this.giveNewDice();
-        this.updateDiceUi();
+   
+
+
+       enemy.data.dice.NewDice();
+       enemy.data.dice.updateDiceUi();
       },
 
       reset() {
@@ -657,10 +879,10 @@ export const gameObjects = {
         this.data.stats.reset();
       },
       toggleRollBox() {
-    document.getElementById("rolledBoxEnemy").classList.toggle("hide");
-  },
+        document.getElementById("rolledBoxEnemy").classList.toggle("hide");
+      },
     },
   },
-
-  
 };
+
+
