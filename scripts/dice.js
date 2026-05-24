@@ -235,32 +235,31 @@ export const gameObjects = {
           },
         },
         stats: {
-          weights: {},
+
 
           currentMode: {
             attack: true,
             heal: false,
             element: document.getElementById("card-mode-toggle"),
             init() {
+            
               this.element.addEventListener("click", function () {
-                let currentMode = document.getElementById("card-mode-toggle")
-                  .checked
-                  ? "heal"
-                  : "attack";
-                switch (currentMode) {
-                  case "heal":
-                    this.heal = true;
-                    this.attack = false;
-                    break;
-                  case "attack":
-                    this.heal = false;
-                    this.attack = true;
-                    break;
-                  default:
-                    break;
+                  let element = gameObjects.diceObjects.player.data.stats.currentMode.element;
+              let attack =  gameObjects.diceObjects.player.data.stats.currentMode.attack;
+               let heal =  gameObjects.diceObjects.player.data.stats.currentMode.heal;
+                console.log(element.checked);
+                if (element.checked) {
+                  gameObjects.diceObjects.player.data.stats.currentMode.heal = true;
+                  gameObjects.diceObjects.player.data.stats.currentMode.attack = false;
                 }
-                console.log(`currentMode switched: New mode, ${currentMode}`);
+                else {
+                  gameObjects.diceObjects.player.data.stats.currentMode.attack = true;
+                  gameObjects.diceObjects.player.data.stats.currentMode.heal = false;
+                }
+              
+                   console.log(gameObjects.diceObjects.player.data.stats.currentMode.heal);
               });
+           
             },
           },
 
@@ -360,10 +359,10 @@ export const gameObjects = {
             },
           },
           damage: {
-            base: 50,
-            current: 50,
+            base: 25,
+            current: 25,
             element: document.getElementById("playerDamage"),
-            toApply: 50,
+            toApply: 25,
             async add(amt) {
               await addSubToStats([
                 {
@@ -475,7 +474,7 @@ export const gameObjects = {
 
           current: [3, 1, 0, 0, 0, 0],
           selected: [2, 1, 0, 0, 0, 0],
-          base: [2, 1, 0, 0, 0, 0],
+          base: [3, 1, 0, 0, 0, 0],
           element: document.getElementById("enemyDiceContainer"),
           currentValue: 0,
           currentValueUi: document.getElementById("numRolledTextEnemy"),
@@ -494,7 +493,7 @@ export const gameObjects = {
                 this.current[i] -= amt;
               }
             });
-
+                this.updateDiceUi();
             this.selected = [0, 0, 0, 0, 0, 0];
 
             console.log("Dice to roll:", diceToRoll);
@@ -521,7 +520,7 @@ export const gameObjects = {
                 resolve(this.currentValue);
                 var damage = gameObjects.diceObjects.enemy.data.stats.damage;
                 damage.toApply = damage.current + this.currentValue;
-                this.updateDiceUi();
+            
               };
 
               this.box.roll(diceToRoll);
@@ -556,30 +555,29 @@ export const gameObjects = {
               }
             }
 
-            let cycleLimit = 0;
-
+            let agro = gameObjects.diceObjects.enemy.data.stats.weights.aggressiveness.current;
+            let stats = gameObjects.diceObjects.enemy.data.stats;
+          
             // 2. Loop continues ONLY if we have agro left AND dice are available AND we haven't hit the safety limit
             while (
-              this.currentAgroWeight > 0 &&
-              diceToChoose.length > 0 &&
-              cycleLimit < 100
+               agro > 0
             ) {
-              cycleLimit++;
+
 
               // Roll to see if enemy wants to take a die
-              if (ranNum(0, 100) < this.currentAgroWeight) {
+              if (ranNum(0, 100) < agro) {
                 // Select a random index based on what is physically left in the pool
-                let index = Math.floor(ranNum(0, diceToChoose.length));
+                let index = Math.floor(ranNum(0, this.current.length));
 
                 // Safeguard against out-of-bounds math
-                if (index >= diceToChoose.length) {
-                  index = diceToChoose.length - 1;
+                if (index >= this.current.length) {
+                  index = this.current.length - 1;
                 }
 
                 // Move a die to the chosen pool
-                this.dice[index]--;
+                this.current[index]--;
                 this.selected[index]++;
-                stats.aggressiveness.applyRate();
+                stats.weights.aggressiveness.applyRate();
 
                 // Reduce agro weight per choice
               } else {
@@ -664,10 +662,10 @@ export const gameObjects = {
 
           setBase() {
             this.current = this.base;
-            this.updateUi();
+            this.updateDiceUi();
           },
           reset() {
-            this.current = this.base;
+            this.NewDice();
             this.updateDiceUi();
           },
         },
@@ -740,10 +738,10 @@ export const gameObjects = {
             },
           },
           damage: {
-            base: 7,
-            current: 7,
+            base: 50,
+            current: 50,
             element: document.getElementById("enemyDamage"),
-            toApply: 7,
+            toApply: 50,
             async add(amt) {
               await addSubToStats([
                 {

@@ -30,8 +30,9 @@ const attackBtn = document.getElementById("attackButton");
 
     await player.data.dice.roll();
 
-
+    console.log(player.data.stats.currentMode.attack);
     if (player.data.stats.currentMode.attack) {
+      console.log("player t")
       await enemy.data.stats.health.sub(player.data.stats.damage.toApply);
     }
     else {
@@ -59,6 +60,13 @@ const attackBtn = document.getElementById("attackButton");
 
   ///Check if player is dead. 
   if (player.data.stats.health.current <= 0) {
+    let deathScreen = document.getElementById("deathScreen");
+    deathScreen.classList.remove("hide");
+    
+    setInterval(() => {
+      deathScreen.classList.add("hide");
+    }, 3000);
+    gameObjects.firstReset = true;
     gameObjects.reset();
     buttonTimeout(false);
     return; 
