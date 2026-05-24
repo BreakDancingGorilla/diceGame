@@ -16,7 +16,7 @@ export function ranNum(min, max) {
 // Add the 'async' keyword to your function
 export async function addSubToStats(arrayOfObjects) {
   console.log("--- STATS UPDATE START ---");
-
+  var animationTime = 1000;
   // Create an array to track all the animation promises
   const animationPromises = [];
 
@@ -47,7 +47,7 @@ export async function addSubToStats(arrayOfObjects) {
           element.className = "";
           element.innerHTML = newValue;
           resolve(); // 1. Tells the promise this specific animation is done
-        }, 1900);
+        }, animationTime);
       } else {
         element.className = "neon-flash-red";
         element.innerHTML = `${oldNum} - ${amt}`;
@@ -55,7 +55,7 @@ export async function addSubToStats(arrayOfObjects) {
           element.className = "";
           element.innerHTML = newValue;
           resolve(); // 1. Tells the promise this specific animation is done
-        }, 1900);
+        }, animationTime);
       }
     });
 

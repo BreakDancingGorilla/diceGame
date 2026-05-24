@@ -637,7 +637,6 @@ button:disabled {
 #testing-dice-box {
     width: 200px;
     height: 200px;
-    background-image: url(/public/assets/woodgrain2.jpg);
     background-size: cover;
     pointer-events: none; 
     z-index: 1;
@@ -681,12 +680,7 @@ display: inline-block !important;
     grid-template-rows: 1fr;
 } 
 
-#player-dice-box {
-    position: relative;
-    background-image: linear-gradient(rgba(26, 35, 126, 0.6), rgba(26, 35, 126, 0.6)), url(/public/assets/woodgrain2.jpg);
-    background-size: cover;
-    z-index: 1;
-}
+
 
 #numRolledTextPlayer {
 
@@ -706,7 +700,10 @@ display: inline-block !important;
     opacity: 0.5;
     z-index: 10001; /* Above the dice */
 }
-
+#player-dice-box {
+    position: relative;
+    background-size: cover;
+}
 
 
 #player-dice-box canvas {
@@ -718,7 +715,6 @@ display: inline-block !important;
 
 #enemy-dice-box {
     position: relative;
-    background-image: linear-gradient(rgba(183, 28, 28, 0.6), rgba(183, 28, 28, 0.6)), url(/public/assets/woodgrain2.jpg);
     background-size: cover;
 }
 

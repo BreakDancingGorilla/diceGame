@@ -28,9 +28,8 @@ export const gameObjects = {
       this.initialized = true;
       console.log("Dice boxes ready");
       this.diceObjects.player.data.dice.updateDiceUi();
-      this.diceObjects.player.eventListeners.diceSelection.init();
+      this.diceObjects.player.data.dice.diceSelection.init();
       this.diceObjects.player.data.stats.currentMode.init();
-      
     } catch (e) {
       console.error("Dice-Box failed to load:", e);
     }
@@ -64,8 +63,16 @@ export const gameObjects = {
 
   diceObjects: {
     player: {
-      eventListeners: {
-        diceSelection: {
+      data: {
+        dice: {
+          box: new DiceBox({
+            assetPath: "assets/",
+            origin: "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
+            container: "#player-dice-box",
+            scale: 10,
+          }),
+
+          diceSelection: {
           init() {
             const parentElement = document.getElementById("playerDiceHolder");
 
@@ -113,39 +120,25 @@ export const gameObjects = {
 
               // Restrict selections inside boundary thresholds checking live stockpile quantities
               if (increment === 1) {
-                if (player.selectedDice[dieIndex] < player.dice[dieIndex]) {
+                if (
+                  player.data.dice.selected[dieIndex] <
+                  player.data.dice.current[dieIndex]
+                ) {
                   console.log(`Incrementing die index ${dieIndex}`);
-                  player.selectedDice[dieIndex] += 1;
+                  player.data.dice.selected[dieIndex] += 1;
                 }
               } else {
-                if (player.selectedDice[dieIndex] > 0) {
-                  player.selectedDice[dieIndex] -= 1;
+                if (player.data.dice.selected[dieIndex] > 0) {
+                  player.data.dice.selected[dieIndex] -= 1;
                 }
               }
 
-              console.log("Selected dice:", player.selectedDice);
+              console.log("Selected dice:", player.data.dice.selected);
               // Okay all this does is update the ui. this is changing something
               gameObjects.diceObjects.player.data.dice.updateDiceUi(); // Cascade changes out to visible overlay layout maps
             });
           },
         },
-      },
-
-      box: new DiceBox({
-        assetPath: "assets/",
-        origin: "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
-        container: "#player-dice-box",
-        scale: 10,
-      }),
-
-      data: {
-        dice: {
-          box: new DiceBox({
-            assetPath: "assets/",
-            origin: "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
-            container: "#player-dice-box",
-            scale: 10,
-          }),
 
           diceInvUi: {
             quan: {
@@ -178,15 +171,15 @@ export const gameObjects = {
           current: [3, 1, 0, 0, 0, 0],
           selected: [2, 1, 0, 0, 0, 0],
           base: [2, 1, 0, 0, 0, 0],
-          element: document.getElementById("enemyDiceContainer"),
+          element: document.getElementById("playerDiceContainer"),
           currentValue: 0,
-          currentValueUi: document.getElementById("numRolledTextEnemy"),
+          currentValueUi: document.getElementById("numRolledTextPlayer"),
 
           async roll() {
             let diceToRoll = [];
-            var root = gameObjects.diceObjects.player.data.dice;
+            var root = gameObjects.diceObjects.player;
 
-            console.log("Rolling with selected dice:", root.selected);
+            console.log("Rolling with selected dice:", this.selected);
 
             this.selected.forEach((amt, i) => {
               if (amt > 0) {
@@ -199,7 +192,7 @@ export const gameObjects = {
 
             console.log("Dice to roll:", diceToRoll);
 
-            if (diceToRoll.length === 0) {
+            if (diceToRoll.length === 0)  {
               return 0;
             }
 
@@ -219,14 +212,13 @@ export const gameObjects = {
 
                 this.box.onRollComplete = null;
                 resolve(this.currentValue);
-                   console.log(`dice finished rolling for ${root}, sum: ${this.currentValue}`);
+                var damage = gameObjects.diceObjects.player.data.stats.damage;
+
+                damage.toApply = damage.current + this.currentValue;
+                this.updateDiceUi();
               };
 
               this.box.roll(diceToRoll);
-              var damage = gameObjects.diceObjects.player.data.stats.damage;
-
-              damage.toApply = damage.base + this.currentValue; 
-              this.updateDiceUi();
             });
           },
 
@@ -238,7 +230,7 @@ export const gameObjects = {
             this.current = this.base;
             ///Adding ?. fixes it from using the function
             ///Before the object is created.
-            this.selected = [0,0,0,0,0,0];
+            this.selected = [0, 0, 0, 0, 0, 0];
             this.updateDiceUi?.();
           },
         },
@@ -368,10 +360,10 @@ export const gameObjects = {
             },
           },
           damage: {
-            base: 100,
-            current: 0,
+            base: 50,
+            current: 50,
             element: document.getElementById("playerDamage"),
-            toApply: 100,
+            toApply: 50,
             async add(amt) {
               await addSubToStats([
                 {
@@ -488,9 +480,6 @@ export const gameObjects = {
           currentValue: 0,
           currentValueUi: document.getElementById("numRolledTextEnemy"),
 
-
-
-
           async roll() {
             let diceToRoll = [];
             var root = gameObjects.diceObjects.enemy;
@@ -511,7 +500,6 @@ export const gameObjects = {
             console.log("Dice to roll:", diceToRoll);
 
             if (diceToRoll.length === 0) {
-              this.current = 0;
               return 0;
             }
 
@@ -531,13 +519,12 @@ export const gameObjects = {
 
                 this.box.onRollComplete = null;
                 resolve(this.currentValue);
+                var damage = gameObjects.diceObjects.enemy.data.stats.damage;
+                damage.toApply = damage.current + this.currentValue;
+                this.updateDiceUi();
               };
 
               this.box.roll(diceToRoll);
-              var damage = gameObjects.diceObjects.enemy.data.stats.damage;
-
-              damage.toApply = damage.base + this.currentValue; 
-              this.updateDiceUi();
             });
           },
 
@@ -608,21 +595,17 @@ export const gameObjects = {
             ///Player is given leftover dice.
             var player = gameObjects.diceObjects.player;
             var enemy = gameObjects.diceObjects.enemy;
-
             if (!gameObjects.firstReset) {
               var arrayToPass = [];
               for (let i = 0; i < this.current.length; i++) {
+                let die = types[i];
                 arrayToPass[i] = {
-                  element:
-                    player.data.dice.diceInvUi.quan.total[
-                      types[i]
-                    ],
+                  element: player.data.dice.diceInvUi.quan.total[die],
                   add: true,
                   oldAmt: player.data.dice.current[i],
                   amt: enemy.data.dice.current[i],
                 };
-                player.data.dice.current[i] +=
-                enemy.data.dice.current[i];
+                player.data.dice.current[i] += enemy.data.dice.current[i];
               }
               addSubToStats(arrayToPass);
             } else {
@@ -631,11 +614,12 @@ export const gameObjects = {
               );
             }
 
-            this.current = [0,0,0,0,0,0];
+            this.current = [0, 0, 0, 0, 0, 0];
 
             // Number of dice to give based on strength
+            let weights = enemy.data.stats.weights;
             let diceToGive = Math.ceil(
-              this.strength * this.diceBonusMultipler + this.minDiceBonus,
+              weights.strength.current + weights.minDice.current,
             );
             console.log(`Number of dice to give: ${diceToGive}`);
 
@@ -644,12 +628,12 @@ export const gameObjects = {
               console.log("giving enemy another die...");
               ///Pulling the same while loop from updateSelectedDice
               let cycleLimt = 0; // Safety limit to prevent infinite loops in edge cases where agroWeight doesn't decrease properly
-              while (this.currentAgroWeight > 0 || cycleLimt > 200) {
+              while (weights.aggressiveness.current > 0 || cycleLimt > 200) {
                 ///To choose wheather to choose a die.
-                if (ranNum(0, 100) < this.currentAgroWeight) {
+                if (ranNum(0, 100) < weights.aggressiveness.current) {
                   let ranNumToUse = ranNum(0, 100);
 
-                  this.currentAgroWeight -= this.agroDecayRate; // Decrease agro weight to increase chances of breaking out of the loop and adding some variability to the dice selection process.
+                  weights.aggressiveness.applyRate();
                   // Formula: (num / 100) * arrayLength
                   let index = Math.floor(
                     (ranNumToUse / 100) * this.current.length,
@@ -665,14 +649,16 @@ export const gameObjects = {
                 } else {
                   if (cycleLimt > 200) {
                     console.log(
-                      `cycleLimit hit, current agroWeight: ${this.currentAgroWeight}`,
+                      `cycleLimit hit, current agroWeight: ${enemy.data.stats.weights.aggressiveness.current}`,
                     );
                   }
                   break;
                 }
               }
             }
+            weights.aggressiveness.setBase();
 
+            console.log(this.current);
             this.updateDiceUi();
           },
 
@@ -684,7 +670,6 @@ export const gameObjects = {
             this.current = this.base;
             this.updateDiceUi();
           },
-  
         },
         stats: {
           weights: {
@@ -758,7 +743,7 @@ export const gameObjects = {
             base: 7,
             current: 7,
             element: document.getElementById("enemyDamage"),
-            toApply: 100,
+            toApply: 7,
             async add(amt) {
               await addSubToStats([
                 {
@@ -840,38 +825,34 @@ export const gameObjects = {
       },
 
       async slay() {
-
-
-
         var player = gameObjects.diceObjects.player;
         var enemy = gameObjects.diceObjects.enemy;
-
-      
 
         await player.data.stats.gold.add(this.data.stats.bounty.current);
         await player.data.stats.slain.add(1);
 
-      
         var stats = gameObjects.diceObjects.enemy.data.stats;
-        
+
         ///enemy health can be negative after player attack
         stats.health.current = 0;
 
-        await stats.bounty.add(Math.ceil(stats.bounty.base * stats.weights.strength.current));
+        await stats.bounty.add(
+          Math.ceil(stats.bounty.base * stats.weights.strength.current),
+        );
         stats.weights.strength.applyRate();
 
+        await stats.health.add(
+          Math.ceil(stats.health.base * stats.weights.strength.current),
+        );
 
-        await stats.health.add(Math.ceil(stats.health.base * stats.weights.strength.current));
-
-        await stats.damage.add(Math.ceil(stats.damage.base * stats.weights.strength.current));
-
+        await stats.damage.add(
+          Math.ceil(stats.damage.base * stats.weights.strength.current),
+        );
 
         // Regenerate fresh pool targets augmented cleanly by scale tracking factor variables
-   
 
-
-       enemy.data.dice.NewDice();
-       enemy.data.dice.updateDiceUi();
+        enemy.data.dice.NewDice();
+        enemy.data.dice.updateDiceUi();
       },
 
       reset() {
@@ -884,5 +865,3 @@ export const gameObjects = {
     },
   },
 };
-
-
