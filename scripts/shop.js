@@ -9,9 +9,7 @@ export const shop = {
         });
 
         shop.data.general.openButton.addEventListener("click", function () {
-          if (rolling) {
-            return;
-          }
+
           if (shop.data.general.shopOpen) {
             return;
           }
@@ -261,9 +259,9 @@ export const shop = {
         uiRoot.dieSellPrice.innerHTML = dataRoot.sellPrice;
       }
       //general
-      shop.data.general.shopTitle.innerHTML = `Cash: ${gameObjects.gold.num}`;
+      shop.data.general.shopTitle.innerHTML = `Cash: ${gameObjects.diceObjects.player.data.stats.gold.current}`;
     },
   },
 };
-
+shop.data.eventListeners.init();
 ///Intergrate this into the object
