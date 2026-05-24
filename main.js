@@ -162,7 +162,7 @@ addEventListener("load", () => {
  console.log(gameObjects.diceObjects.enemy.healthNum);
     ///Check if enemy is dead. 
     if (gameObjects.diceObjects.enemy.healthNum <= 0) {
-      gameObjects.diceObjects.enemy.slay();
+      await gameObjects.diceObjects.enemy.slay();
       console.log("enemy is dead, enemy.slay called.")
       buttonTimeout(false);
       return;

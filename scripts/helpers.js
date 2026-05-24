@@ -8,7 +8,8 @@ export function ranNum(min, max) {
 /*
   [
   element: 
-  amt: 
+  amt:
+  oldAmt:  
   add: bool
   ]
 */
@@ -22,19 +23,26 @@ export async function addSubToStats(arrayOfObjects) {
   for (let i = 0; i < arrayOfObjects.length; i++) {
     let element = arrayOfObjects[i].element;
     let amt = arrayOfObjects[i].amt;
-    let add = arrayOfObjects[i].add === true || arrayOfObjects[i].add === "true";
+    
+    let add = arrayOfObjects[i].add;
+    let oldNum = arrayOfObjects[i].oldAmt;
 
-    if (!element) continue;
-
-    let cleanText = element.innerHTML.replace(/[^0-9-]/g, '');
-    let oldNum = parseInt(cleanText) || 0;
-    let newValue = add ? (oldNum + amt) : (oldNum - amt);
+    console.log( `${add} ${oldNum}`);
+  
+    let newValue = 0;
+    if (add) {
+      newValue = oldNum + amt;
+    }
+    else {
+      newValue = oldNum - amt;
+    }
+ 
 
     // Create a promise for this specific element's timeout
     const elementPromise = new Promise((resolve) => {
       if (add) {
         element.className = "neon-flash-green";
-        element.innerHTML = `+ ${amt}`;
+        element.innerHTML = `${oldNum} + ${amt}`;
         setTimeout(() => {
           element.className = "";
           element.innerHTML = newValue;
@@ -42,7 +50,7 @@ export async function addSubToStats(arrayOfObjects) {
         }, 1900);
       } else {
         element.className = "neon-flash-red";
-        element.innerHTML = `- ${amt}`;
+        element.innerHTML = `${oldNum} - ${amt}`;
         setTimeout(() => {
           element.className = "";
           element.innerHTML = newValue;
