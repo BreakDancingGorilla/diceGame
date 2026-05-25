@@ -748,6 +748,8 @@ p {
   z-index: 10001; /* Above the dice */
 }
 #player-dice-box {
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
   position: relative;
   background-size: cover;
 }
@@ -755,11 +757,13 @@ p {
 #player-dice-box canvas {
   pointer-events: none;
   width: 100%;
-  height: 100%;
+  height: 90%;
   z-index: 1;
 }
 
 #enemy-dice-box {
+  border-top-right-radius: 25px;
+  border-top-left-radius: 25px;
   position: relative;
   background-size: cover;
 }
@@ -767,7 +771,7 @@ p {
 #enemy-dice-box canvas {
   pointer-events: none;
   width: 100%;
-  height: 100%;
+  height: 90%;
   z-index: 1;
 }
 
