@@ -1,0 +1,3 @@
+Add the discremcy, like ranNum(0,100) if 60, 60% of strength goes to health,
+other 40% damage. 
+
