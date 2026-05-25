@@ -826,6 +826,8 @@ export const gameObjects = {
         var player = gameObjects.diceObjects.player;
         var enemy = gameObjects.diceObjects.enemy;
 
+        player.data.dice.setBase();
+
         await player.data.stats.gold.add(this.data.stats.bounty.current);
         await player.data.stats.slain.add(1);
 
