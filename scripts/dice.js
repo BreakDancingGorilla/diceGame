@@ -202,7 +202,7 @@ export const gameObjects = {
                   (sum, d) => sum + d.value,
                   0,
                 );
-                this.currentValueUi.innerHTML = this.currentValue;
+                this.currentValueUi.innerHTML = `${this.currentValue} + ${gameObjects.diceObjects.player.data.stats.damage.current}`;
                 root.toggleRollBox();
 
                 setTimeout(() => {
@@ -508,7 +508,7 @@ export const gameObjects = {
                   (sum, d) => sum + d.value,
                   0,
                 );
-                this.currentValueUi.innerHTML = this.currentValue;
+                this.currentValueUi.innerHTML = `${this.currentValue} + ${gameObjects.diceObjects.enemy.data.stats.damage.current}`;
                 root.toggleRollBox();
 
                 setTimeout(() => {
@@ -531,7 +531,7 @@ export const gameObjects = {
             let elementTexts = [];
             for (let i = 0; i < this.current.length; i++) {
               if (this.current[i] > 0) {
-                elementTexts.push(`${types[i]}  ${this.current[i]}`);
+                elementTexts.push(`(${types[i]}  ${this.current[i]}) |`);
               }
             }
 
