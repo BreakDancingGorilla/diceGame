@@ -1,867 +1,430 @@
-const types = ["d4", "d6", "d8", "d10", "d12", "d20"];
-
 import DiceBox from "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js";
-import { ranNum, addSubToStats, buttonTimeout } from "./helpers.js";
-export const gameObjects = {
-  initialized: false, // Flag tracking if the 3D canvases are ready to intercept user inputs
+import { DIE_TYPES, ranNum, animateStat } from "./helpers.js";
 
-  /**
-   * QUICK REFERENCE: DICE BOX INDEX SYSTEM MAP
-   * Index 0 -> d4  (4-sided die)
-   * Index 1 -> d6  (6-sided die)
-   * Index 2 -> d8  (8-sided die)
-   * Index 3 -> d10 (10-sided die)
-   * Index 4 -> d12 (12-sided die)
-   * Index 5 -> d20 (20-sided die)
-   */
+// =====================================================================
+// STAT
+// One numeric game value tied to a DOM element.
+// add/sub animate and mutate. reset() snaps back to base silently.
+// format() controls how the settled value renders (e.g. "$5").
+// =====================================================================
+class Stat {
+  constructor(base, elementId, format = String) {
+    this.base    = base;
+    this.current = base;
+    this.el      = document.getElementById(elementId);
+    this.format  = format;
+    this.toApply = base; // used by damage stats for the pending hit value
+  }
+
+  async add(amt) {
+    const next = this.current + amt;
+    await animateStat(this.el, this.current, next, this.format);
+    this.current = next;
+  }
+
+  async sub(amt) {
+    const next = this.current - amt;
+    await animateStat(this.el, this.current, next, this.format);
+    this.current = next;
+  }
+
+  reset() {
+    this.current = this.base;
+    this.toApply = this.base;
+    if (this.el) this.el.innerHTML = this.format(this.base);
+  }
+}
+
+// =====================================================================
+// WEIGHT
+// An AI tuning knob. tick() decays it each use; reset() restores base.
+// mode "subtract" → current -= rate  |  "multiply" → current *= rate
+// =====================================================================
+class Weight {
+  constructor(base, rate, mode = "multiply") {
+    this.base    = base;
+    this.current = base;
+    this.rate    = rate;
+    this.mode    = mode;
+  }
+
+  reset() { this.current = this.base; }
+
+  tick() {
+    this.current = this.mode === "subtract"
+      ? this.current - this.rate
+      : this.current * this.rate;
+  }
+}
+
+// =====================================================================
+// DICE POOL
+// Owns a dice-box canvas and the current / selected / base count arrays.
+// roll(bonus) resolves with the raw sum of the roll result.
+// =====================================================================
+class DicePool {
+  constructor({ boxConfig, base, rollValueEl, rollBoxEl }) {
+    this.box          = new DiceBox(boxConfig);
+    this.base         = [...base];
+    this.current      = [...base];
+    this.selected     = new Array(6).fill(0);
+    this.rollValueEl  = document.getElementById(rollValueEl);
+    this.rollBoxEl    = document.getElementById(rollBoxEl);
+    this.currentValue = 0;
+  }
 
   async init() {
-    console.log("gameObjects.async called, calling gameObjects.reset");
-    this.reset(); // Establish baseline player stats and wipe records clean
+    await this.box.init();
+  }
 
-    try {
-      // Concurrently load canvas components for both dice trays so they initialize in parallel
-      await Promise.all([
-        this.diceObjects.player.data.dice.box.init(),
-        this.diceObjects.enemy.data.dice.box.init(),
-      ]);
-      this.initialized = true;
-      console.log("Dice boxes ready");
-      this.diceObjects.player.data.dice.updateDiceUi();
-      this.diceObjects.player.data.dice.diceSelection.init();
-      this.diceObjects.player.data.stats.currentMode.init();
-    } catch (e) {
-      console.error("Dice-Box failed to load:", e);
-    }
+  toggleRollBox() {
+    this.rollBoxEl?.classList.toggle("hide");
+  }
+
+  // Roll whatever is in this.selected.
+  // bonus is shown alongside the result but does NOT get added to the returned value —
+  // callers compute the final damage themselves.
+  async roll(bonus = 0) {
+    const toRoll = [];
+    this.selected.forEach((amt, i) => {
+      if (amt > 0) {
+        toRoll.push(amt + DIE_TYPES[i]);
+        this.current[i] -= amt;
+      }
+    });
+    this.selected.fill(0);
+
+    if (toRoll.length === 0) return 0;
+
+    return new Promise(resolve => {
+      this.box.onRollComplete = (results) => {
+        this.currentValue = results.reduce((sum, d) => sum + d.value, 0);
+
+        if (this.rollValueEl) {
+          this.rollValueEl.innerHTML = `${this.currentValue} + ${bonus}`;
+        }
+
+        this.toggleRollBox();
+        setTimeout(() => {
+          this.box.clear();
+          this.toggleRollBox();
+        }, 1800);
+
+        this.box.onRollComplete = null;
+        resolve(this.currentValue);
+      };
+
+      this.box.roll(toRoll);
+    });
+  }
+
+  resetToBase() {
+    this.current  = [...this.base];
+    this.selected.fill(0);
+  }
+}
+
+// =====================================================================
+// PLAYER DICE UI
+// Element refs for the inventory panel — kept separate so DicePool stays
+// generic and doesn't care about the specific HTML layout.
+// =====================================================================
+const playerDiceEls = {
+  totals:   DIE_TYPES.map(t => document.getElementById(`${t.slice(1)}DieQuan`)),
+  selected: DIE_TYPES.map(t => document.getElementById(`selectedDieQuan${t.slice(1)}`)),
+};
+
+// =====================================================================
+// PLAYER
+// =====================================================================
+const player = {
+  stats: {
+    health: new Stat(100, "playerHealth"),
+    damage: new Stat(25,  "playerDamage"),
+    gold:   new Stat(100, "goldCount"),
+    slain:  new Stat(0,   "slainCount"),
+
+    mode: { attack: true },
+
+    reset() {
+      this.health.reset();
+      this.damage.reset();
+      this.gold.reset();
+      this.slain.reset();
+    },
   },
 
-  firstReset: true,
+  dice: new DicePool({
+    boxConfig: {
+      assetPath: "assets/",
+      origin:    "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
+      container: "#player-dice-box",
+      scale:     10,
+    },
+    base:       [2, 1, 0, 0, 0, 0],
+    rollValueEl: "numRolledTextPlayer",
+    rollBoxEl:   "rolledBoxPlayer",
+  }),
 
-  /**
-   * RESET ENGINE METHOD: Cascades reset commands down to every state machine tracking data
-   */
+  // Sync the inventory panel with the current dice counts
+  updateDiceUI() {
+    DIE_TYPES.forEach((_, i) => {
+      if (playerDiceEls.totals[i])
+        playerDiceEls.totals[i].innerHTML   = this.dice.current[i];
+      if (playerDiceEls.selected[i])
+        playerDiceEls.selected[i].innerHTML = this.dice.selected[i];
+    });
+  },
+
+  // Roll selected dice and set damage.toApply
+  async roll() {
+    const rollVal = await this.dice.roll(this.stats.damage.current);
+    this.stats.damage.toApply = this.stats.damage.current + rollVal;
+    this.updateDiceUI();
+    return rollVal;
+  },
+
+  // +/- buttons in the dice inventory
+  initDiceSelection() {
+    const holder = document.getElementById("playerDiceHolder");
+    if (!holder) return;
+
+    holder.addEventListener("click", (e) => {
+      const btn = e.target.closest(".select-button");
+      if (!btn) return;
+
+      // Extract the die face number from the button ID ("4SelectUp" → "4" → idx 0)
+      const sides = btn.id.replace(/SelectUp|SelectDown/, "");
+      const idx   = DIE_TYPES.indexOf(`d${sides}`);
+      if (idx === -1) return;
+
+      if (btn.id.includes("Up")) {
+        if (this.dice.selected[idx] < this.dice.current[idx]) {
+          this.dice.selected[idx]++;
+        }
+      } else {
+        if (this.dice.selected[idx] > 0) {
+          this.dice.selected[idx]--;
+        }
+      }
+
+      this.updateDiceUI();
+    });
+  },
+
+  // Attack / Heal toggle
+  initModeToggle() {
+    const toggle = document.getElementById("card-mode-toggle");
+    if (!toggle) return;
+    toggle.addEventListener("change", () => {
+      this.stats.mode.attack = !toggle.checked;
+    });
+  },
+
   reset() {
-    this.diceObjects.player.data.stats.reset();
-    this.diceObjects.player.data.dice.reset();
-    this.diceObjects.enemy.data.stats.reset();
-    this.diceObjects.enemy.data.dice.reset();
-    this.diceObjects.player.data.dice.updateDiceUi();
-    this.firstReset = false;
+    this.stats.reset();
+    this.dice.resetToBase();
+    this.updateDiceUI();
+  },
+};
+
+// =====================================================================
+// ENEMY
+// =====================================================================
+const enemy = {
+  stats: {
+    health: new Stat(100, "enemyHealth"),
+    damage: new Stat(50,  "enemyDamage"),
+    bounty: new Stat(5,   "enemyBounty", v => `$${v}`),
+
+    // AI difficulty knobs — reset on player death; scale with each kill
+    weights: {
+      strength:       new Weight(1.5, 1.5, "multiply"),
+      aggressiveness: new Weight(60,  5,   "subtract"),
+      minDice:        new Weight(5,   1.2, "multiply"),
+    },
+
+    reset() {
+      this.health.reset();
+      this.damage.reset();
+      this.bounty.reset();
+      this.weights.strength.reset();
+      this.weights.aggressiveness.reset();
+      this.weights.minDice.reset();
+    },
   },
 
-  // ========================================================================
-  // STATE ENGINE SUB-OBJECT: SLAIN ENEMY TRACKER
-  // ========================================================================
-
-  ///Going to do the give player the extra die thing in this method.
-  ///Well shit we have to find where to put it before the dice is reset
-  ///Where the fuck did I put it?!?!?!!?
-
-  // ========================================================================
-  // STATE ENGINE SUB-OBJECT: ECONOMY / GOLD TRACKER
-  // ========================================================================
-
-  diceObjects: {
-    player: {
-      data: {
-        dice: {
-          box: new DiceBox({
-            assetPath: "assets/",
-            origin: "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
-            container: "#player-dice-box",
-            scale: 10,
-          }),
-
-          diceSelection: {
-          init() {
-            const parentElement = document.getElementById("playerDiceHolder");
-
-            // Safety check to ensure the element exists before adding the listener
-            if (!parentElement) return;
-
-            parentElement.addEventListener("click", (event) => {
-              // Pull down reference mappings to structural button containers housing active asset pointers
-              const button = event.target.closest(".select-button");
-              if (!button) return; // Disregard arbitrary ambient clicks targeting empty canvas zones or background graphics
-
-              const clickedId = button.id;
-              var dieIndex;
-              var increment = clickedId.includes("Up") ? 1 : -1; // Inspect element ID strings to isolate vector directions
-
-              // Route string definitions straight down into indexed structural numeric arrays mapping target parameters
-              switch (clickedId) {
-                case "4SelectDown":
-                case "4SelectUp":
-                  dieIndex = 0;
-                  break;
-                case "6SelectDown":
-                case "6SelectUp":
-                  dieIndex = 1;
-                  break;
-                case "8SelectDown":
-                case "8SelectUp":
-                  dieIndex = 2;
-                  break;
-                case "10SelectDown":
-                case "10SelectUp":
-                  dieIndex = 3;
-                  break;
-                case "12SelectDown":
-                case "12SelectUp":
-                  dieIndex = 4;
-                  break;
-                case "20SelectDown":
-                case "20SelectUp":
-                  dieIndex = 5;
-                  break;
-              }
-
-              const player = gameObjects.diceObjects.player;
-
-              // Restrict selections inside boundary thresholds checking live stockpile quantities
-              if (increment === 1) {
-                if (
-                  player.data.dice.selected[dieIndex] <
-                  player.data.dice.current[dieIndex]
-                ) {
-                  console.log(`Incrementing die index ${dieIndex}`);
-                  player.data.dice.selected[dieIndex] += 1;
-                }
-              } else {
-                if (player.data.dice.selected[dieIndex] > 0) {
-                  player.data.dice.selected[dieIndex] -= 1;
-                }
-              }
-
-              console.log("Selected dice:", player.data.dice.selected);
-              // Okay all this does is update the ui. this is changing something
-              gameObjects.diceObjects.player.data.dice.updateDiceUi(); // Cascade changes out to visible overlay layout maps
-            });
-          },
-        },
-
-          diceInvUi: {
-            quan: {
-              select: {
-                d4: document.getElementById("selectedDieQuan4"),
-                d6: document.getElementById("selectedDieQuan6"),
-                d8: document.getElementById("selectedDieQuan8"),
-                d10: document.getElementById("selectedDieQuan10"),
-                d12: document.getElementById("selectedDieQuan12"),
-                d20: document.getElementById("selectedDieQuan20"),
-              },
-              total: {
-                d4: document.getElementById("4DieQuan"),
-                d6: document.getElementById("6DieQuan"),
-                d8: document.getElementById("8DieQuan"),
-                d10: document.getElementById("10DieQuan"),
-                d12: document.getElementById("12DieQuan"),
-                d20: document.getElementById("20DieQuan"),
-              },
-            },
-          },
-
-          updateDiceUi() {
-            for (let i = 0; i < this.current.length; i++) {
-              this.diceInvUi.quan.select[types[i]].innerHTML = this.selected[i];
-              this.diceInvUi.quan.total[types[i]].innerHTML = this.current[i];
-            }
-          },
-
-          current: [3, 1, 0, 0, 0, 0],
-          selected: [2, 1, 0, 0, 0, 0],
-          base: [2, 1, 0, 0, 0, 0],
-          element: document.getElementById("playerDiceContainer"),
-          currentValue: 0,
-          currentValueUi: document.getElementById("numRolledTextPlayer"),
-
-          async roll() {
-            let diceToRoll = [];
-            var root = gameObjects.diceObjects.player;
-
-            console.log("Rolling with selected dice:", this.selected);
-
-            this.selected.forEach((amt, i) => {
-              if (amt > 0) {
-                diceToRoll.push(amt + types[i]);
-                this.current[i] -= amt;
-              }
-            });
-
-            this.selected = [0, 0, 0, 0, 0, 0];
-
-            console.log("Dice to roll:", diceToRoll);
-
-            if (diceToRoll.length === 0)  {
-              return 0;
-            }
-
-            return new Promise((resolve) => {
-              this.box.onRollComplete = (results) => {
-                this.currentValue = results.reduce(
-                  (sum, d) => sum + d.value,
-                  0,
-                );
-                this.currentValueUi.innerHTML = `${this.currentValue} + ${gameObjects.diceObjects.player.data.stats.damage.current}`;
-                root.toggleRollBox();
-
-                setTimeout(() => {
-                  this.box.clear();
-                  root.toggleRollBox();
-                }, 1800);
-
-                this.box.onRollComplete = null;
-                resolve(this.currentValue);
-                var damage = gameObjects.diceObjects.player.data.stats.damage;
-
-                damage.toApply = damage.current + this.currentValue;
-                this.updateDiceUi();
-              };
-
-              this.box.roll(diceToRoll);
-            });
-          },
-
-          setBase() {
-            this.current = this.base;
-            this.updateUi();
-          },
-          reset() {
-            this.current = this.base;
-            ///Adding ?. fixes it from using the function
-            ///Before the object is created.
-            this.selected = [0, 0, 0, 0, 0, 0];
-            this.updateDiceUi?.();
-          },
-        },
-        stats: {
-
-
-          currentMode: {
-            attack: true,
-            heal: false,
-            element: document.getElementById("card-mode-toggle"),
-            init() {
-            
-              this.element.addEventListener("click", function () {
-                  let element = gameObjects.diceObjects.player.data.stats.currentMode.element;
-              let attack =  gameObjects.diceObjects.player.data.stats.currentMode.attack;
-               let heal =  gameObjects.diceObjects.player.data.stats.currentMode.heal;
-                console.log(element.checked);
-                if (element.checked) {
-                  gameObjects.diceObjects.player.data.stats.currentMode.heal = true;
-                  gameObjects.diceObjects.player.data.stats.currentMode.attack = false;
-                }
-                else {
-                  gameObjects.diceObjects.player.data.stats.currentMode.attack = true;
-                  gameObjects.diceObjects.player.data.stats.currentMode.heal = false;
-                }
-              
-                   console.log(gameObjects.diceObjects.player.data.stats.currentMode.heal);
-              });
-           
-            },
-          },
-
-          slain: {
-            base: 0,
-            current: 0,
-            element: document.getElementById("slainCount"),
-            async add(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: true,
-                },
-              ]);
-              this.current += amt;
-            },
-            async sub(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: false,
-                },
-              ]);
-              this.current -= amt;
-            },
-            setBase() {
-              this.current = this.base;
-              this.element.innerHTML = this.base;
-            },
-          },
-
-          gold: {
-            base: 100,
-            current: 0,
-            element: document.getElementById("goldCount"),
-            async add(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: true,
-                },
-              ]);
-              this.current += amt;
-            },
-            async sub(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: false,
-                },
-              ]);
-              this.current -= amt;
-            },
-            setBase() {
-              this.current = this.base;
-              this.element.innerHTML = this.base;
-            },
-          },
-
-          health: {
-            base: 100,
-            current: 0,
-            element: document.getElementById("playerHealth"),
-            async add(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: true,
-                },
-              ]);
-              this.current += amt;
-            },
-            async sub(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: false,
-                },
-              ]);
-              this.current -= amt;
-            },
-            setBase() {
-              this.current = this.base;
-              this.element.innerHTML = this.base;
-            },
-          },
-          damage: {
-            base: 25,
-            current: 25,
-            element: document.getElementById("playerDamage"),
-            toApply: 25,
-            async add(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: true,
-                },
-              ]);
-              this.current += amt;
-            },
-            async sub(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: false,
-                },
-              ]);
-              this.current -= amt;
-            },
-            setBase() {
-              this.current = this.base;
-              this.element.innerHTML = this.base;
-            },
-          },
-          bounty: {
-            base: 5,
-            current: 5,
-            element: document.getElementById("enemyBounty"),
-            async add(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: true,
-                },
-              ]);
-              this.current += amt;
-            },
-            async sub(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: false,
-                },
-              ]);
-              this.current -= amt;
-            },
-            setBase() {
-              this.current = this.base;
-              this.element.innerHTML = `$${this.base}`;
-            },
-          },
-          reset() {
-            ///Targets every child of stats that isnt a function
-            ///And runs setBase();
-            for (const [key, value] of Object.entries(this)) {
-              if (
-                value &&
-                typeof value === "object" &&
-                typeof value.setBase === "function"
-              ) {
-                value.setBase();
-              }
-            }
-            ///Adding ?. fixes it from using the function
-            ///Before the object is created.
-            this.updateDiceUi?.();
-          },
-        },
-      },
-
-      // UI DOM caching mapping to render live values when allocation indicators change
-      ///The hell is this comment.
-
-      /**
-       * PLAYER DICE TRACER: Syncs raw JavaScript arrays out to HTML layouts
-       */
-
-      // Core data structures for tracking ammunition pools across turn actions
-
-      toggleRollBox() {
-        document.getElementById("rolledBoxPlayer").classList.toggle("hide");
-      },
-
-      async reset() {
-        this.data.dice.reset();
-        this.data.stats.reset();
-      },
+  dice: new DicePool({
+    boxConfig: {
+      assetPath: "assets/",
+      origin:    "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
+      container: "#enemy-dice-box",
+      scale:     10,
     },
+    base:       [3, 1, 0, 0, 0, 0],
+    rollValueEl: "numRolledTextEnemy",
+    rollBoxEl:   "rolledBoxEnemy",
+  }),
 
-    // ----------------------------------------------------------------------
-    // ENEMY PROPERTIES, PROGRESSION SCALING, AND STAT HOOKS
-    // ----------------------------------------------------------------------
-    enemy: {
-      data: {
-        dice: {
-          box: new DiceBox({
-            assetPath: "assets/",
-            origin: "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
-            container: "#enemy-dice-box",
-            scale: 10,
-          }),
+  diceContainerEl: document.getElementById("enemyDiceContainer"),
 
-          current: [3, 1, 0, 0, 0, 0],
-          selected: [2, 1, 0, 0, 0, 0],
-          base: [3, 1, 0, 0, 0, 0],
-          element: document.getElementById("enemyDiceContainer"),
-          currentValue: 0,
-          currentValueUi: document.getElementById("numRolledTextEnemy"),
+  // Render which dice the enemy has as text chips
+  updateDiceUI() {
+    const chips = this.dice.current
+      .map((count, i) => count > 0 ? `(${DIE_TYPES[i]}  ${count}) |` : null)
+      .filter(Boolean)
+      .map(text => {
+        const el = document.createElement("h2");
+        el.textContent = text;
+        el.className   = "enemyDieH2";
+        return el;
+      });
+    this.diceContainerEl?.replaceChildren(...chips);
+  },
 
-          async roll() {
-            let diceToRoll = [];
-            var root = gameObjects.diceObjects.enemy;
+  // AI: use aggressiveness weight to decide how many dice to grab this turn.
+  // BUG FIXED: original checked `i <= 0` (always true on first loop iteration)
+  //            and had no guard against decrementing an already-empty slot.
+  selectDice() {
+    const agro = this.stats.weights.aggressiveness;
 
-            this.updateSelectedDice();
-            this.updateDiceUi();
-            console.log("Rolling with selected dice:", this.selected);
+    // Nothing to pick from
+    if (this.dice.current.every(c => c <= 0)) return;
 
-            this.selected.forEach((amt, i) => {
-              if (amt > 0) {
-                diceToRoll.push(amt + types[i]);
-                this.current[i] -= amt;
-              }
-            });
-                this.updateDiceUi();
-            this.selected = [0, 0, 0, 0, 0, 0];
+    while (agro.current > 0) {
+      if (ranNum(0, 100) < agro.current) {
+        const idx = ranNum(0, DIE_TYPES.length - 1);
+        // Guard: never go below zero on a slot (original bug — no check existed)
+        if (this.dice.current[idx] > 0) {
+          this.dice.current[idx]--;
+          this.dice.selected[idx]++;
+        }
+        agro.tick(); // subtract 5 each pick → enemy naturally stops being greedy
+      } else {
+        break;      // failed the agro roll, stop picking
+      }
+    }
 
-            console.log("Dice to roll:", diceToRoll);
+    agro.reset();
+  },
 
-            if (diceToRoll.length === 0) {
-              return 0;
-            }
+  // Roll the selected dice and compute toApply
+  async roll() {
+    this.selectDice();
+    this.updateDiceUI();
+    const rollVal = await this.dice.roll(this.stats.damage.current);
+    this.stats.damage.toApply = this.stats.damage.current + rollVal;
+  },
 
-            return new Promise((resolve) => {
-              this.box.onRollComplete = (results) => {
-                this.currentValue = results.reduce(
-                  (sum, d) => sum + d.value,
-                  0,
-                );
-                this.currentValueUi.innerHTML = `${this.currentValue} + ${gameObjects.diceObjects.enemy.data.stats.damage.current}`;
-                root.toggleRollBox();
+  // Called after each kill: give leftovers to player, then build a fresh pool.
+  // isFirstInit = true skips the "give leftovers" step (nothing to give on game start).
+  // BUG FIXED: original loop used `|| cycleLimit > 200` (should be `&&`),
+  //            meaning once the limit was hit the loop ran forever.
+  assignNewDice(isFirstInit) {
+    const weights = this.stats.weights;
 
-                setTimeout(() => {
-                  this.box.clear();
-                  root.toggleRollBox();
-                }, 1800);
+    // Give the enemy's remaining dice to the player (cosmetic animation only,
+    // state is updated immediately so the rest of the code sees the new values)
+    if (!isFirstInit) {
+      DIE_TYPES.forEach((_, i) => {
+        const from = player.dice.current[i];
+        const to   = from + this.dice.current[i];
+        if (to !== from) {
+          // fire-and-forget — don't hold up the game loop
+          animateStat(playerDiceEls.totals[i], from, to);
+          player.dice.current[i] = to;
+        }
+      });
+      player.updateDiceUI();
+    }
 
-                this.box.onRollComplete = null;
-                resolve(this.currentValue);
-                var damage = gameObjects.diceObjects.enemy.data.stats.damage;
-                damage.toApply = damage.current + this.currentValue;
-            
-              };
+    // Clear the enemy's pool
+    this.dice.current.fill(0);
 
-              this.box.roll(diceToRoll);
-            });
-          },
+    // Give the enemy new dice for the next round
+    const diceToGive = Math.ceil(weights.strength.current + weights.minDice.current);
 
-          async updateDiceUi() {
-            let elementTexts = [];
-            for (let i = 0; i < this.current.length; i++) {
-              if (this.current[i] > 0) {
-                elementTexts.push(`(${types[i]}  ${this.current[i]}) |`);
-              }
-            }
+    for (let i = 0; i < diceToGive; i++) {
+      weights.aggressiveness.reset();
+      let safetyLimit = 0;
 
-            // 1. Map the text array into an array of <h1> elements
-            const headingElements = elementTexts.map((text) => {
-              const h1 = document.createElement("h1");
-              h1.textContent = text;
-              h1.classList.add("enemyDieH2"); // Add the CSS class for styling
-              return h1;
-            });
+      // BUG FIXED: was `|| safetyLimit > 200` — would loop forever once limit hit
+      while (weights.aggressiveness.current > 0 && safetyLimit < 200) {
+        if (ranNum(0, 100) < weights.aggressiveness.current) {
+          const idx = ranNum(0, DIE_TYPES.length - 1);
+          this.dice.current[idx]++;
+          weights.aggressiveness.tick();
+          safetyLimit++;
+        } else {
+          break;
+        }
+      }
+    }
 
-            // 2. Clear the div and add all the new <h1> elements at once
-            this.element.replaceChildren(...headingElements);
-          },
-          updateSelectedDice() {
-            // Guard clause: Exit if there are no dice available to choose from
-            for (let i = 0; i < this.current.length; i++) {
-              if (i <= 0) {
-                console.log("Enemy has no dice left to choose from.");
-                break;
-              }
-            }
+    weights.aggressiveness.reset();
+    this.updateDiceUI();
+  },
 
-            let agro = gameObjects.diceObjects.enemy.data.stats.weights.aggressiveness.current;
-            let stats = gameObjects.diceObjects.enemy.data.stats;
-          
-            // 2. Loop continues ONLY if we have agro left AND dice are available AND we haven't hit the safety limit
-            while (
-               agro > 0
-            ) {
+  // Player killed this enemy — give rewards, scale up, spawn next one
+  async slay() {
+    const weights = this.stats.weights;
 
+    // Restore player's base dice before handing out leftovers
+    player.dice.resetToBase();
+    player.updateDiceUI();
 
-              // Roll to see if enemy wants to take a die
-              if (ranNum(0, 100) < agro) {
-                // Select a random index based on what is physically left in the pool
-                let index = Math.floor(ranNum(0, this.current.length));
+    await player.stats.gold.add(this.stats.bounty.current);
+    await player.stats.slain.add(1);
 
-                // Safeguard against out-of-bounds math
-                if (index >= this.current.length) {
-                  index = this.current.length - 1;
-                }
+    // Clamp health (can go below zero from overkill damage)
+    this.stats.health.current = 0;
 
-                // Move a die to the chosen pool
-                this.current[index]--;
-                this.selected[index]++;
-                stats.weights.aggressiveness.applyRate();
+    // Scale the enemy for the next encounter
+    weights.strength.tick();
+    await this.stats.bounty.add(Math.ceil(this.stats.bounty.base  * weights.strength.current));
+    await this.stats.health.add(Math.ceil(this.stats.health.base  * weights.strength.current));
+    await this.stats.damage.add(Math.ceil(this.stats.damage.base  * weights.strength.current));
 
-                // Reduce agro weight per choice
-              } else {
-                // Enemy rolled above current agro weight, decides to stop choosing
-                break;
-              }
-            }
-            gameObjects.diceObjects.enemy.data.stats.weights.aggressiveness.setBase();
-            console.log("Enemy dice chosen:", this.selected);
-            this.updateDiceUi();
-          },
-          NewDice() {
-            ///Player is given leftover dice.
-            var player = gameObjects.diceObjects.player;
-            var enemy = gameObjects.diceObjects.enemy;
-            if (!gameObjects.firstReset) {
-              var arrayToPass = [];
-              for (let i = 0; i < this.current.length; i++) {
-                let die = types[i];
-                arrayToPass[i] = {
-                  element: player.data.dice.diceInvUi.quan.total[die],
-                  add: true,
-                  oldAmt: player.data.dice.current[i],
-                  amt: enemy.data.dice.current[i],
-                };
-                player.data.dice.current[i] += enemy.data.dice.current[i];
-              }
-              addSubToStats(arrayToPass);
-            } else {
-              console.log(
-                "gameObjects.firstReset is true, not giving enemy dice to player.",
-              );
-            }
+    this.assignNewDice(false);
+  },
 
-            this.current = [0, 0, 0, 0, 0, 0];
+  reset(isFirstInit) {
+    this.stats.reset();
+    this.assignNewDice(isFirstInit);
+  },
+};
 
-            // Number of dice to give based on strength
-            let weights = enemy.data.stats.weights;
-            let diceToGive = Math.ceil(
-              weights.strength.current + weights.minDice.current,
-            );
-            console.log(`Number of dice to give: ${diceToGive}`);
+// =====================================================================
+// GAME
+// Top-level controller. Exported as `game`.
+// =====================================================================
+export const game = {
+  player,
+  enemy,
 
-            ///Enemy is given dice
-            for (let i = 0; i < diceToGive; i++) {
-              console.log("giving enemy another die...");
-              ///Pulling the same while loop from updateSelectedDice
-              let cycleLimt = 0; // Safety limit to prevent infinite loops in edge cases where agroWeight doesn't decrease properly
-              while (weights.aggressiveness.current > 0 || cycleLimt > 200) {
-                ///To choose wheather to choose a die.
-                if (ranNum(0, 100) < weights.aggressiveness.current) {
-                  let ranNumToUse = ranNum(0, 100);
+  async init() {
+    this._isFirstInit = true;
+    this._doReset();
 
-                  weights.aggressiveness.applyRate();
-                  // Formula: (num / 100) * arrayLength
-                  let index = Math.floor(
-                    (ranNumToUse / 100) * this.current.length,
-                  );
+    await Promise.all([
+      player.dice.init(),
+      enemy.dice.init(),
+    ]);
 
-                  // Safeguard: Ensure a random number of exactly 100 doesn't cause an out-of-bounds error
-                  if (index >= this.current.length) {
-                    index = this.current.length - 1;
-                  }
-                  this.current[index] += 1; // Increment the quantity of the chosen die in the diceChosen array
-                  console.log(`Dice given:  ${types[index]}`);
-                  cycleLimt++;
-                } else {
-                  if (cycleLimt > 200) {
-                    console.log(
-                      `cycleLimit hit, current agroWeight: ${enemy.data.stats.weights.aggressiveness.current}`,
-                    );
-                  }
-                  break;
-                }
-              }
-            }
-            weights.aggressiveness.setBase();
+    player.updateDiceUI();
+    player.initDiceSelection();
+    player.initModeToggle();
+  },
 
-            console.log(this.current);
-            this.updateDiceUi();
-          },
+  // Called on player death — reset everything back to the beginning
+  fullReset() {
+    this._isFirstInit = true;
+    this._doReset();
+  },
 
-          setBase() {
-            this.current = this.base;
-            this.updateDiceUi();
-          },
-          reset() {
-            this.NewDice();
-            this.updateDiceUi();
-          },
-        },
-        stats: {
-          weights: {
-            strength: {
-              current: 1.5,
-              base: 1.5,
-              rate: 1.5,
-              setBase() {
-                this.current = this.base;
-              },
-              applyRate() {
-                this.current *= this.rate;
-              },
-            },
-            aggressiveness: {
-              current: 60,
-              base: 60,
-              rate: 5,
-              setBase() {
-                this.current = this.base;
-              },
-              applyRate() {
-                this.current -= this.rate;
-              },
-            },
-            minDice: {
-              current: 5,
-              base: 5,
-              rate: 1.2,
-              setBase() {
-                this.current = this.base;
-              },
-              applyRate() {
-                this.current *= this.rate;
-              },
-            },
-          },
-
-          health: {
-            base: 100,
-            current: 0,
-            element: document.getElementById("enemyHealth"),
-            async add(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: true,
-                },
-              ]);
-              this.current += amt;
-            },
-            async sub(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: false,
-                },
-              ]);
-              this.current -= amt;
-            },
-            setBase() {
-              this.current = this.base;
-              this.element.innerHTML = this.base;
-            },
-          },
-          damage: {
-            base: 50,
-            current: 50,
-            element: document.getElementById("enemyDamage"),
-            toApply: 50,
-            async add(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: true,
-                },
-              ]);
-              this.current += amt;
-            },
-            async sub(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: false,
-                },
-              ]);
-              this.current -= amt;
-            },
-            setBase() {
-              this.current = this.base;
-              this.element.innerHTML = this.base;
-            },
-          },
-          bounty: {
-            base: 5,
-            current: 5,
-            element: document.getElementById("enemyBounty"),
-            async add(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: true,
-                },
-              ]);
-              this.current += amt;
-            },
-            async sub(amt) {
-              await addSubToStats([
-                {
-                  element: this.element,
-                  amt: amt,
-                  oldAmt: this.current,
-                  add: false,
-                },
-              ]);
-              this.current -= amt;
-            },
-            setBase() {
-              this.current = this.base;
-              this.element.innerHTML = `$${this.base}`;
-            },
-          },
-          reset() {
-            ///Targets every child of stats that isnt a function
-            ///And runs setBase();
-            for (const [key, value] of Object.entries(this)) {
-              if (
-                value &&
-                typeof value === "object" &&
-                typeof value.setBase === "function"
-              ) {
-                value.setBase();
-              }
-            }
-            ///Adding ?. fixes it from using the function
-            ///Before the object is created.
-            this.updateDiceUi?.();
-
-            this.giveNewDice?.();
-            this.updateDiceUi?.();
-          },
-        },
-      },
-
-      async slay() {
-        var player = gameObjects.diceObjects.player;
-        var enemy = gameObjects.diceObjects.enemy;
-
-        player.data.dice.setBase();
-
-        await player.data.stats.gold.add(this.data.stats.bounty.current);
-        await player.data.stats.slain.add(1);
-
-        var stats = gameObjects.diceObjects.enemy.data.stats;
-
-        ///enemy health can be negative after player attack
-        stats.health.current = 0;
-
-        await stats.bounty.add(
-          Math.ceil(stats.bounty.base * stats.weights.strength.current),
-        );
-        stats.weights.strength.applyRate();
-
-        await stats.health.add(
-          Math.ceil(stats.health.base * stats.weights.strength.current),
-        );
-
-        await stats.damage.add(
-          Math.ceil(stats.damage.base * stats.weights.strength.current),
-        );
-
-        // Regenerate fresh pool targets augmented cleanly by scale tracking factor variables
-
-        enemy.data.dice.NewDice();
-        enemy.data.dice.updateDiceUi();
-      },
-
-      reset() {
-        this.data.dice.reset();
-        this.data.stats.reset();
-      },
-      toggleRollBox() {
-        document.getElementById("rolledBoxEnemy").classList.toggle("hide");
-      },
-    },
+  _doReset() {
+    player.reset();
+    enemy.reset(this._isFirstInit);
+    this._isFirstInit = false;
   },
 };

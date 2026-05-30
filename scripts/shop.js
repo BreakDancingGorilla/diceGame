@@ -1,5 +1,4 @@
-import { gameObjects } from "./dice.js";
-import { ranNum, addSubToStats, buttonTimeout } from "./helpers.js";
+import { game } from "./dice.js";
 export const shop = {
   data: {
     eventListeners: {
@@ -40,7 +39,7 @@ export const shop = {
           selectedTotal: document.getElementById("selectedBuyTotal"),
         },
         sell: {
-          sellSelectedButton: document.getElementById("sellDice"),
+          sellSelectedButton: document.getElementById("sellDiceBtn"),
           selectedTotal: document.getElementById("selectedDiceSellTotal"),
         },
       },
@@ -259,7 +258,7 @@ export const shop = {
         uiRoot.dieSellPrice.innerHTML = dataRoot.sellPrice;
       }
       //general
-      shop.data.general.shopTitle.innerHTML = `Cash: ${gameObjects.diceObjects.player.data.stats.gold.current}`;
+      shop.data.general.shopTitle.innerHTML = `Cash: ${game.player.stats.gold.current}`;
     },
   },
 };

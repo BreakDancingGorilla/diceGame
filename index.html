@@ -1,508 +1,288 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <link href="https://googleapis.com" rel="stylesheet" />
-
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1024" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dice Game</title>
     <link href="./style.css" rel="stylesheet" />
   </head>
-
   <body>
-    <h1 id="slainCount" class="hide"></h1>
-    <img id="loadingScreen" src="./img/Lemme Think GIF.gif" />
-    <img id="deathScreen" src="./img/spinning GIF.gif" class="hide" />
-    <div id="cardHolder">
-      <div id="actionButtonsFlex" class="playerColor">
-        <button class="actionButton" id="attackButton">Play Turn</button>
-        <button class="actionButton" id="shopOpenButton">Shop</button>
-      </div>
+
+    <!-- Full-screen overlays -->
+    <img id="loadingScreen" src="./img/Lemme Think GIF.gif" alt="Loading" />
+    <img id="deathScreen"   src="./img/spinning GIF.gif"          class="hide" alt="Death" />
+    <img id="brokeGif"      src="./img/Struggling No Money GIF.gif" class="hide" alt="Broke" />
+
+    <!-- Action bar -->
+    <div id="topBar">
+      <button class="actionButton" id="attackButton">Play Turn</button>
+      <span id="slainCount"></span>
+      <button class="actionButton" id="shopOpenButton">Shop</button>
+    </div>
+
+    <!-- Stats cards -->
+    <div id="statsRow">
+
+      <!-- Player card -->
       <div class="statCard playerColor">
-        <h1>Player</h1>
-        <div id="playerStatGrid">
-          <div class="playerStat">
-            <h2><u>HP</u></h2>
-            <h2 id="playerHealth">Loading</h2>
-          </div>
-          <div class="playerStat">
-            <h2><u>DMG</u></h2>
-            <h2 id="playerDamage">Loading</h2>
-          </div>
-          <div id="cashStat" class="playerStat">
-            <h2><u>CASH</u></h2>
-            <h2 id="goldCount">Loading</h2>
-          </div>
-          <label class="mode-switch">
-            <input type="checkbox" id="card-mode-toggle" />
-            <div class="slider">
-              <span class="label-attack">Attack</span>
-              <span class="label-heal">Heal</span>
-              <div class="slider-button"></div>
-            </div>
-          </label>
+        <p class="cardTitle">Player</p>
+        <div class="statLine">
+          <span class="statLabel">HP</span>
+          <span id="playerHealth" class="statValue">—</span>
         </div>
-      </div>
-      <div id="enemyStats" class="statCard enemyColor">
-        <h1>Enemy</h1>
-        <div class="mainStats">
-          <h2><u>HP</u></h2>
-          <h2 id="enemyHealth">Loading</h2>
-          <h2><u>DMG</u></h2>
-          <h2 id="enemyDamage">Loading</h2>
-          <h2><u>Bounty</u></h2>
-          <h2 id="enemyBounty">Loading</h2>
+        <div class="statLine">
+          <span class="statLabel">DMG</span>
+          <span id="playerDamage" class="statValue">—</span>
         </div>
-
-        <div id="enemyDiceContainer" class="enemyColor">
-          <h2 class="center enemyDieH2">Loading</h2>
-          <h2 class="center enemyDieH2">Loading</h2>
-          <h2 class="center enemyDieH2">Loading</h2>
-          <h2 class="center enemyDieH2">Loading</h2>
+        <div class="statLine">
+          <span class="statLabel">CASH</span>
+          <span id="goldCount" class="statValue">—</span>
         </div>
+        <label class="mode-switch">
+          <input type="checkbox" id="card-mode-toggle" />
+          <div class="slider">
+            <span class="label-attack">Attack</span>
+            <span class="label-heal">Heal</span>
+            <div class="slider-button"></div>
+          </div>
+        </label>
       </div>
 
-      <div id="inv">
-        <div id="playerDiceHolder">
-          <div class="die" id="playerDie1">
-            <div class="totalHolder"><h1 id="4DieQuan">0</h1></div>
-            <div class="selectHolder"><h2 id="selectedDieQuan4"></h2></div>
+      <!-- Enemy card -->
+      <div class="statCard enemyColor" id="enemyStats">
+        <p class="cardTitle">Enemy</p>
+        <div class="statLine">
+          <span class="statLabel">HP</span>
+          <span id="enemyHealth" class="statValue">—</span>
+        </div>
+        <div class="statLine">
+          <span class="statLabel">DMG</span>
+          <span id="enemyDamage" class="statValue">—</span>
+        </div>
+        <div class="statLine">
+          <span class="statLabel">Bounty</span>
+          <span id="enemyBounty" class="statValue">—</span>
+        </div>
+        <div id="enemyDiceContainer"></div>
+      </div>
 
-            <div class="buttonHolderLeft playerDiceColor">
-              <button class="list-item-button-up select-button" id="4SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
+    </div>
 
-            <div class="buttonHolderRight playerDiceColor">
-              <button
-                class="list-item-button-up select-button"
-                id="4SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-          </div>
-          <div class="die" id="playerDie2">
-            <div class="totalHolder"><h1 id="6DieQuan">0</h1></div>
-            <div class="selectHolder"><h2 id="selectedDieQuan6"></h2></div>
+    <!-- Dice inventory -->
+    <div id="inv">
+      <!-- Unused reference kept alive for JS -->
+      <span id="playerDiceContainer" style="display:none"></span>
 
-            <div class="buttonHolderLeft playerDiceColor">
-              <button class="list-item-button-up select-button" id="6SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-
-            <div class="buttonHolderRight playerDiceColor">
-              <button
-                class="list-item-button-up select-button"
-                id="6SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-          </div>
-          <div class="die" id="playerDie3">
-            <div class="totalHolder"><h1 id="8DieQuan">0</h1></div>
-            <div class="selectHolder"><h2 id="selectedDieQuan8"></h2></div>
-
-            <div class="buttonHolderLeft playerDiceColor">
-              <button class="list-item-button-up select-button" id="8SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-
-            <div class="buttonHolderRight playerDiceColor">
-              <button
-                class="list-item-button-up select-button"
-                id="8SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-          </div>
-          <div class="die" id="playerDie4">
-            <div class="totalHolder"><h1 id="10DieQuan">0</h1></div>
-            <div class="selectHolder"><h2 id="selectedDieQuan10"></h2></div>
-
-            <div class="buttonHolderLeft playerDiceColor">
-              <button class="list-item-button-up select-button" id="10SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-
-            <div class="buttonHolderRight playerDiceColor">
-              <button
-                class="list-item-button-up select-button"
-                id="10SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-          </div>
-          <div class="die" id="playerDie5">
-            <div class="totalHolder"><h1 id="12DieQuan">0</h1></div>
-            <div class="selectHolder"><h2 id="selectedDieQuan12"></h2></div>
-
-            <div class="buttonHolderLeft playerDiceColor">
-              <button class="list-item-button-up select-button" id="12SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-
-            <div class="buttonHolderRight playerDiceColor">
-              <button
-                class="list-item-button-up select-button"
-                id="12SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-          </div>
-
-          <div class="die" id="playerDie6">
-            <div class="totalHolder"><h1 id="20DieQuan">0</h1></div>
-            <div class="selectHolder"><h2 id="selectedDieQuan20"></h2></div>
-
-            <div class="buttonHolderLeft playerDiceColor">
-              <button class="list-item-button-up select-button" id="20SelectUp">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-
-            <div class="buttonHolderRight playerDiceColor">
-              <button
-                class="list-item-button-up select-button"
-                id="20SelectDown"
-              >
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="list-item-button-img-up"
-                />
-              </button>
-            </div>
-          </div>
+      <div id="playerDiceHolder">
+        <div class="die" id="playerDie1">
+          <div class="totalHolder"><span id="4DieQuan">0</span></div>
+          <div class="selectHolder"><span id="selectedDieQuan4">0</span></div>
+          <button class="select-button dieBtn dieBtn--up"   id="4SelectUp">
+            <img src="./pitfallSvgsPort/arrow-up-circle.svg" />
+          </button>
+          <button class="select-button dieBtn dieBtn--down" id="4SelectDown">
+            <img src="./pitfallSvgsPort/arrow-down-circle.svg" />
+          </button>
+        </div>
+        <div class="die" id="playerDie2">
+          <div class="totalHolder"><span id="6DieQuan">0</span></div>
+          <div class="selectHolder"><span id="selectedDieQuan6">0</span></div>
+          <button class="select-button dieBtn dieBtn--up"   id="6SelectUp">
+            <img src="./pitfallSvgsPort/arrow-up-circle.svg" />
+          </button>
+          <button class="select-button dieBtn dieBtn--down" id="6SelectDown">
+            <img src="./pitfallSvgsPort/arrow-down-circle.svg" />
+          </button>
+        </div>
+        <div class="die" id="playerDie3">
+          <div class="totalHolder"><span id="8DieQuan">0</span></div>
+          <div class="selectHolder"><span id="selectedDieQuan8">0</span></div>
+          <button class="select-button dieBtn dieBtn--up"   id="8SelectUp">
+            <img src="./pitfallSvgsPort/arrow-up-circle.svg" />
+          </button>
+          <button class="select-button dieBtn dieBtn--down" id="8SelectDown">
+            <img src="./pitfallSvgsPort/arrow-down-circle.svg" />
+          </button>
+        </div>
+        <div class="die" id="playerDie4">
+          <div class="totalHolder"><span id="10DieQuan">0</span></div>
+          <div class="selectHolder"><span id="selectedDieQuan10">0</span></div>
+          <button class="select-button dieBtn dieBtn--up"   id="10SelectUp">
+            <img src="./pitfallSvgsPort/arrow-up-circle.svg" />
+          </button>
+          <button class="select-button dieBtn dieBtn--down" id="10SelectDown">
+            <img src="./pitfallSvgsPort/arrow-down-circle.svg" />
+          </button>
+        </div>
+        <div class="die" id="playerDie5">
+          <div class="totalHolder"><span id="12DieQuan">0</span></div>
+          <div class="selectHolder"><span id="selectedDieQuan12">0</span></div>
+          <button class="select-button dieBtn dieBtn--up"   id="12SelectUp">
+            <img src="./pitfallSvgsPort/arrow-up-circle.svg" />
+          </button>
+          <button class="select-button dieBtn dieBtn--down" id="12SelectDown">
+            <img src="./pitfallSvgsPort/arrow-down-circle.svg" />
+          </button>
+        </div>
+        <div class="die" id="playerDie6">
+          <div class="totalHolder"><span id="20DieQuan">0</span></div>
+          <div class="selectHolder"><span id="selectedDieQuan20">0</span></div>
+          <button class="select-button dieBtn dieBtn--up"   id="20SelectUp">
+            <img src="./pitfallSvgsPort/arrow-up-circle.svg" />
+          </button>
+          <button class="select-button dieBtn dieBtn--down" id="20SelectDown">
+            <img src="./pitfallSvgsPort/arrow-down-circle.svg" />
+          </button>
         </div>
       </div>
     </div>
 
+    <!-- Dice roll area -->
     <div id="diceGrid">
       <div id="player-dice-box" class="playerColor">
         <div id="rolledBoxPlayer" class="numRolledBox hide">
-          <h1 id="numRolledTextPlayer">20</h1>
+          <span id="numRolledTextPlayer">20</span>
         </div>
       </div>
       <div id="enemy-dice-box" class="enemyColor">
         <div id="rolledBoxEnemy" class="numRolledBox hide">
-          <h1 id="numRolledTextEnemy">20</h1>
+          <span id="numRolledTextEnemy">20</span>
         </div>
       </div>
     </div>
 
+    <!-- ===================== SHOP OVERLAY ===================== -->
     <div class="hide" id="shopBox">
-      <div id="shopTitleBox">
-        <h1 id="shopTitle">Cash:</h1>
-      </div>
-      <button id="shopExitButton">
-        <img id="shopExitSvg" src="./svg/x-circle.svg" />
-      </button>
-      <div id="shopLayout">
-        <section class="section gaming-box">
-          <!-- Stats Block -->
-          <h2>Stats</h2>
-          <div class="row">
-            <span class="label">Health (1hp : $1)</span>
-            <input type="text" placeholder="Input box" class="sketch-input" />
-          </div>
-          <div class="row">
-            <span class="label">Damage (1dmg : $1)</span>
-            <input type="text" placeholder="Input box" class="sketch-input" />
-          </div>
-
-          <!-- Perks Block (With only Rerolls) -->
-          <h2 class="section-divider">Perks</h2>
-          <div class="row">
-            <span class="label">Rerolls (+1 Charge : $200)</span>
-            <button class="sketch-button">Button</button>
-          </div>
-        </section>
-
-        <div id="shopGambleBox" class="black">
-          <h2>Double or nothing</h2>
-
-          <div class="gamble-box"></div>
-
-          <div class="gamble-controls">
-            <input
-              type="text"
-              placeholder="Amount To Bet"
-              class="sketch-input"
-            />
-            <button class="sketch-button">Gamble</button>
-          </div>
-          <span class="margy">* Roll 4 or more to win</span>
+      <div id="shopInner">
+        <div id="shopTitleBox">
+          <span id="shopTitle">Cash: —</span>
         </div>
-
-        <div id="sellDice" class="black"></div>
-
-        <div id="goAway" class="hide">
-          <div id="shopTopSpacer"></div>
-          <div class="shopColumnTitleBox">
-            <h1>Items</h1>
-          </div>
-          <div class="shopColumnTitleBox">
-            <h1>Stats</h1>
-          </div>
-          <div class="shopItemsBox">
-            <div class="shopItem">
-              <h1 class="shopItemName">Re-Roll Token</h1>
-              <h1 id="reRollCost" class="shopItemCost">$5</h1>
-              <button id="reRollSelectUp" class="itemButton">
-                <img src="./svg/dash-circle.svg" />
-              </button>
-              <button id="reRollSelectDown" class="itemButton">
-                <img src="./svg/plus-circle.svg" />
-              </button>
-
-              <h1 id="reRollSelectedAmt">0</h1>
+        <button id="shopExitButton">
+          <img id="shopExitSvg" src="./svg/x-circle.svg" />
+        </button>
+        <div id="shopLayout">
+          <section class="gaming-box">
+            <h2>Stats</h2>
+            <div class="shopRow">
+              <span class="label">Health (1hp : $1)</span>
+              <input type="text" placeholder="Amount" class="sketch-input" />
             </div>
-            <div class="shopItem">
-              <h1 class="shopItemName">Weighted Dice</h1>
-              <h1 id="weightedDiceCost" class="shopItemCost">$5</h1>
-              <button id="weightedDiceSelectUp" class="itemButton">
-                <img src="./svg/dash-circle.svg" />
-              </button>
-              <button id="weightedDiceSelectDown" class="itemButton">
-                <img src="./svg/plus-circle.svg" />
-              </button>
+            <div class="shopRow">
+              <span class="label">Damage (1dmg : $1)</span>
+              <input type="text" placeholder="Amount" class="sketch-input" />
+            </div>
+            <h2>Perks</h2>
+            <div class="shopRow">
+              <span class="label">Rerolls (+1 : $200)</span>
+              <button class="sketch-button">Buy</button>
+            </div>
+          </section>
 
-              <h1 id="weightedDiceSelectedAmt">0</h1>
+          <div id="shopGambleBox">
+            <h2>Double or Nothing</h2>
+            <div class="gamble-box"></div>
+            <div class="gamble-controls">
+              <input type="text" placeholder="Bet amount" class="sketch-input" />
+              <button class="sketch-button">Gamble</button>
             </div>
-          </div>
-          <div class="shopItemsBox">
-            <div class="shopItem">
-              <h1 id="healthName" class="shopItemName">x Health Points</h1>
-              <h1 id="healthCost" class="shopItemCost">$5</h1>
-              <button id="healthSelectUp" class="itemButton">
-                <img src="./svg/dash-circle.svg" />
-              </button>
-              <button id="healthSelectDown" class="itemButton">
-                <img src="./svg/plus-circle.svg" />
-              </button>
-
-              <h1 id="healthSelectedAmt">0</h1>
-            </div>
-            <div class="shopItem">
-              <h1 id="damageName" class="shopItemName">x Damage Points</h1>
-              <h1 id="damageCost" class="shopItemCost">$5</h1>
-              <button id="damageSelectUp" class="itemButton">
-                <img src="./svg/dash-circle.svg" />
-              </button>
-              <button id="damageSelectDown" class="itemButton">
-                <img src="./svg/plus-circle.svg" />
-              </button>
-
-              <h1 id="damageSelectedAmt">0</h1>
-            </div>
-          </div>
-          <div id="shopRowGroup">
-            <div id="diceSellBtnWrap">
-              <button id="sellDice" class="diceSellBtn">Sell Dice</button>
-            </div>
-            <div id="diceSellBtnWrap">
-              <h1 id="selectedDiceSellTotal">$0</h1>
-            </div>
+            <span class="gamble-note">* Roll 4 or higher to win</span>
           </div>
 
-          <div id="shopRowGroup">
-            <div id="diceSellBtnWrap">
-              <button class="diceSellBtn" id="buySelected">Purchase</button>
-            </div>
-            <div id="diceSellBtnWrap">
-              <h1 class="selectedBuyTotal">$0</h1>
-            </div>
+          <div id="sellDiceBox"></div>
+        </div>
+      </div>
+
+      <!-- Future sell/buy dice UI — IDs kept intact for JS, hidden until built -->
+      <div id="goAway" class="hide">
+        <div id="shopRowGroup">
+          <div class="diceSellBtnWrap">
+            <button id="sellDiceBtn" class="diceSellBtn">Sell Dice</button>
           </div>
-          <div id="shopDiceHolder">
-            <div class="shopDieTest" id="shopDie1">
-              <h1>D4</h1>
-              <h1 id="dieSelectedAmt1">0</h1>
-
-              <button class="shopDieSelectUp" id="shopDieSelectUp1">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <button class="shopDieSelectDown" id="shopDieSelectDown1">
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <div id="priceHolder">
-                <h1 id="dieSellPrice1">$100</h1>
-              </div>
-            </div>
-
-            <div class="shopDieTest" id="shopDie2">
-              <h1>D6</h1>
-              <h1 id="dieSelectedAmt2">0</h1>
-
-              <button class="shopDieSelectUp" id="shopDieSelectUp2">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <button class="shopDieSelectDown" id="shopDieSelectDown2">
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <div id="priceHolder">
-                <h1 id="dieSellPrice2">$100</h1>
-              </div>
-            </div>
-
-            <div class="shopDieTest" id="shopDie1">
-              <h1>D8</h1>
-              <h1 id="dieSelectedAmt3">0</h1>
-
-              <button class="shopDieSelectUp" id="shopDieSelectUp3">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <button class="shopDieSelectDown" id="shopDieSelectDown3">
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <div id="priceHolder">
-                <h1 id="dieSellPrice3">$100</h1>
-              </div>
-            </div>
-
-            <div class="shopDieTest" id="shopDie1">
-              <h1>D10</h1>
-              <h1 id="dieSelectedAmt4">0</h1>
-
-              <button class="shopDieSelectUp" id="shopDieSelectUp4">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <button class="shopDieSelectDown" id="shopDieSelectDown4">
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <div id="priceHolder">
-                <h1 id="dieSellPrice4">$100</h1>
-              </div>
-            </div>
-
-            <div class="shopDieTest" id="shopDie1">
-              <h1>D12</h1>
-              <h1 id="dieSelectedAmt5">0</h1>
-
-              <button class="shopDieSelectUp" id="shopDieSelectUp5">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <button class="shopDieSelectDown" id="shopDieSelectDown5">
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <div id="priceHolder">
-                <h1 id="dieSellPrice5">$100</h1>
-              </div>
-            </div>
-
-            <div class="shopDieTest" id="shopDie1">
-              <h1>D20</h1>
-              <h1 id="dieSelectedAmt6">0</h1>
-
-              <button class="shopDieSelectUp" id="shopDieSelectUp6">
-                <img
-                  src="./pitfallSvgsPort/arrow-up-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <button class="shopDieSelectDown" id="shopDieSelectDown6">
-                <img
-                  src="./pitfallSvgsPort/arrow-down-circle.svg"
-                  class="shopDieSelectImg"
-                />
-              </button>
-
-              <div id="priceHolder">
-                <h1 id="dieSellPrice6">$100</h1>
-              </div>
-            </div>
+          <div class="diceSellBtnWrap">
+            <span id="selectedDiceSellTotal">$0</span>
+          </div>
+        </div>
+        <div id="shopRowGroup">
+          <div class="diceSellBtnWrap">
+            <button class="diceSellBtn" id="buySelected">Purchase</button>
+          </div>
+          <div class="diceSellBtnWrap">
+            <span id="selectedBuyTotal">$0</span>
+          </div>
+        </div>
+        <div id="shopDiceHolder">
+          <div class="shopDieTest" id="shopDie1">
+            <span>D4</span><span id="dieSelectedAmt1">0</span>
+            <button class="shopDieSelectUp"   id="shopDieSelectUp1"><img src="./pitfallSvgsPort/arrow-up-circle.svg"   class="shopDieSelectImg" /></button>
+            <button class="shopDieSelectDown" id="shopDieSelectDown1"><img src="./pitfallSvgsPort/arrow-down-circle.svg" class="shopDieSelectImg" /></button>
+            <div class="priceHolder"><span id="dieSellPrice1">$100</span></div>
+          </div>
+          <div class="shopDieTest" id="shopDie2">
+            <span>D6</span><span id="dieSelectedAmt2">0</span>
+            <button class="shopDieSelectUp"   id="shopDieSelectUp2"><img src="./pitfallSvgsPort/arrow-up-circle.svg"   class="shopDieSelectImg" /></button>
+            <button class="shopDieSelectDown" id="shopDieSelectDown2"><img src="./pitfallSvgsPort/arrow-down-circle.svg" class="shopDieSelectImg" /></button>
+            <div class="priceHolder"><span id="dieSellPrice2">$100</span></div>
+          </div>
+          <div class="shopDieTest" id="shopDie3">
+            <span>D8</span><span id="dieSelectedAmt3">0</span>
+            <button class="shopDieSelectUp"   id="shopDieSelectUp3"><img src="./pitfallSvgsPort/arrow-up-circle.svg"   class="shopDieSelectImg" /></button>
+            <button class="shopDieSelectDown" id="shopDieSelectDown3"><img src="./pitfallSvgsPort/arrow-down-circle.svg" class="shopDieSelectImg" /></button>
+            <div class="priceHolder"><span id="dieSellPrice3">$100</span></div>
+          </div>
+          <div class="shopDieTest" id="shopDie4">
+            <span>D10</span><span id="dieSelectedAmt4">0</span>
+            <button class="shopDieSelectUp"   id="shopDieSelectUp4"><img src="./pitfallSvgsPort/arrow-up-circle.svg"   class="shopDieSelectImg" /></button>
+            <button class="shopDieSelectDown" id="shopDieSelectDown4"><img src="./pitfallSvgsPort/arrow-down-circle.svg" class="shopDieSelectImg" /></button>
+            <div class="priceHolder"><span id="dieSellPrice4">$100</span></div>
+          </div>
+          <div class="shopDieTest" id="shopDie5">
+            <span>D12</span><span id="dieSelectedAmt5">0</span>
+            <button class="shopDieSelectUp"   id="shopDieSelectUp5"><img src="./pitfallSvgsPort/arrow-up-circle.svg"   class="shopDieSelectImg" /></button>
+            <button class="shopDieSelectDown" id="shopDieSelectDown5"><img src="./pitfallSvgsPort/arrow-down-circle.svg" class="shopDieSelectImg" /></button>
+            <div class="priceHolder"><span id="dieSellPrice5">$100</span></div>
+          </div>
+          <div class="shopDieTest" id="shopDie6">
+            <span>D20</span><span id="dieSelectedAmt6">0</span>
+            <button class="shopDieSelectUp"   id="shopDieSelectUp6"><img src="./pitfallSvgsPort/arrow-up-circle.svg"   class="shopDieSelectImg" /></button>
+            <button class="shopDieSelectDown" id="shopDieSelectDown6"><img src="./pitfallSvgsPort/arrow-down-circle.svg" class="shopDieSelectImg" /></button>
+            <div class="priceHolder"><span id="dieSellPrice6">$100</span></div>
+          </div>
+        </div>
+        <div class="shopItemsBox">
+          <div class="shopItem">
+            <span class="shopItemName">Re-Roll Token</span>
+            <span id="reRollCost" class="shopItemCost">$5</span>
+            <button id="reRollSelectUp"   class="itemButton"><img src="./svg/dash-circle.svg" /></button>
+            <button id="reRollSelectDown" class="itemButton"><img src="./svg/plus-circle.svg" /></button>
+            <span id="reRollSelectedAmt">0</span>
+          </div>
+          <div class="shopItem">
+            <span class="shopItemName">Weighted Dice</span>
+            <span id="weightedDiceCost" class="shopItemCost">$5</span>
+            <button id="weightedDiceSelectUp"   class="itemButton"><img src="./svg/dash-circle.svg" /></button>
+            <button id="weightedDiceSelectDown" class="itemButton"><img src="./svg/plus-circle.svg" /></button>
+            <span id="weightedDiceSelectedAmt">0</span>
+          </div>
+        </div>
+        <div class="shopItemsBox">
+          <div class="shopItem">
+            <span id="healthName"  class="shopItemName">x Health Points</span>
+            <span id="healthCost"  class="shopItemCost">$5</span>
+            <button id="healthSelectUp"   class="itemButton"><img src="./svg/dash-circle.svg" /></button>
+            <button id="healthSelectDown" class="itemButton"><img src="./svg/plus-circle.svg" /></button>
+            <span id="healthSelectedAmt">0</span>
+          </div>
+          <div class="shopItem">
+            <span id="damageName"  class="shopItemName">x Damage Points</span>
+            <span id="damageCost"  class="shopItemCost">$5</span>
+            <button id="damageSelectUp"   class="itemButton"><img src="./svg/dash-circle.svg" /></button>
+            <button id="damageSelectDown" class="itemButton"><img src="./svg/plus-circle.svg" /></button>
+            <span id="damageSelectedAmt">0</span>
           </div>
         </div>
       </div>
     </div>
-    <img id="brokeGif" class="hide" src="./img/Struggling No Money GIF.gif" />
 
-    <script type="module" src="./scripts/helpers.js" defer></script>
-    <script type="module" src="./scripts/dice.js" defer></script>
-    <script type="module" src="./scripts/shop.js" defer></script>
-
-    <script type="module" src="./main.js" defer></script>
+    <script type="module" src="./main.js"></script>
   </body>
 </html>
