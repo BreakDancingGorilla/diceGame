@@ -17,7 +17,10 @@ body {
   flex-direction: column;
   height: 100dvh;          /* respects mobile browser chrome */
   overflow: hidden;
-  background: #111;
+  background-image: url(./img/Night.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: #fff;
   font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
   font-size: 16px;
@@ -37,7 +40,10 @@ body {
   height: 60px;
   padding: 0 12px;
   gap: 12px;
-  background: #1a1a1a;
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 #slainCount {
@@ -92,10 +98,13 @@ body {
   border-radius: 16px;
   overflow: hidden;
   min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-.playerColor { background: #1a3fff; }
-.enemyColor  { background: #cc1111; }
+.playerColor { background: rgba(26, 63, 255, 0.6); }
+.enemyColor  { background: rgba(204, 17, 17, 0.6); }
 
 .cardTitle {
   font-size: 1rem;
@@ -206,9 +215,13 @@ body {
 
 #inv {
   flex-shrink: 0;
-  height: 90px;
+  height: 100px;
   padding: 6px 8px;
-  background: #1a1a1a;
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 #playerDiceHolder {
@@ -218,21 +231,26 @@ body {
   height: 100%;
   overflow-x: auto;
   scrollbar-width: thin;
-  scrollbar-color: #444 transparent;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
   padding-bottom: 2px;
+  align-items: center;
 }
 
 .die {
   position: relative;
   flex-shrink: 0;
-  width: 72px;
-  height: 72px;
-  background-color: #2a2a2a;
-  border-radius: 12px;
-  background-size: 58%;
-  background-position: center;
+  width: 80px;
+  height: 84px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  background-size: 52%;
+  background-position: center center;
   background-repeat: no-repeat;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
+
 
 #playerDie1 { background-image: url(./diceIcons/d4.png);  }
 #playerDie2 { background-image: url(./diceIcons/d6.png);  }
@@ -246,10 +264,10 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 26px;
-  height: 26px;
-  background: rgba(100, 200, 255, 0.85);
-  border-top-left-radius: 12px;
+  width: 28px;
+  height: 28px;
+  background: rgba(80, 180, 255, 0.9);
+  border-top-left-radius: 13px;
   border-bottom-right-radius: 10px;
   display: flex;
   align-items: center;
@@ -258,6 +276,7 @@ body {
   font-weight: bold;
   color: #000;
   z-index: 2;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
 }
 
 /* Top-right: selected count */
@@ -265,10 +284,10 @@ body {
   position: absolute;
   top: 0;
   right: 0;
-  width: 26px;
-  height: 26px;
-  background: rgba(100, 200, 255, 0.85);
-  border-top-right-radius: 12px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 210, 60, 0.95);
+  border-top-right-radius: 13px;
   border-bottom-left-radius: 10px;
   display: flex;
   align-items: center;
@@ -277,17 +296,18 @@ body {
   font-weight: bold;
   color: #000;
   z-index: 2;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
 }
 
 /* +/- buttons at the bottom corners */
 .dieBtn {
   position: absolute;
   bottom: 0;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   background: transparent;
   border: none;
-  padding: 2px;
+  padding: 4px;
   cursor: pointer;
   z-index: 3;
   display: flex;
@@ -295,11 +315,22 @@ body {
   justify-content: center;
 }
 
-.dieBtn--up   { left: 0;  border-top-right-radius: 10px; border-bottom-left-radius: 12px; }
-.dieBtn--down { right: 0; border-top-left-radius: 10px;  border-bottom-right-radius: 12px; }
+.dieBtn--up   { left: 0;  border-top-right-radius: 10px; border-bottom-left-radius: 13px; }
+.dieBtn--down { right: 0; border-top-left-radius: 10px;  border-bottom-right-radius: 13px; }
 
-.dieBtn img          { width: 24px; height: 24px; display: block; }
-.select-button img   { pointer-events: none; }
+.dieBtn img {
+  width: 26px;
+  height: 26px;
+  display: block;
+  filter: invert(1);
+  opacity: 0.9;
+  transition: opacity 0.15s;
+}
+
+.dieBtn:hover  img { opacity: 1; }
+.dieBtn:active img { opacity: 0.7; }
+
+.select-button img { pointer-events: none; }
 
 /* ===================== DICE ROLL AREA ===================== */
 
@@ -317,6 +348,9 @@ body {
   position: relative;
   border-radius: 16px;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 #player-dice-box canvas,
