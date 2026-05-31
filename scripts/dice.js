@@ -140,7 +140,7 @@ const playerDiceEls = {
 const player = {
   stats: {
     health: new Stat(100, "playerHealth"),
-    damage: new Stat(25,  "playerDamage"),
+    damage: new Stat(100,  "playerDamage"),
     gold:   new Stat(100, "goldCount"),
     slain:  new Stat(0,   "slainCount"),
 
@@ -159,6 +159,7 @@ const player = {
       assetPath: "assets/",
       origin:    "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
       container: "#player-dice-box",
+      themeColor: "#0000FF",
       scale:     10,
     },
     base:       [2, 1, 0, 0, 0, 0],
@@ -234,12 +235,13 @@ const player = {
 const enemy = {
   stats: {
     health: new Stat(100, "enemyHealth"),
-    damage: new Stat(50,  "enemyDamage"),
+    damage: new Stat(15,  "enemyDamage"),
     bounty: new Stat(5,   "enemyBounty", v => `$${v}`),
+    distributionHealth: 0, //What precent of strength goes to health
 
     // AI difficulty knobs — reset on player death; scale with each kill
     weights: {
-      strength:       new Weight(1.5, 1.5, "multiply"),
+      strength:       new Weight(1.2, 1.1, "multiply"),
       aggressiveness: new Weight(60,  5,   "subtract"),
       minDice:        new Weight(5,   1.2, "multiply"),
     },
@@ -259,6 +261,7 @@ const enemy = {
       assetPath: "assets/",
       origin:    "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/",
       container: "#enemy-dice-box",
+      themeColor: "#FF3131",
       scale:     10,
     },
     base:       [3, 1, 0, 0, 0, 0],
@@ -381,9 +384,18 @@ const enemy = {
 
     // Scale the enemy for the next encounter
     weights.strength.tick();
-    await this.stats.bounty.add(Math.ceil(this.stats.bounty.base  * weights.strength.current));
-    await this.stats.health.add(Math.ceil(this.stats.health.base  * weights.strength.current));
-    await this.stats.damage.add(Math.ceil(this.stats.damage.base  * weights.strength.current));
+    await this.stats.bounty.add(Math.ceil(this.stats.bounty.base * weights.strength.current));
+
+    // Random health/damage split: e.g. distributionHealth=60 → 60% HP, 40% DMG
+    this.stats.distributionHealth = ranNum(0, 100);
+    const budget      = Math.ceil(this.stats.health.base * weights.strength.current)
+                      + Math.ceil(this.stats.damage.base  * weights.strength.current);
+    const round5      = n => Math.round(n / 5) * 5;
+    const healthShare = round5(budget * (this.stats.distributionHealth / 100));
+    const damageShare = round5(budget - healthShare);
+
+    await this.stats.health.add(healthShare);
+    await this.stats.damage.add(damageShare);
 
     this.assignNewDice(false);
   },

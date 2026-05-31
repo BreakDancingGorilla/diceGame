@@ -38,6 +38,10 @@
           <span class="statLabel">CASH</span>
           <span id="goldCount" class="statValue">—</span>
         </div>
+        <div class="statLine">
+          <span class="statLabel">Multiplier</span>
+          <span id="playerHealth" class="statValue">—</span>
+        </div>
         <label class="mode-switch">
           <input type="checkbox" id="card-mode-toggle" />
           <div class="slider">
@@ -62,6 +66,10 @@
         <div class="statLine">
           <span class="statLabel">Bounty</span>
           <span id="enemyBounty" class="statValue">—</span>
+        </div>
+        <div class="statLine">
+          <span class="statLabel">Multiplier</span>
+          <span id="playerHealth" class="statValue">—</span>
         </div>
         <div id="enemyDiceContainer"></div>
       </div>
@@ -153,7 +161,7 @@
 
     <!-- ===================== SHOP OVERLAY ===================== -->
     <div class="hide" id="shopBox">
-      <div id="shopInner">
+      <div id="shopInner" class="">
         <div id="shopTitleBox">
           <span id="shopTitle">Cash: —</span>
         </div>
